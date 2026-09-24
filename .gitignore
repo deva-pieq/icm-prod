@@ -1,0 +1,67 @@
+.DS_Store
+.vscode
+.idea
+
+node_modules
+npm-debug.log
+.pnp.*
+.yarn
+
+.env
+
+test-results
+playwright-report
+playwright-report*/
+playwright-report-*.zip
+previousReports/
+cucumber-report
+.features-gen/
+
+TestFiles/*/.generated/
+TestFiles/ValidateCommissionSplit/truth-sheets/
+
+# Graphify — large regenerable cache (graphify update .)
+graphify-out/cache/
+
+# Transfer Sheet generated assets
+TestFiles/TransferSheets/
+
+# Test agents
+test-agents/
+
+# CI ephemeral outputs (Slack thread handle, OpenCode failure context)
+.ci/
+
+# Slack reporter local harness (intentional fail/flake — not CI)
+features/slack-reporter-sample/
+steps/slack-reporter-sample/
+scripts/slack-reporter copy.ts
+**/scripts/slack-reporter copy.ts
+
+# Playwright MCP Cache
+.playwright-mcp/
+
+# Playwright CLI workspace + CLI discovery temp files
+.playwright-cli/
+locators/_tmp-*.json
+locators/_snap-*.yaml
+locators/.auth-*.json
+
+./scripts/
+./scripts/*
+
+# Ignore parallel support files
+parallel-support/
+parallel-support/*
+
+PR_DESCRIPTION.md
+./docs/
+.generated/
+graphify-out/converted/
+
+# Standalone repo: re-include the tooling/guides the nested-monorepo .gitignore excluded
+!./scripts/
+!./scripts/*
+scripts/slack-reporter copy.ts
+!./docs/
+!./docs/*

@@ -1,0 +1,78 @@
+---
+description: Live-app locator discovery via OpenCode + Playwright MCP (playwright-cli disabled)
+alwaysApply: true
+---
+# Browser Discovery — OpenCode + Playwright MCP
+
+**playwright-cli is currently unreliable (hangs/stuck).** Do **not** use `npx playwright-cli` for locator discovery, live-app investigation, or assertion-text harvesting.
+
+When any task needs the live app — investigate UI, write cases, find locators, add locators to POM, verify assertion text — **invoke OpenCode** with the `regression-writer` agent. OpenCode has Playwright MCP configured (`opencode.jsonc` → `mcp.playwright`).
+
+## Discovery hierarchy
+
+```
+1. Read POM `loc` map → if exact harvested locator exists, write code (no browser)
+2. If not covered → invoke OpenCode regression-writer (Playwright MCP inside OpenCode)
+3. Persist only after uniqueness proof (count === 1) → validate with test runner
+4. If MCP cannot unique → stop; human yarn test --ui + inspect parent/child to 1 of 1
+```
+
+**MCP explores live app. MCP does not replace Playwright UI locators tab.** Snapshot has no 1-of-1 badge. `getByRole('dialog', { name })` from Gherkin/heading is an assumption — banned until `count === 1` on the live widget.
+
+**Methods use `this.loc.*` only.** Never inline `this.page.getByRole` / `getByTestId` in page methods (bypasses harvested loc map).
+
+## When Cursor must invoke OpenCode
+
+Invoke OpenCode when **any** of these apply:
+
+- New or unknown widget/modal/grid needs locators
+- `.feature` authoring needs live labels, column headers, or exact UI text
+- Step/page object work needs assertion text from the live DOM
+- Failing test needs live-app investigation (hand off to `regression-fixer` via OpenCode)
+- User asks to write, fix, or harvest BDD tests against the live app
+
+**Do not** call Playwright MCP directly from Cursor for these tasks — delegate to OpenCode so MCP runs in the OpenCode session with the right skills and permissions.
+
+## Invocation (from `projects/icm`)
+
+```powershell
+opencode run --agent regression-writer --auto "MODULE=<module-tag>. TASK=<what to do>. Read POM first. Use Playwright MCP for live-app discovery. Write/update: features/, steps/, pages/. Run yarn bddgen then yarn test -g @<module-tag>."
+```
+
+Examples:
+
+```powershell
+# Write steps + page objects for a feature
+opencode run --agent regression-writer --auto "MODULE=agency-dashboard. TASK=Write step defs and page objects for features/agency-dashboard/my-feature.feature. Discover locators via Playwright MCP. Register fixtures. Run bddgen + test."
+
+# Investigate and add locators for a new widget
+opencode run --agent regression-writer --auto "MODULE=user-management. TASK=Find data-testid locators for the bulk-import modal and add them to UserManagementPage loc map."
+
+# Fix failing tests
+opencode run --agent regression-fixer --auto "MODULE=agency-dashboard. TASK=Fix failing @TEST-AGD-001. Investigate with Playwright MCP. Minimal patch."
+```
+
+Attach feature files when helpful:
+
+```powershell
+opencode run --agent regression-writer --auto "Write steps and POM for attached feature." -f features/agency-dashboard/my.feature
+```
+
+## Inside OpenCode (regression-writer / regression-fixer)
+
+1. Read existing POM `loc` map first — skip browser only if the **exact** harvested locator is already there (do not invent dialog names / testids from Gherkin)
+2. Login via Playwright MCP: `browser_navigate` → fill credentials from `.env` (`BASE_URL`, `E2E_EMAIL` / `E2E_EMAIL_OWNER`, `E2E_PASSWORD`)
+3. Prefer `browser_evaluate` returning small JSON over full `browser_snapshot`
+4. Scope snapshots with `target` + depth; save large output to `locators/_tmp-*.json`
+5. Reproduce scenario actions (expand filters, open modals) before harvesting
+6. Prove uniqueness: `querySelectorAll` / `locator.count()` must be `1`. If not, walk parent testids and scope. If still not 1 → escalate to human UI inspect; do not guess
+7. Persist proven `data-testid` values to POM `loc` map; methods call `this.loc.*` only
+8. Run `yarn bddgen` after Gherkin/step text changes; validate with `yarn test -g @<module-tag>`
+
+## Locator priority (unchanged)
+
+`data-testid` → `getByRole` / `getByLabel` → text → CSS last resort.
+
+## playwright-cli status
+
+CLI remains in the repo for future repair. **Do not use it** until the user explicitly re-enables it. See `.cursor/skills/bdd-playwright-cli/SKILL.md` for the legacy CLI workflow (archived).

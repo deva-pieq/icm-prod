@@ -1,0 +1,225 @@
+<!DOCTYPE html><html lang="en" dir="ltr" class="kcHtmlClass login-pf"><head><link rel="stylesheet" href="/resources/3oxpd/login/pieq-theme-v4/resources-common/node_modules/@patternfly/patternfly/patternfly.min.css"><link rel="stylesheet" href="/resources/3oxpd/login/pieq-theme-v4/resources-common/node_modules/patternfly/dist/css/patternfly.min.css"><link rel="stylesheet" href="/resources/3oxpd/login/pieq-theme-v4/resources-common/node_modules/patternfly/dist/css/patternfly-additions.min.css"><link rel="stylesheet" href="/resources/3oxpd/login/pieq-theme-v4/resources-common/lib/pficon/pficon.css"><link rel="stylesheet" href="/resources/3oxpd/login/pieq-theme-v4/css/login.css"><style data-kc-msg="">div[data-kc-msg] { display: inline-block; }</style><script>
+
+
+const kcContext = {
+    "social": {
+        /* class: org.keycloak.organization.forms.login.freemarker.model.OrganizationAwareIdentityProviderBean */
+        "baseURI": {
+            "path": "",
+            "rawPath": "",
+            "rawSchemeSpecificPart": "",
+            "opaque": false,
+            "schemeSpecificPart": "",
+            "port": -1,
+            "absolute": false,
+        },
+        "providers": [
+        ],
+    },
+    "auth": {
+        /* class: org.keycloak.forms.login.freemarker.model.AuthenticationContextBean */
+        "showResetCredentials": false,
+        "authenticationSelections": [
+        ],
+        "showUsername": false,
+        "showTryAnotherWayLink": false,
+    },
+    "message": {
+        /* class: org.keycloak.theme.beans.MessageBean */
+        "summary": "Action expired.",
+        "type": "error",
+        "error": true,
+        "success": false,
+        "warning": false,
+    },
+    "login": {
+        /* class: org.keycloak.forms.login.freemarker.model.LoginBean */
+    },
+    "pageId": "error",
+    "url": {
+        /* class: org.keycloak.forms.login.freemarker.model.UrlBean */
+        "oauthAction": "\/realms/pieq-sso/login-actions/consent",
+        "resourcesPath": "\/resources/3oxpd/login/pieq-theme-v4",
+        "loginUrl": "\/realms/pieq-sso/login-actions/authenticate",
+        "resourcesCommonPath": "\/resources/3oxpd/common/keycloak",
+        "firstBrokerLoginUrl": "\/realms/pieq-sso/login-actions/first-broker-login",
+        "registrationUrl": "\/realms/pieq-sso/login-actions/registration",
+        "logoutConfirmAction": "\/realms/pieq-sso/protocol/openid-connect/logout/logout-confirm",
+        "registrationAction": "\/realms/pieq-sso/login-actions/registration",
+        "loginResetCredentialsUrl": "\/realms/pieq-sso/login-actions/reset-credentials",
+        "ssoLoginInOtherTabsUrl": "\/realms/pieq-sso/login-actions/restart?skip_logout=true",
+        "resourcesUrl": "\/resources/3oxpd/login/pieq-theme-v4",
+        "loginRestartFlowUrl": "\/realms/pieq-sso/login-actions/restart?skip_logout=false",
+        "oauth2DeviceVerificationAction": "\/realms/pieq-sso/device",
+    },
+    "messagesPerField": {
+        /* class: org.keycloak.theme.beans.MessagesPerFieldBean */
+        "get": function (fieldName) { if(fieldName === 'firstName'){ return ''; } if(fieldName === 'lastName'){ return ''; } if(fieldName === 'email'){ return ''; } if(fieldName === 'username'){ return ''; } if(fieldName === 'password'){ return ''; } if(fieldName === 'password-confirm'){ return ''; } if(fieldName === 'global'){ return decodeHtmlEntities("Action expired."); } if(fieldName === 'totp'){ return ''; } if(fieldName === 'userLabel'){ return ''; } if(fieldName === 'recoveryCodeInput'){ return ''; } if(fieldName === 'termsAccepted'){ return ''; } },
+        "existsError": function (fieldName) { if(fieldName === 'firstName' ){ return false; }if(fieldName === 'lastName' ){ return false; }if(fieldName === 'email' ){ return false; }if(fieldName === 'username' ){ return false; }if(fieldName === 'password' ){ return false; }if(fieldName === 'password-confirm' ){ return false; }if(fieldName === 'global' ){ return true; }if(fieldName === 'totp' ){ return false; }if(fieldName === 'userLabel' ){ return false; }if(fieldName === 'recoveryCodeInput' ){ return false; }if(fieldName === 'termsAccepted' ){ return false; }},
+    },
+    "templateName": "error.ftl",
+    "passwordPolicies": {
+        /* class: org.keycloak.forms.login.freemarker.model.PasswordPoliciesBean */
+        "notEmail": false,
+        "length": 8,
+        "notUsername": false,
+        "specialChars": 1,
+        "upperCase": 1,
+        "digits": 1,
+    },
+    "realm": {
+        /* class: org.keycloak.forms.login.freemarker.model.RealmBean */
+        "displayName": "Pieq SSO",
+        "displayNameHtml": "Pieq SSO",
+        "internationalizationEnabled": false,
+        "name": "pieq-sso",
+        "registrationEmailAsUsername": true,
+    },
+    "darkMode": true,
+    "scripts": [
+    ],
+    "lang": "en",
+    "properties": {
+        "parent": "keycloak",
+        "styles": "css/login.css",
+        "stylesCommon": "vendor/patternfly-v4/patternfly.min.css vendor/patternfly-v3/css/patternfly.min.css vendor/patternfly-v3/css/patternfly-additions.min.css lib/pficon/pficon.css",
+        "KEYCLOAKIFY_SPA_DEV_SERVER_PORT": "",
+        "darkMode": "true",
+    },
+    "statusCode": 400,
+};
+kcContext.keycloakifyVersion = "11.15.1";
+kcContext.themeVersion = "0.0.4";
+kcContext.themeType = "login";
+kcContext.themeName = "pieq-theme-v4";
+kcContext.pageId = "error.ftl";
+kcContext.ftlTemplateFileName = "error.ftl";
+
+
+kcContext["x-keycloakify"] = {};
+
+kcContext["x-keycloakify"].resourcesPath = "/resources/3oxpd/login/pieq-theme-v4";
+
+{
+    var messages = {};
+    kcContext["x-keycloakify"].messages = messages;
+}
+
+if( 
+    kcContext.url instanceof Object &&
+    typeof kcContext.url.resourcesPath === "string"
+){
+    kcContext.url.resourcesCommonPath = kcContext.url.resourcesPath + "/resources-common";
+}
+
+if( kcContext.messagesPerField ){
+    var existsError_singleFieldName = kcContext.messagesPerField.existsError;
+    kcContext.messagesPerField.existsError = function (){
+        for( let i = 0; i < arguments.length; i++ ){
+            if( existsError_singleFieldName(arguments[i]) ){
+                return true;
+            }
+        }
+        return false;
+    };
+    kcContext.messagesPerField.exists = function (fieldName) {
+        return kcContext.messagesPerField.get(fieldName) !== "";
+    };
+    kcContext.messagesPerField.printIfExists = function (fieldName, text) {
+        return kcContext.messagesPerField.exists(fieldName) ? text : undefined;
+    };
+    kcContext.messagesPerField.getFirstError = function () {
+        for( let i = 0; i < arguments.length; i++ ){
+            const fieldName = arguments[i];
+            if( kcContext.messagesPerField.existsError(fieldName) ){
+                return kcContext.messagesPerField.get(fieldName);
+            }
+        }
+    };
+}
+attributes_to_attributesByName: {
+    if( !kcContext.profile ){
+        break attributes_to_attributesByName;
+    }
+    if( !kcContext.profile.attributes ){
+        break attributes_to_attributesByName;
+    }
+    var attributes = kcContext.profile.attributes;
+    delete kcContext.profile.attributes;
+    kcContext.profile.attributesByName = {};
+    attributes.forEach(function(attribute){
+        kcContext.profile.attributesByName[attribute.name] = attribute;
+    });
+}
+
+redirect_to_dev_server: {
+
+    switch(kcContext.themeType){
+        case "login":
+            break redirect_to_dev_server;
+        case "account":
+            if( kcContext.pageId !== "index.ftl" ){
+                break redirect_to_dev_server;
+            }
+            break;
+        case "admin":
+            break;
+        default: 
+            break redirect_to_dev_server;
+    }
+
+    const devSeverPort = kcContext.properties.KEYCLOAKIFY_SPA_DEV_SERVER_PORT;
+
+    if( !devSeverPort ){
+        break redirect_to_dev_server;
+    }
+
+    const redirectUrl = new URL(window.location.href);
+
+    const keycloakServerPort = redirectUrl.port;
+
+    redirectUrl.port = devSeverPort;
+
+    delete kcContext.msgJSON;
+
+    console.log(kcContext);
+
+    redirectUrl.searchParams.set("kcContext", JSON.stringify(kcContext));
+    redirectUrl.searchParams.set("keycloakServerPort", keycloakServerPort);
+
+    window.location.href = redirectUrl.toString();
+
+}
+
+
+window.kcContext = kcContext;
+
+function decodeHtmlEntities(htmlStr){
+    var element = decodeHtmlEntities.element;
+    if (!element) {
+        element = document.createElement("textarea");
+        decodeHtmlEntities.element = element;
+    }
+    element.innerHTML = htmlStr;
+    return element.value;
+}
+
+
+</script>
+<base href="/resources/3oxpd/login/pieq-theme-v4/dist/">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Inter" rel="stylesheet">
+        <link rel="icon" type="image/png" sizes="32x32" href="/resources/3oxpd/login/pieq-theme-v4/dist/favicon.svg">
+      <script type="module" crossorigin="" src="/resources/3oxpd/login/pieq-theme-v4/dist/assets/index-BGGfxUw2.js"></script>
+    <link rel="modulepreload" as="script" crossorigin="" href="/resources/3oxpd/login/pieq-theme-v4/dist/assets/KcPage-BigOHt5S.js"><link rel="stylesheet" crossorigin="" href="/resources/3oxpd/login/pieq-theme-v4/dist/assets/KcPage-BXHXOraz.css"><title>Sign in to Pieq SSO</title><script type="module" src="/resources/3oxpd/login/pieq-theme-v4/js/menu-button-links.js"></script><script type="module">import { startSessionPolling, checkAuthSession } from "/resources/3oxpd/login/pieq-theme-v4/js/authChecker.js";
+
+startSessionPolling("/realms/pieq-sso/login-actions/restart?skip_logout=true");
+</script></head>
+
+    <body class="kcBodyClass">
+        <div id="root"><div class="kcLoginClass login-pf-page font-sans flex h-screen min-h-screen min-w-0 m-0 p-0 bg-[#F9FAFB] flex-col-reverse lg:flex-row"><div class="relative flex flex-col bg-cover bg-center bg-no-repeat overflow-hidden max-sm:hidden w-full shrink-0 min-h-[140px] max-h-[30vh] sm:min-h-[160px] sm:max-h-[32vh] lg:min-h-0 lg:max-h-none lg:flex-1 lg:min-w-0" style="background-image: url(&quot;/resources/3oxpd/login/pieq-theme-v4/dist/assets/background-gyuf4qAA.png&quot;);"><div class="absolute inset-0 z-[1] bg-gradient-to-r from-blue-900/80 to-blue-900/40 pointer-events-none" aria-hidden="true"></div><div class="relative z-10 flex flex-col justify-center px-6 py-4 sm:px-10 sm:py-5 lg:px-12 lg:py-0 text-white w-full flex-1 min-h-0 text-left"><h1 class="mb-2 text-lg font-medium leading-tight sm:mb-3 sm:text-xl lg:mb-4 lg:text-2xl">Insurance Commission Management</h1><p class="text-sm font-normal opacity-90 max-w-md leading-relaxed sm:text-base lg:text-lg line-clamp-3 sm:line-clamp-none">Streamline your commission tracking, automate calculations, and manage agent performance all in one powerful platform.</p></div></div><div class="flex min-h-0 min-w-0 flex-1 flex-col items-center justify-center overflow-auto bg-[#F9FAFB] p-4"><div class="bg-[#F9FAFB] w-full max-w-md mx-auto text-center"><div class="flex w-full flex-col items-center gap-3"><div class="flex w-full justify-center px-2"><img src="/resources/3oxpd/login/pieq-theme-v4/dist/assets/agentflow-logo-_sZ2YgKS.png" alt="" class="h-10 w-auto max-h-14 max-w-full object-contain object-center sm:h-12" loading="eager" decoding="async"></div><header class="kcFormHeaderClass login-pf-header w-full border-0 p-0 shadow-none"><h1 id="kc-page-title"><span data-kc-msg="errorTitle">We are sorry...</span></h1></header></div><div id="kc-content" class="mt-4 w-full text-left"><div id="kc-content-wrapper" class="px-6"><div id="kc-error-message" class="w-full space-y-4 text-left"><p class="instruction text-base font-normal leading-relaxed text-gray-700">Action expired.</p><p class="m-0"><a id="backToLogin" href="/realms/pieq-sso/login-actions/authenticate" class="text-sm font-normal text-blue-600 hover:text-blue-700 hover:no-underline focus:outline-0"><span data-kc-msg="backToLogin">« Back to Login</span></a></p></div></div></div></div></div></div></div>
+
+    
+
+</body></html>

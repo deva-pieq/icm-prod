@@ -1,0 +1,28 @@
+Product Name,Atena-ACA-Test-05Jun2026-121637
+Product Capture,2026-jun-5-121637-aetna-test-aca-u65
+,
+Level,Percentage,Agency,Sales Leader
+Level 1,70.00%,10.00%,20.00%
+Level 2,78.00%,15.00%,7.00%
+Level 3,83.00%,10.00%,7.00%
+Level 4,88.00%,5.00%,7.00%
+Level 5,92.00%,1.00%,7.00%
+,,,
+Product Name,Atena-ACA-Test-30Jun2026-144012
+Product Capture,2026-jun-30-144012-aetna-test-aca-u65
+,
+Level,Percentage,Agency,Sales Leader
+Level 1,70.00%,10.00%,20.00%
+Level 2,78.00%,15.00%,7.00%
+Level 3,83.00%,10.00%,7.00%
+Level 4,88.00%,5.00%,7.00%
+Level 5,92.00%,1.00%,7.00%
+,,,
+Line item,product name,agent level,calculate value,Gross Compensation from row,Commission split from line item,Validate
+line item 1,Atena-ACA-Test-05Jun2026-121637,Level I,38.43,54.90,38.43,PASS
+line item 2,Atena-ACA-Test-05Jun2026-121637,Level II,42.82,54.90,42.82,PASS
+line item 3,Atena-ACA-Test-05Jun2026-121637,Level III,45.57,54.90,45.57,PASS
+line item 4,Atena-ACA-Test-30Jun2026-144012,Level IV,48.31,54.90,48.31,PASS
+line item 5,Atena-ACA-Test-30Jun2026-144012,Level V,50.51,54.90,50.51,PASS
+Summary,5 line items,5 passed,,,,
+,,,// note use for calculation and ignore it calculated value = gross compensation from row x percentage,,,

@@ -1,0 +1,20 @@
+Policy period UI discovery (U65 ACA / MLB NEW / with IPV slabs enabled)
+
+Row lifecycle:
+1. Default row: Custom Name "Regular", From=1, To=No limit (disabled spinbutton)
+2. Actions: "Edit period" button — must click before Set limit is enabled
+3. After Edit period: "Set month limit (start editing this row first)" becomes enabled as "Set limit"
+4. After Set limit: To (Months) spinbutton enabled
+5. Value spinbutton (3rd spinbutton in row) enabled in edit mode
+6. Save: button in Actions column (name TBD — use /save period|save changes/i)
+
+Add Period:
+- Visible on draft; may be enabled but should not add renewal until Regular has month limit + saved
+
+IPV slab scoping:
+- Policy Period table lives inside active IPV tabpanel
+- Switch IPV tab → separate period table state per slab
+
+Renewal period:
+- Added via "+ Add Period" after Regular capped (e.g. To=12)
+- Custom Name "Renewal"; From month product-specific (U65 ACA — observe on first add)

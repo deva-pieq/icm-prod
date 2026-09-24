@@ -1,0 +1,250 @@
+{
+  "timestamp": "2026-06-25T13:07:28.157Z",
+  "baseURL": "https://preprod.app.pieq.ai/",
+  "productCode": "E2E-EXPLORE-1782392848157",
+  "productName": "E2E-Explore-1782392848157",
+  "flows": [
+    {
+      "step": "login",
+      "ok": true,
+      "url": "https://preprod.app.pieq.ai/"
+    },
+    {
+      "step": "product-created-on-dashboard",
+      "url": "https://preprod.app.pieq.ai/product",
+      "productCode": "E2E-EXPLORE-1782392848157"
+    },
+    {
+      "step": "product-edit-opened",
+      "url": "https://preprod.app.pieq.ai/product/edit/0197e109-b81f-49bb-ab2d-c85d361a82cd"
+    },
+    {
+      "step": "commission-structure",
+      "url": "https://preprod.app.pieq.ai/product/edit/0197e109-b81f-49bb-ab2d-c85d361a82cd/commission-structure"
+    },
+    {
+      "step": "add-rule-dialog-open",
+      "url": "https://preprod.app.pieq.ai/product/edit/0197e109-b81f-49bb-ab2d-c85d361a82cd/commission-structure",
+      "dialogButtons": [
+        "",
+        "Select commission type",
+        "Cancel",
+        "Save"
+      ]
+    },
+    {
+      "step": "dropdown-options",
+      "typeLabel": "Commission",
+      "optionsBefore": [
+        "Commission",
+        "Bonus",
+        "Override"
+      ]
+    },
+    {
+      "step": "after-type-selected-in-dialog",
+      "typeLabel": "Commission",
+      "url": "https://preprod.app.pieq.ai/product/edit/0197e109-b81f-49bb-ab2d-c85d361a82cd/commission-structure",
+      "stillOnStructurePage": true,
+      "saveButtonEnabled": true
+    },
+    {
+      "step": "after-save-add-rule-dialog",
+      "typeLabel": "Commission",
+      "url": "https://preprod.app.pieq.ai/product/commission-structure/0197e109-b81f-49bb-ab2d-c85d361a82cd/edit/COMMISSION",
+      "onEditPage": false,
+      "editUrlSuffix": "edit/COMMISSION"
+    },
+    {
+      "step": "edit-controls-before-leave",
+      "backVisible": false,
+      "backEnabled": false,
+      "saveDraftVisible": true,
+      "saveDraftEnabled": false,
+      "publishVisible": true,
+      "publishEnabled": false,
+      "cancelVisible": false,
+      "cancelEnabled": false,
+      "url": "https://preprod.app.pieq.ai/product/commission-structure/0197e109-b81f-49bb-ab2d-c85d361a82cd/edit/COMMISSION"
+    },
+    {
+      "step": "edit-page-navigation",
+      "url": "https://preprod.app.pieq.ai/product/commission-structure/0197e109-b81f-49bb-ab2d-c85d361a82cd/edit/COMMISSION",
+      "buttons": [
+        "Dashboard",
+        "User Management",
+        "Carriers",
+        "Agents",
+        "Products",
+        "Policies",
+        "Commissions",
+        "Advance",
+        "Statements",
+        "Payment Processing",
+        "Settings",
+        "DX Deva X Operations Manager",
+        "+ Add Slab",
+        "Disable IPV Slab",
+        "+ Add Period",
+        "Set limit",
+        "Percentage",
+        "Monthly",
+        "Select",
+        "Cancel",
+        "Save Draft",
+        "Create New Version",
+        "Publish Rule"
+      ],
+      "links": []
+    },
+    {
+      "step": "leave-edit-without-save-draft-cancel-dialog",
+      "buttons": [
+        "",
+        "Cancel",
+        "Keep Editing"
+      ]
+    },
+    {
+      "step": "leave-edit-without-save-draft-discarded-from-dialog",
+      "url": "https://preprod.app.pieq.ai/product/edit/0197e109-b81f-49bb-ab2d-c85d361a82cd/commission-structure"
+    },
+    {
+      "step": "leave-edit-without-save-draft",
+      "action": "cancel",
+      "url": "https://preprod.app.pieq.ai/product/edit/0197e109-b81f-49bb-ab2d-c85d361a82cd/commission-structure",
+      "structureGrid": {
+        "onStructurePage": true,
+        "gridVisible": true,
+        "containsDraft": true,
+        "snippet": "1 rows loaded Use this search box to filter the data grid. Results will update as you type. All Commission Types Filter the data grid by commission type. All Rule Names Filter the data grid by rule name. Columns Valid From - Valid To Version Commission Type Rule Name Commission Value State - No End Date Draft 1 COMMISSION COMMISSION Aetna E2E-Explore-1782392848157 0.00% ALL Showing all 1 records"
+      }
+    },
+    {
+      "step": "draft-row-after-back",
+      "rowVisible": true,
+      "grid": {
+        "onStructurePage": true,
+        "gridVisible": true,
+        "containsDraft": true,
+        "snippet": "1 rows loaded Use this search box to filter the data grid. Results will update as you type. All Commission Types Filter the data grid by commission type. All Rule Names Filter the data grid by rule name. Columns Valid From - Valid To Version Commission Type Rule Name Commission Value State - No End Date Draft 1 COMMISSION COMMISSION Aetna E2E-Explore-1782392848157 0.00% ALL Showing all 1 records"
+      }
+    },
+    {
+      "step": "reopened-draft-by-row-click",
+      "url": "https://preprod.app.pieq.ai/product/edit/0197e109-b81f-49bb-ab2d-c85d361a82cd/commission-structure",
+      "controls": {
+        "backVisible": false,
+        "backEnabled": false,
+        "saveDraftVisible": false,
+        "saveDraftEnabled": false,
+        "publishVisible": false,
+        "publishEnabled": false,
+        "cancelVisible": false,
+        "cancelEnabled": false,
+        "url": "https://preprod.app.pieq.ai/product/edit/0197e109-b81f-49bb-ab2d-c85d361a82cd/commission-structure"
+      }
+    },
+    {
+      "step": "leave-edit-second-time",
+      "action": "commission-structure-tab",
+      "url": "https://preprod.app.pieq.ai/product/edit/0197e109-b81f-49bb-ab2d-c85d361a82cd/commission-structure",
+      "structureGrid": {
+        "onStructurePage": true,
+        "gridVisible": true,
+        "containsDraft": true,
+        "snippet": "1 rows loaded Use this search box to filter the data grid. Results will update as you type. All Commission Types Filter the data grid by commission type. All Rule Names Filter the data grid by rule name. Columns Valid From - Valid To Version Commission Type Rule Name Commission Value State - No End Date Draft 1 COMMISSION COMMISSION Aetna E2E-Explore-1782392848157 0.00% ALL Showing all 1 records"
+      }
+    },
+    {
+      "step": "add-rule-dialog-open",
+      "url": "https://preprod.app.pieq.ai/product/edit/0197e109-b81f-49bb-ab2d-c85d361a82cd/commission-structure",
+      "dialogButtons": [
+        "",
+        "Select commission type",
+        "Cancel",
+        "Save"
+      ]
+    },
+    {
+      "step": "dropdown-options",
+      "typeLabel": "Bonus",
+      "optionsBefore": [
+        "Bonus",
+        "Override"
+      ]
+    },
+    {
+      "step": "after-type-selected-in-dialog",
+      "typeLabel": "Bonus",
+      "url": "https://preprod.app.pieq.ai/product/edit/0197e109-b81f-49bb-ab2d-c85d361a82cd/commission-structure",
+      "stillOnStructurePage": true,
+      "saveButtonEnabled": true
+    },
+    {
+      "step": "after-save-add-rule-dialog",
+      "typeLabel": "Bonus",
+      "url": "https://preprod.app.pieq.ai/product/commission-structure/0197e109-b81f-49bb-ab2d-c85d361a82cd/edit/BONUS",
+      "onEditPage": true,
+      "editUrlSuffix": "edit/BONUS"
+    },
+    {
+      "step": "bonus-name-filled",
+      "backVisible": false,
+      "backEnabled": false,
+      "saveDraftVisible": true,
+      "saveDraftEnabled": false,
+      "publishVisible": true,
+      "publishEnabled": false,
+      "cancelVisible": false,
+      "cancelEnabled": false,
+      "url": "https://preprod.app.pieq.ai/product/commission-structure/0197e109-b81f-49bb-ab2d-c85d361a82cd/edit/BONUS"
+    },
+    {
+      "step": "leave-edit-after-save-draft-cancel-dialog",
+      "buttons": [
+        "",
+        "Cancel",
+        "Keep Editing"
+      ]
+    },
+    {
+      "step": "leave-edit-after-save-draft-discarded-from-dialog",
+      "url": "https://preprod.app.pieq.ai/product/edit/0197e109-b81f-49bb-ab2d-c85d361a82cd/commission-structure"
+    },
+    {
+      "step": "leave-edit-after-save-draft",
+      "action": "cancel",
+      "url": "https://preprod.app.pieq.ai/product/edit/0197e109-b81f-49bb-ab2d-c85d361a82cd/commission-structure",
+      "structureGrid": {
+        "onStructurePage": true,
+        "gridVisible": true,
+        "containsDraft": true,
+        "snippet": "2 rows loaded Use this search box to filter the data grid. Results will update as you type. All Commission Types Filter the data grid by commission type. All Rule Names Filter the data grid by rule name. Columns Valid From - Valid To Version Commission Type Rule Name Commission Value State - No End Date Draft 1 COMMISSION COMMISSION Aetna E2E-Explore-1782392848157 0.00% ALL - No End Date Draft 1 BONUS BONUS Aetna E2E-Explore-1782392848157 0.00% ALL Showing all 2 records"
+      }
+    },
+    {
+      "step": "add-rule-dialog-open",
+      "url": "https://preprod.app.pieq.ai/product/edit/0197e109-b81f-49bb-ab2d-c85d361a82cd/commission-structure",
+      "dialogButtons": [
+        "",
+        "Select commission type",
+        "Cancel",
+        "Save"
+      ]
+    },
+    {
+      "step": "dropdown-after-commission-and-bonus",
+      "remaining": [
+        "Override"
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "message": "TimeoutError: locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByTestId('cancel-add-rule-button').or(getByRole('button', { name: /^cancel$/i })).first()\n",
+      "stack": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByTestId('cancel-add-rule-button').or(getByRole('button', { name: /^cancel$/i })).first()\n\n    at main (C:\\Users\\user\\Desktop\\pieq-cursor\\pieq-test-automation\\projects\\icm\\scripts\\explore-commission-structure.mjs:363:114)"
+    }
+  ],
+  "conclusions": []
+}

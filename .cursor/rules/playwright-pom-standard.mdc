@@ -1,0 +1,70 @@
+---
+description: Playwright POM structure for ICM pages and assertions
+globs: projects/icm/pages/**/*.ts
+alwaysApply: false
+---
+
+# Playwright POM Standard (ICM)
+
+Use this structure for Playwright page object work in `projects/icm/pages/`.
+
+**Locator source:** all locators live in `loc`. Page methods call `this.loc.foo()` — never inline `this.page.getByRole` / `getByTestId` / `getByText`. Inline locators bypass the harvested map (e.g. `getByRole('dialog', { name: /add agent level/i })` while `loc.addLevelDrawer` already has the testid).
+
+**Uniqueness:** persist a locator only when live match count is **1 of 1** (MCP: `count() === 1` after reproducing state; if MCP cannot unique, human `yarn test --ui` + inspect parent/child). Do not invent dialog names or testids from Gherkin.
+
+- Keep each `*Page.ts` focused on:
+  - `loc` locator map
+  - navigation/open helpers
+  - interaction methods (click/select/type)
+  - read helpers (`getText`, value extractors)
+- Keep page-level UI assertions inside the same `*Page.ts` only for stable page identity checks (heading/title/paragraph or page-ready markers).
+- Do not put cross-page comparison logic in `*Page.ts`.
+
+For advanced validations, add a companion assertion file in the same module folder:
+
+- Name pattern: `*Assertions.ts` (example: `StatementHistoryAssertions.ts`)
+- Use it for:
+  - compare values between two pages/modules
+  - follow-up action outcome assertions
+  - multi-step scenario assertions spanning more than one page object
+
+Implementation guidance:
+
+- `*Page.ts` methods should return data needed by assertion helpers instead of performing complex scenario checks directly.
+- Prefer reusable assertion helper methods over repeating `expect(...)` sequences in tests.
+- Keep assertions deterministic (role/test-id/semantic locators first; avoid fragile CSS or text chains).
+- If logic grows beyond a single page responsibility, move it to `*Assertions.ts` and keep page classes thin.
+- **Assertion methods must be side-effect-free** — an `expect*`, `should*`, or `validate*` method must only read state and assert via `expect()`. No clicks, type, navigation, or other state-changing actions. If validation requires a precondition action, split it: an interaction method sets up the state, then a separate assertion method validates it.
+- **Locator cross-reference check** — when copying a locator pattern to create a sibling locator (e.g. `fooModalClose` from `fooModal`), verify the data-testid suffix matches the new element exactly. A stale suffix (e.g. `grossCommissionModalClose` used inside role-details logic) is invisible to the type system and silently clicks nothing.
+
+Example split:
+
+- `NeedsAttentionPage.ts` -> locators, open, click actions, get row text, heading visible check
+- `NeedsAttentionAssertions.ts` -> compare with `StatementHistoryPage` data and verify follow-up reconciliation outcomes
+
+## Shared methods vs special-case methods
+
+Page objects and shared bases (`GridPage`, `StatementUploadPage`, etc.) often expose methods reused by many steps across a module. **Do not change a shared method when only one scenario needs different behavior** — that risks breaking unrelated steps.
+
+Instead:
+
+- Keep the existing shared method unchanged.
+- Add a **separate, scenario-specific method** on the page that owns that flow.
+- Name it for the scenario or outcome (e.g. `openReconciliation`, `uploadPreparedCommissionSplitCsv`, `expectSuccessNotificationContaining`), not a vague variant of the shared name.
+- Compose from the shared method when possible (`await super.openFirstGridRow()` inside a page-specific wrapper) rather than duplicating locator logic.
+
+When to add a new method instead of editing a shared one:
+
+- Different navigation guards or preconditions before the same UI action
+- Extra waits, polling, or assertions tied to one feature's test data
+- A one-off row/column lookup, tooltip read, or upload path that other flows do not need
+
+When it is OK to change a shared method:
+
+- The fix corrects broken behavior for **all** current callers
+- You have verified every step/module that calls the method still passes
+
+Example:
+
+- `GridPage.openFirstGridRow()` stays generic; `NeedsAttentionPage.openReconciliation()` opens the first row **and** asserts the reconciliation URL/heading for that flow only.
+- `StatementUploadPage.uploadFromPrepared()` stays generic; `CommissionSplitStatementPage.uploadPreparedCommissionSplitCsv()` binds commission-split test data to the upload helper.

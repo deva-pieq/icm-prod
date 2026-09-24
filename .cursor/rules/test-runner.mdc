@@ -1,0 +1,24 @@
+---
+description: >-
+  Test Runner — python test-runner.py -g for sanity/smoke/regression collect,
+  classify, OpenCode fix loop (default ON), escalate to results.md
+alwaysApply: false
+---
+
+# Test Runner
+
+When user asks to run sanity, smoke, regression suite triage, or "Test Runner":
+
+1. Prefer:
+   ```powershell
+   python test-runner.py -g "<expr>"
+   ```
+   Fix loop **ON by default**. Opt out: `--no-fix` / `--collect-only`.
+   Aliases: `sanity`→`@sanity`, `smoke`→`@smoke`, `regression`→`@regression-test`, `T001-SMK`→`@TEST-001-smoke`.
+2. Internal: `failed==0` → GREEN; else FIX; after 3 tries → escalate. Never weaken asserts.
+3. Read `.generated/test-runner/` artifacts (`LATEST_RUN.txt` → `failures.json` / `results.md`). Behavior map: `scripts/test_runner/app_behavior.json`.
+4. **Gate:** `failed>0` + empty `failures[]` = parser bug — reclassify (`python scripts/test_runner/reclassify_run.py <run-id>`); do not report green.
+5. Product/config gaps: skill `hail-intelligence` (create product + commission template; mirror transfer-sheet/smoke; reseed purged statement fixtures).
+6. Tier-2 / MCP: `opencode run --agent regression-fixer` (or agent `test-runner`). Do not call Playwright MCP directly from Cursor.
+7. Escalate all unresolved into `results.md`.
+8. Skills: `test-runner`, `hail-intelligence`, `icm-app-behavior`, `fix-harvested-e2e-tests`.

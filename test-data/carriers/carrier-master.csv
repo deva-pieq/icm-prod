@@ -1,0 +1,33 @@
+Sno,Scenarios,Steps,Expected result,Automatable
+1,Create carrier with all mandatory fields,"Login to application; Navigate to Carriers; Click Add Carrier; Enter Carrier Name; Carrier Code (ID); Carrier Type (e.g. Health); Status = Active; Click Save","Carrier created successfully; Appears in Carrier list; Status shown correctly; Data stored under correct Agency ID",Yes
+2,Create carrier with full details (including contact info and dates),"Navigate to Add Carrier; Fill all fields: Basic Info; Contact Info (Name Email Phone); Address fields; Appointment Date; Last Review Date; Click Save","All data saved correctly; Dates displayed correctly in list view; No data truncation",No
+3,Validate Carrier Type dropdown values,"Open Add Carrier page; Click Carrier Type dropdown","Only valid categories shown (Health Dental Life etc.); No invalid or empty values",Yes
+4,Validate Status dropdown values,"Click Status dropdown","Options available: Active Inactive Terminated; Default behavior as per design",Yes
+5,Create carrier and Verify search by name,"Create carrier; Use search bar with carrier name","Carrier appears in results",Yes
+6,Create carrier and Verify search by code,"Create carrier with unique code; Search using code","Correct carrier returned",Yes
+7,Verify one-to-many relationship readiness (carrier exists for product linking),"Create carrier; Navigate to product module (if accessible)","Carrier available for product association",No
+8,Cancel button behavior on Add Carrier,"Enter data in Add Carrier; Click Cancel","Navigates back to Carrier list; No data saved",Yes
+9,Notes field valid input (<=250 chars),"Enter notes within 250 chars; Save","Notes saved successfully",Yes
+10,Missing mandatory fields,"Open Add Carrier; Leave mandatory fields blank; Click Save","Validation errors displayed; Save blocked",Yes
+11,Duplicate Carrier Code (ID),"Create carrier with Code X; Create another carrier with same Code X","Error shown for duplicate Carrier ID; No duplicate entry created",Yes
+12,Invalid email format in contact info,"Enter invalid email; Save","Email validation error; Save prevented",Yes
+13,Invalid phone number format,"Enter invalid phone (alphabets/special chars); Save","Validation error shown",Yes
+14,Invalid date values,"Enter incorrect date format manually (if allowed); Save","Validation error",Yes
+15,Appointment Date greater than Last Review Date,"Enter Appointment Date later than Last Review Date; Save","Validation OR accepted based on live rules",Yes
+16,Carrier Name with special characters,"Enter name with special chars (& - etc.)","Accepted if valid business format; No system crash",Yes
+17,Maximum field lengths (all fields),"Enter max allowed values for all fields","System handles without UI break",Yes
+18,Rapid multiple Save clicks,"Fill form; Click Save multiple times","Only one carrier created",Yes
+19,Refresh during form entry,"Enter partial data; Refresh page","Form resets; No partial persistence",Yes
+20,Multi-user duplicate creation (concurrency),"Two users create same carrier simultaneously","Only one succeeds; Conflict handled properly",No
+21,Agency-level data isolation (multi-tenant),"Login under Agency A create carrier; Login under Agency B","Carrier from Agency A NOT visible in Agency B",No
+22,Validate carrier list loads,"Navigate to Carriers","List displayed with columns: Carrier Name; Code; Type; Status; Appointment Date; Last Review",Yes
+23,Search by carrier name,"Enter name in search","Matching carriers shown",Yes
+24,Search by carrier code,"Enter code","Correct carrier returned",Yes
+25,Filter by Active status,"Select Status Active","Only active carriers shown",Yes
+26,Filter by Inactive status,"Select Status Inactive","Only inactive carriers shown",Yes
+27,Sorting columns,"Click sort on Carrier / Code","Data sorted correctly",Yes
+28,Search with invalid input,"Enter random string","No results; No crash",Yes
+29,Filter combination with no results,"Apply filters that yield no data","No results found displayed",Yes
+30,Large dataset performance,"Load carriers list with large data","Acceptable load time; No UI lag",No
+31,Combined search + filter,"Apply search + status filter","Correct intersection results",Yes
+32,Edit carrier details,"Click Actions Edit; Modify fields; Save","Changes updated; Reflected in list",Yes

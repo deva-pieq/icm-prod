@@ -1,0 +1,126 @@
+[
+  {
+    "file": "AdvanceOnlyTemplate\\[MLB]AdvanceStatement-AdvanceOnly.xlsx",
+    "cellsRewritten": 1
+  },
+  {
+    "file": "AdvanceOnlyTemplate\\[MLB]AdvanceStatement-AdvanceOnly[Recovery].xlsx",
+    "cellsRewritten": 8
+  },
+  {
+    "file": "AdvanceAndRecovery\\[MLB]AdvanceStatement-AR [Recovery].xlsx",
+    "cellsRewritten": 8
+  },
+  {
+    "file": "AdvanceAndRecovery\\[MLB]AdvanceStatement-AR.xlsx",
+    "cellsRewritten": 1
+  },
+  {
+    "file": "AdvanceAndAdjustment\\[MLB]AdvanceStatement-AA [Recovery].xlsx",
+    "cellsRewritten": 7
+  },
+  {
+    "file": "AdvanceAndAdjustment\\[MLB]AdvanceStatement-AA.xlsx",
+    "cellsRewritten": 1
+  },
+  {
+    "file": "CommissionOnlyTemplate\\[MLB]AdvanceStatement - Commission Only [Recovery].xlsx",
+    "cellsRewritten": 7
+  },
+  {
+    "file": "CommissionOnlyTemplate\\[MLB]AdvanceStatement-CommissionOnly.xlsx",
+    "cellsRewritten": 1
+  },
+  {
+    "file": "Chargeback\\Chargeback+AG1+AetnaACA[NB].xlsx",
+    "cellsRewritten": 1
+  },
+  {
+    "file": "Chargeback\\Chargeback+AG1+AetnaACA[RC1]AsPerSplit.xlsx",
+    "cellsRewritten": 1
+  },
+  {
+    "file": "Chargeback\\Chargeback+AG1+AetnaACA[RC2]Agency.xlsx",
+    "cellsRewritten": 1
+  },
+  {
+    "file": "Chargeback\\Chargeback+AG1+AetnaACA[RC3]Agent.xlsx",
+    "cellsRewritten": 1
+  },
+  {
+    "file": "TransferSheets\\[MLB New]EditThis[TransferAgent].xlsx",
+    "cellsRewritten": 2
+  },
+  {
+    "file": "MmpTemplate\\[MLB]MmpStatement-NB.xlsx",
+    "cellsRewritten": 1
+  },
+  {
+    "file": "PaymentModule\\ACH\\[MLB][NB]PaymentModule-ACH.xlsx",
+    "cellsRewritten": 1
+  },
+  {
+    "file": "PaymentModule\\ACH\\[MLB][RN]PaymentModule-ACH.xlsx",
+    "cellsRewritten": 3
+  },
+  {
+    "file": "PaymentModule\\CHK\\[MLB][NB]PaymentModule-CHK.xlsx",
+    "cellsRewritten": 1
+  },
+  {
+    "file": "PaymentModule\\CHK\\[MLB][RN]PaymentModule-CHK.xlsx",
+    "cellsRewritten": 3
+  },
+  {
+    "file": "StatementUpload\\[MLB NEW]HappyFlowChangeCheckRunDate.xlsx",
+    "cellsRewritten": 2
+  },
+  {
+    "file": "PolicyCancellationAgencyAdvance\\TestFileAetnaACA.xlsx",
+    "cellsRewritten": 1
+  },
+  {
+    "file": "PolicyCancellationAgencyAdvance\\[MLB]AdvanceStatement-PolicyCancellation-AgencyAdvance[Advance].xlsx",
+    "cellsRewritten": 0
+  },
+  {
+    "file": "PolicyCancellationAgencyAdvance\\[MLB]AdvanceStatement-PolicyCancellation-AgencyAdvance[Cancellation].xlsx",
+    "cellsRewritten": 0
+  },
+  {
+    "file": "PolicyCancellationAgencyAdvance\\[MLB]AdvanceStatement-PolicyCancellation-AgencyAdvance[Recovery].xlsx",
+    "cellsRewritten": 0
+  },
+  {
+    "file": "PolicyCancellationCarrierAdvance\\[MLB]AdvanceStatement-PolicyCancellation-CarrierAdvance[Advance].xlsx",
+    "cellsRewritten": 0
+  },
+  {
+    "file": "PolicyCancellationCarrierAdvance\\[MLB]AdvanceStatement-PolicyCancellation-CarrierAdvance[Cancellation].xlsx",
+    "cellsRewritten": 0
+  },
+  {
+    "file": "PolicyCancellationCarrierAdvance\\[MLB]AdvanceStatement-PolicyCancellation-CarrierAdvance[Recovery].xlsx",
+    "cellsRewritten": 0
+  },
+  {
+    "file": "PolicyCancellationCarrierAgencyCredit\\[MLB]AdvanceStatement-PolicyCancellation-AgencyCredit[Advance].xlsx",
+    "cellsRewritten": 0
+  },
+  {
+    "file": "PolicyCancellationCarrierAgencyCredit\\[MLB]AdvanceStatement-PolicyCancellation-AgencyCredit[Cancellation].xlsx",
+    "cellsRewritten": 0
+  },
+  {
+    "file": "PolicyCancellationCarrierAgencyCredit\\[MLB]AdvanceStatement-PolicyCancellation-AgencyCredit[Recovery].xlsx",
+    "cellsRewritten": 0
+  },
+  {
+    "file": "ValidateCommissionSplit\\dropbox\\[CoreBridge - Life]TestFile.xlsx",
+    "cellsRewritten": 0
+  },
+  {
+    "file": "ValidateCommissionSplit\\dropbox\\[CoreBridge - Life]Testfile50LI.xlsx",
+    "cellsRewritten": 0
+  }
+]

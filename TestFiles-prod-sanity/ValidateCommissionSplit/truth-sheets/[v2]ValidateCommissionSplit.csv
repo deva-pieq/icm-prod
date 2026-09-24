@@ -1,0 +1,56 @@
+Line item,product name,agent level,product commission %,gross compensation,agent commission,calculated,Validate
+line item 1,Oscar U65 OH/TN/VA,Level III,79.00,18.00,14.22,14.22,PASS
+line item 2,Oscar U65 OH/TN/VA,Level III,79.00,18.00,14.22,14.22,PASS
+line item 3,Oscar U65 FL/GA/IL/NC/TX,Level III,79.00,50.00,39.50,39.50,PASS
+line item 4,Oscar U65 FL/GA/IL/NC/TX,Level III,79.00,50.00,39.50,39.50,PASS
+line item 5,Oscar U65 AZ/IA/KS/MI/MO/NE/NJ/OK/PA,Level V,84.00,20.00,16.80,16.80,PASS
+line item 6 (skipped),,,,,,,SKIP: Could not capture Agent COMMISSION amount from reconciliation transaction table
+line item 7 (skipped),,,,,,,SKIP: Could not capture Agent COMMISSION amount from reconciliation transaction table
+line item 8,Oscar U65 OH/TN/VA,Level III,79.00,36.00,28.44,28.44,PASS
+line item 9,Oscar U65 OH/TN/VA,Level III,79.00,18.00,14.22,14.22,PASS
+line item 10 (skipped),,,,,,,SKIP: Could not capture Agent COMMISSION amount from reconciliation transaction table
+line item 11 (skipped),,,,,,,SKIP: Could not capture Agent COMMISSION amount from reconciliation transaction table
+line item 12 (skipped),,,,,,,SKIP: Could not capture Agent COMMISSION amount from reconciliation transaction table
+line item 13 (skipped),,,,,,,SKIP: Could not capture Agent COMMISSION amount from reconciliation transaction table
+line item 14 (skipped),,,,,,,"SKIP: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+Expected: >= [32m0[39m
+Received:    [31m-1[39m
+
+Call Log:
+- Timeout 15000ms exceeded while waiting on the predicate"
+line item 15 (skipped),,,,,,,"SKIP: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+Expected: >= [32m0[39m
+Received:    [31m-1[39m
+
+Call Log:
+- Timeout 15000ms exceeded while waiting on the predicate"
+line item 16 (skipped),,,,,,,"SKIP: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+Expected: >= [32m0[39m
+Received:    [31m-1[39m
+
+Call Log:
+- Timeout 15000ms exceeded while waiting on the predicate"
+line item 17 (skipped),,,,,,,"SKIP: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+Expected: >= [32m0[39m
+Received:    [31m-1[39m
+
+Call Log:
+- Timeout 15000ms exceeded while waiting on the predicate"
+line item 18 (skipped),,,,,,,"SKIP: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+Expected: >= [32m0[39m
+Received:    [31m-1[39m
+
+Call Log:
+- Timeout 15000ms exceeded while waiting on the predicate"
+line item 19 (skipped),,,,,,,"SKIP: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+Expected: >= [32m0[39m
+Received:    [31m-1[39m
+
+Call Log:
+- Timeout 15000ms exceeded while waiting on the predicate"

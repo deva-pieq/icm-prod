@@ -1,0 +1,88 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    ".opencode/instructions.md"
+  ],
+  "skills": {
+    "paths": [".opencode/skills",".agent/skills"]
+  },
+  "mcp": {
+    "playwright": {
+      "type": "local",
+      "command": ["npx", "@playwright/mcp@latest"],
+      "enabled": true
+    },
+    "chromedev": {
+      "type": "local",
+      "command": ["npx", "@chrome/mcp@latest"],
+      "enabled": true
+    }
+  },
+  "permission": {
+    "bash": {
+      "*": "ask",
+      "*recycle.ps1*": "allow",
+      "rm *": "deny",
+      "del *": "deny",
+      "Remove-Item *": "deny"
+    }
+  },
+  "agent": {
+    "regression-writer": {
+      "description": "Writes Playwright BDD regression tests following ICM conventions. Uses Playwright MCP (via opencode.jsonc mcp.playwright) for live-app locator discovery and assertion text. Use when asked to write Gherkin feature files, step definitions, or page objects for regression or e2e test cases.",
+      "mode": "primary",
+      "permission": {
+        "bash": {
+          "*": "ask",
+          "*recycle.ps1*": "allow",
+          "rm *": "deny",
+          "del *": "deny",
+          "Remove-Item *": "deny",
+          "npm run test*": "allow",
+          "yarn test*": "allow",
+          "npx bddgen": "allow",
+          "npx playwright*": "allow",
+          "npx @playwright/*": "allow",
+          "node *": "allow",
+          "graphify*": "allow"
+        },
+        "edit": "allow"
+      }
+    },
+    "regression-fixer": {
+      "description": "Diagnoses and fixes failing Playwright BDD tests after codegen or test runs. Analyzes .feature, steps, and page objects; uses Playwright MCP for live-app investigation. Use after failed npm run test, post-codegen failures, or /fix-test command.",
+      "mode": "primary",
+      "permission": {
+        "bash": {
+          "*": "allow",
+          "rm *": "deny",
+          "del *": "deny",
+          "Remove-Item *": "deny"
+        },
+        "edit": "allow"
+      }
+    },
+    "test-runner": {
+      "description": "Test Runner — runs sanity/smoke/regression via python test-runner.py -g, classifies failures, fixes Tier 1/2 (up to 3 attempts), escalates Tier 3 to human with structured results.md.",
+      "mode": "primary",
+      "permission": {
+        "bash": {
+          "*": "ask",
+          "*recycle.ps1*": "allow",
+          "rm *": "deny",
+          "del *": "deny",
+          "Remove-Item *": "deny",
+          "npm run test*": "allow",
+          "yarn test*": "allow",
+          "npx bddgen": "allow",
+          "python *": "allow",
+          "python3 *": "allow",
+          "opencode *": "allow",
+          "node *": "allow",
+          "graphify*": "allow"
+        },
+        "edit": "allow"
+      }
+    }
+  }
+}

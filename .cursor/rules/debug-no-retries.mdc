@@ -1,0 +1,27 @@
+---
+description: Debug Playwright runs use --retries=0; collect error, investigate, fix, validate once
+alwaysApply: true
+---
+
+# Debug — No Playwright Retries
+
+`playwright.config.ts` `retries: 2` is CI flake absorption only. **Never rely on retries while debugging.**
+
+## Required debug command
+
+```powershell
+yarn test -g "@TAG" --retries=0 --reporter=line
+```
+
+Never omit `--retries=0` on an investigation run.
+
+## Loop (one pass)
+
+1. **Collect** — first failure only (error-context.md, screenshot, exact assertion)
+2. **Investigate** — POM loc map → steps → feature; do not guess a second cause
+3. **Fix** — one cheap locator/wiring/assertion patch (see `escalate-on-stuck.mdc`)
+4. **Validate** — same tag, again with `--retries=0`
+
+If that validate run fails → escalate. Do not bump retries, re-run the suite, or try another theory.
+
+Retries hide the real error, 3× timeout cost, and produce retry1/retry2 artifacts instead of a clean first failure.

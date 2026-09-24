@@ -1,0 +1,3 @@
+Sno,Scenarios,Steps,Expected result
+1,Time Period filter panel displays radio options,Open agent dashboard and view Time Period filter,Time Period section displays all radio options; only one time period can be selected at a time
+4,Selecting a time period and applying changes refreshes widgets,Select Last Month and click Apply,Viewing period shows last month date range; all dashboard widgets refresh dynamically

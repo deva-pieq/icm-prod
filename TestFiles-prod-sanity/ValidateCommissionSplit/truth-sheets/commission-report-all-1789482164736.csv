@@ -1,0 +1,7 @@
+LineItem,policyName,ProductName,GrossCommission,TotalMembers,split-percentage,value,value x TotalMembers,Role,commission-from-report,result
+1,OSC76736950-01,Oscar U65 OH/TN/VA,18.00,1,14.00,2.52,2.52,Agency,,
+1,OSC76736950-01,Oscar U65 OH/TN/VA,18.00,1,7.00,1.26,1.26,Sales Leader,,
+1,OSC76736950-01,Oscar U65 OH/TN/VA,18.00,1,79.00,14.22,14.22,Agent,,
+2,OSC78744676-01,Oscar ovr,75.00,3,14.00,3.50,10.50,Agency,,
+2,OSC78744676-01,Oscar ovr,75.00,3,7.00,1.75,5.25,Sales Leader,,
+2,OSC78744676-01,Oscar ovr,75.00,3,79.00,19.75,59.25,Agent,,

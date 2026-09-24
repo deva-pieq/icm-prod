@@ -1,0 +1,49 @@
+---
+description: On debug failures beyond a simple investigation/locator fix, escalate to a human immediately — no retry loops
+alwaysApply: true
+---
+
+# Escalate When Stuck — No Token-Burning Retries
+
+When debugging failing tests (or any runtime failure), do **one** cheap pass. If that does not fix it, **stop and escalate to a human**. Do not keep retrying, re-running suites, or exploring alternate theories.
+
+Debug runs: `yarn test -g "@tag" --retries=0 --reporter=line`. Never omit `--retries=0`.
+
+## Allowed single pass (fix without escalating)
+
+Only these count as a simple fix — do them once, then re-run the targeted test:
+
+1. Read failure output + relevant POM / steps / feature
+2. Obvious typo, wrong step wiring, or missing await
+3. Locator already known or a clear one-line `data-testid` / role fix in the POM
+4. Expected assertion string clearly wrong vs known UI text
+
+## Escalate immediately (do not retry)
+
+Stop after the first failed fix attempt (or sooner if the failure is clearly out of scope) when any of these apply:
+
+- Failure persists after the simple pass above
+- Root cause needs multi-step live-app flow discovery, data setup, env/auth, or app bugs
+- You would need a second guess, another OpenCode browser pass, or another full suite run “to see if it helps”
+- Same error class after one targeted re-run
+- Flaky/timing/infra issues that are not a clear one-line wait fix
+
+## How to escalate
+
+Tell the human, briefly:
+
+1. What failed (tag / scenario / error snippet)
+2. What you already checked or changed
+3. Why it is not a simple locator/wiring fix
+4. What a human should look at next (hypothesis only — do not keep investigating)
+
+## Hard limits
+
+| Action | Limit |
+|---|---|
+| Fix attempts before escalate | **1** simple pass |
+| Targeted re-runs after that pass | **1** |
+| Full-suite re-runs while guessing | **0** |
+| “Try another approach” loops | **0** — escalate instead |
+
+This overrides any instinct to “keep going until green.” Token burn on repeated debug loops is worse than an early handoff.

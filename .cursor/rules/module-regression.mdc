@@ -1,0 +1,141 @@
+---
+description: ICM BDD tests — module context isolation, OpenCode + Playwright MCP locator discovery, and live-app-verified .feature authoring/validation
+alwaysApply: false
+---
+# Module Regression Context Isolation
+
+Each module (tag group) must have its own **isolated browser context**. All scenarios within the same module share that context.
+
+## 1. Context ownership pattern
+
+Each module owns its own `BeforeAll`/`AfterAll` pair in its `common.steps.ts`:
+
+| Module tag | `common.steps.ts` location | Context lifecycle |
+|---|---|---|
+| `@smoke` | `steps/smoke/common.steps.ts` | `BeforeAll(@smoke)` → `createSharedPage()` → login → all smoke scenarios → `AfterAll(@smoke)` → `closeSharedContext()` |
+| `@user-management` | `steps/users/common.steps.ts` | Same pattern, own context |
+| `@product-management` | `steps/products/common.steps.ts` | Same pattern, own context |
+| `@happy-flow` | `steps/happy-flow/common.steps.ts` | Same pattern, own context |
+| `@statement-upload` | `steps/commission-statements/common.steps.ts` | Same pattern, own context |
+| `@validate-commission-truth` | `steps/commission-split/common.steps.ts` | Same pattern, own context |
+| `@transfer-sheet` | `steps/transfer-sheet/common.steps.ts` | Same pattern, own context |
+| `@agent-master` | `steps/agent-master/common.steps.ts` | Same pattern, own context. **`workers: 1`** when grep includes `@agent-master`. **`create-agent.feature`** runs before **level-hierarchy** and **licensing-appointments** via Playwright project dependency. |
+
+**Do NOT share `createSharedPage` between modules.** Each module calls it independently so contexts stay isolated.
+
+## 2. When adding a new module
+
+1. Create `features/<module-name>/` for `.feature` files
+2. Create `steps/<module-name>/common.steps.ts` with:
+   - `BeforeAll({ tags: '@<module-tag>' }, ...)` → `createSharedPage()` → login
+   - `AfterAll({ tags: '@<module-tag>' }, ...)` → `closeSharedContext()`
+3. Add step definition files under `steps/<module-name>/`
+4. If the module needs new pages, add them to `pages/` following the POM standard
+5. Register new page fixtures in `steps/fixtures.ts`
+
+## 3. Browser discovery hierarchy — DO NOT GUESS LOCATORS
+
+The project is richly instrumented with `data-testid` attributes. **Stable locators live in page object `loc` maps.** **playwright-cli is disabled** (unreliable). Use **OpenCode + Playwright MCP** for live-app work — see `browser-discovery-opencode-mcp` rule.
+
+```
+1. Read POM `loc` map → if covered, write code (no browser)
+2. If not covered → invoke OpenCode regression-writer (Playwright MCP inside OpenCode)
+3. Persist findings to POM → validate with test runner (not another browser pass)
+```
+
+### Decision gate — read the POM first
+
+Before any browser invocation:
+
+```
+1. Read the target page object's `loc` map
+2. If the element already has a data-testid locator → write the code, DONE (no browser)
+3. If the interaction can be composed from existing `loc` entries → write the code, DONE (no browser)
+4. Only if the element is entirely new and has no data-testid locator anywhere → use playwright-cli
+```
+
+**Concretely:**
+- **New step definition that calls an existing page method?** → No browser. Write the step, wire to the page object.
+- **New assertion that checks a value already exposed by a locator?** → No browser. Read the existing locator, assert.
+- **New locator for an element that already has a sibling data-testid pattern?** → Infer from the pattern (e.g. `agency-owner-filter-{section}-{uuid}`), no browser.
+- **Brand-new page/widget with unknown DOM structure?** → invoke OpenCode `regression-writer` (see `browser-discovery-opencode-mcp` rule).
+
+### Workflow when live app IS needed
+
+**Cursor:** do not call Playwright MCP directly — invoke OpenCode:
+
+```powershell
+opencode run --agent regression-writer --auto "MODULE=<tag>. TASK=<investigate/write/locate>. Use Playwright MCP. Persist to POM."
+```
+
+**Inside OpenCode** (regression-writer / regression-fixer):
+
+1. `browser_navigate` to `BASE_URL`; login with `.env` credentials
+2. Navigate to target screen; reproduce scenario actions (modals, expanded filters)
+3. Discover with `browser_evaluate` (small JSON) → optional `locators/_tmp-*.json`
+4. Scoped `browser_snapshot` only when evaluate is insufficient
+5. Write locators into POM `loc` map; register fixtures; run `yarn bddgen` + `yarn test -g @<module-tag>`
+
+### Locator priority order (from POM standard)
+
+- `data-testid` / `data-test` attributes (preferred)
+- Semantic roles (`getByRole`, `getByLabel`)
+- Text (`getByText`, `getByPlaceholder`)
+- CSS fallback only when the above are unavailable
+
+### Example prompt flow
+
+> User: "Write a test for the new user bulk import feature"
+>
+> Agent:
+> 1. Read existing page objects — check if locators already exist in POM `loc` maps
+> 2. If new page needed → `opencode run --agent regression-writer --auto "..."` → Playwright MCP
+> 3. `browser_evaluate` for file input, upload button, validation messages
+> 4. Scoped `browser_snapshot` if structure still unclear
+> 5. Write `.feature` → step definitions → page object with real locators
+> 6. Register fixtures → `npx bddgen` → targeted test
+
+## 4. Effective (token-efficient) Playwright MCP usage (via OpenCode)
+
+1. **Plan targets first.** List screens + exact elements/states before driving the browser.
+2. **One login per OpenCode session.** Navigate with `browser_navigate`; do not re-login per element.
+3. **Harvest compact JSON, not full snapshots.** Prefer `browser_evaluate` with `filename`:
+   ```js
+   () => [...document.querySelectorAll('[data-testid]')].map(el => el.getAttribute('data-testid')).sort()
+   ```
+4. **Check states/values with evaluate**, not snapshots:
+   ```js
+   () => [...document.querySelectorAll('.ag-header-cell-text')].map(el => el.textContent?.trim())
+   ```
+5. **When you must snapshot: scope + offload.** Use `browser_snapshot` with `target` + depth; save to `locators/_snap.yaml`.
+6. **Persist to POM = durable cache.** After harvest, browser is never needed again for that screen.
+7. **Validate with the test runner.** Confirm green via `yarn test -g @<module-tag> --headed`.
+
+## 5. Authoring & validating `.feature` files against the live app
+
+When given a spec (CSV, spreadsheet, manual test cases) to turn into Gherkin — or asked to check an existing `.feature` is "written properly" — **verify every assertion against the live app via playwright-cli. Never trust the spec's wording blindly.**
+
+### Workflow
+
+1. **Map the source 1:1.** Each spec row → one `Scenario`. Keep titles/IDs traceable to the source so coverage is auditable.
+2. **Log into the live app** via OpenCode + Playwright MCP (`BASE_URL` + `E2E_*` creds from `.env`), navigate to the target screen, and harvest labels via `browser_evaluate` (headings, columns, placeholders).
+3. **Match exact rendered text** in assertions: section/widget headings, button labels, column headers, contextual status text, search placeholders, and **punctuation** — a hyphen `-` vs em-dash `—` will break an exact-text step (e.g. live `Payment Blockers - Requires Immediate Attention`, not `—`).
+4. **Reproduce conditional UI states** before asserting them. Controls often appear only under a precondition (e.g. the `Current Week` button is hidden on the active week and only shows on a past week; the `Today` button lives inside the date-picker popup, not the toolbar). Assert exactly what you observe — **hidden ≠ disabled**.
+5. **Verify tables/panels live**: actual column set, which widgets are clickable vs not, and the title of any panel/dialog that opens.
+6. **Validate calculations** against live data (e.g. stage-breakdown counts must sum to the total).
+7. **Audit CSV coverage** with `validate-csv-bdd-coverage` skill — every CSV row → scenario, every Expected Result → `Then`, no visibility-only assertions.
+8. **Document known bugs**: when the spec flags expected-vs-actual (e.g. min year should be 1990 but app allows lower), assert the *expected* behavior and add a `#` comment noting the known issue, so the test encodes intent and catches the defect.
+9. **Avoid brittle, data-dependent assertions** (specific dates, live counts). Describe the pattern (e.g. "a fixed seven-day weekly cycle") instead of hard-coding volatile values.
+
+> Concurrency note: if another editor/agent is modifying the same `.feature` (e.g. an `opencode` session in a terminal), re-read the file after editing to confirm your changes persisted, and warn the user.
+
+## 6. Context isolation rules summary
+
+| Concern | Rule |
+|---|---|
+| One module leaks state to another | Each module has its own `createSharedPage()` / `closeSharedContext()`. Never reuse contexts across modules. |
+| Scenarios share login state | Yes — all scenarios in the same module share one context via `createSharedPage()`. Login once in `BeforeAll`. |
+| Parallel module execution | `fullyParallel: false` in config; `workers: 3` (default). **`@agent-master` uses `workers: 1`** — shared context + create-agent must finish before level/license. Other modules can run concurrently. |
+| Step definitions use the right context | Fixtures provide the shared `page` when `_sharedPage` is set, otherwise a per-test page. No extra wiring needed. |
+| Locator assumptions | Banned. Invoke OpenCode regression-writer when POM lacks the locator. |
+| Default browser tool | **OpenCode + Playwright MCP** (`opencode run --agent regression-writer`). playwright-cli disabled. |

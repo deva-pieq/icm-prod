@@ -1,0 +1,21 @@
+---
+description: Require strong scenario-specific assertions in BDD tests — never stop at visibility-only checks. Apply when editing features, steps, or page objects.
+globs: projects/icm/features/**/*.feature,projects/icm/steps/**/*.ts,projects/icm/pages/**/*.ts
+alwaysApply: false
+---
+
+# BDD Contextual Assertions (always-on for test files)
+
+When editing `features/`, `steps/`, or `pages/` in ICM:
+
+1. **Read the `bdd-contextual-assertions` skill** (`.cursor/skills/bdd-contextual-assertions/SKILL.md`; OpenCode: `.opencode/skills/bdd-contextual-assertions/SKILL.md`) before adding or changing any `Then` step or `expect*` method.
+
+2. **Every `Then` must prove outcome** — not just `toBeVisible()` unless the scenario literally only claims presence.
+
+3. **Discover live text via playwright-cli first** (`npx playwright-cli --raw eval` / `run-code` → file). Use Playwright MCP only as exploratory fallback when CLI cannot surface headings, columns, input values, or legend text.
+
+4. **Dynamic/refreshed UI** requires before/after capture via `utils/<module>/*Context.ts`.
+
+5. **Reject weak helpers** like `expectWidgetsRefreshDynamically()` that only check a region is visible — upgrade to value/content/date assertions matching Gherkin wording.
+
+6. **`expect*` methods are read-only** — no clicks inside assertion methods (see `playwright-pom-standard.mdc`).

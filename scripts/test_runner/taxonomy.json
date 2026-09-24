@@ -1,0 +1,152 @@
+{
+  "version": 1,
+  "aliases": {
+    "sanity": "@sanity-prod",
+    "smoke": "@smoke-prod",
+    "regression": "@regression-test",
+    "regression-test": "@regression-test"
+  },
+  "default_invert": "@slack-reporter-sample|@local-only",
+  "tier1_signals": [
+    {
+      "id": "step_conflict",
+      "pattern": "Multiple definitions matched",
+      "tier": 1,
+      "letter": null,
+      "disposition": "test_defect",
+      "fix_hint": "Add page-name suffix to feature + step"
+    },
+    {
+      "id": "missing_await",
+      "pattern": "missing await|Promise.*did not|not a function",
+      "tier": 1,
+      "letter": null,
+      "disposition": "test_defect",
+      "fix_hint": "Wiring: await / fixture param"
+    },
+    {
+      "id": "strict_mode",
+      "pattern": "strict mode violation",
+      "tier": 1,
+      "letter": "R",
+      "disposition": "test_defect",
+      "fix_hint": "Scope locator to unique container"
+    },
+    {
+      "id": "readonly_fill",
+      "pattern": "locator\\.fill|fill: Timeout",
+      "tier": 2,
+      "letter": "I",
+      "disposition": "test_defect",
+      "fix_hint": "Never .fill() readonly date — use calendar helper"
+    },
+    {
+      "id": "login_flake",
+      "pattern": "ensureSession|LoginPage|loginWithRetry",
+      "tier": 1,
+      "letter": null,
+      "disposition": "infra_flake",
+      "fix_hint": "Re-run once; do not chase locators"
+    }
+  ],
+  "tier2_signals": [
+    {
+      "id": "product_missing",
+      "pattern": "Product .+ not found in Advance Setup|Product code .+ not found|product .*not found",
+      "tier": 2,
+      "letter": "HI-P",
+      "disposition": "test_defect",
+      "fix_hint": "Hail Intelligence: create product matching Excel alias + commission template; ensure Advance Setup row"
+    },
+    {
+      "id": "config_missing",
+      "pattern": "not configured|missing config|configuration (missing|required)|Advance Default|transfer.?sheet.*(not found|missing|empty)",
+      "tier": 2,
+      "letter": "HI-C",
+      "disposition": "test_defect",
+      "fix_hint": "Hail Intelligence: add missing config; mirror transfer-sheet regression/smoke"
+    },
+    {
+      "id": "not_visible",
+      "pattern": "toBeVisible|not visible|Timeout.*waiting for",
+      "tier": 2,
+      "letter": "K",
+      "disposition": "test_defect",
+      "fix_hint": "MCP harvest testid; count === 1"
+    },
+    {
+      "id": "role_menu_list",
+      "pattern": "getByRole\\(['\"]menu|getByRole\\(['\"]list|getByRole\\(['\"]dialog",
+      "tier": 2,
+      "letter": "K",
+      "disposition": "test_defect",
+      "fix_hint": "Wrong ARIA role — use data-testid"
+    },
+    {
+      "id": "row_sum_short",
+      "pattern": "unique rows|sumAmount|Expected.*\\d+.*Received",
+      "tier": 2,
+      "letter": "L",
+      "disposition": "test_defect",
+      "fix_hint": "AG Grid scroll viewport, not MUI"
+    },
+    {
+      "id": "checkbox_apply",
+      "pattern": "Apply|sr-only|checkbox",
+      "tier": 2,
+      "letter": "J",
+      "disposition": "test_defect",
+      "fix_hint": "Click label; Apply if bar visible"
+    },
+    {
+      "id": "corrupt_xlsx",
+      "pattern": "Corrupted zip|invalid zip|loadSheet",
+      "tier": 2,
+      "letter": "P",
+      "disposition": "test_defect",
+      "fix_hint": "Restore template from git if zero-length"
+    },
+    {
+      "id": "hardcoded_amount",
+      "pattern": "5356\\.13|toBe\\(\\d|Expected.*Received.*0",
+      "tier": 2,
+      "letter": "N",
+      "disposition": "test_defect",
+      "fix_hint": "Volatile KPI — dynamic assert + YTD if empty period"
+    }
+  ],
+  "tier3_signals": [
+    {
+      "id": "cors",
+      "pattern": "CORS|Access-Control|Network Error",
+      "tier": 3,
+      "letter": null,
+      "disposition": "app_bug",
+      "fix_hint": "Escalate to humans/devs; do not weaken assert"
+    },
+    {
+      "id": "processing_timeout",
+      "pattern": "300000|300s|processing.*timeout|status.*timeout",
+      "tier": 3,
+      "letter": null,
+      "disposition": "data_env",
+      "fix_hint": "Backend/env — escalate with status evidence"
+    },
+    {
+      "id": "button_disabled",
+      "pattern": "toBeEnabled|enabled.*false|disabled",
+      "tier": 3,
+      "letter": "T",
+      "disposition": "data_env",
+      "fix_hint": "Threshold/precondition — MCP prove; else escalate"
+    },
+    {
+      "id": "intentional",
+      "pattern": "slack-reporter-sample|local-only",
+      "tier": 3,
+      "letter": null,
+      "disposition": "intentional_skip",
+      "fix_hint": "Skip — never fix"
+    }
+  ]
+}

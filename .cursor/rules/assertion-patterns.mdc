@@ -1,0 +1,189 @@
+---
+description: Assertion patterns for ICM — known-bug handling, before/after capture, and sidebar/modal heading validation
+globs: projects/icm/features/**/*.feature
+alwaysApply: false
+---
+
+# Assertion Patterns (ICM)
+
+Three recurring assertion patterns in ICM tests: **known bug handling**, **before/after capture**, and **sidebar/modal heading validation**.
+
+## 1. Known Bug Handling — assert the spec, not the bug
+
+When the app has a functional bug (spec says X, app does Y), the test must still assert **the expected (spec) behavior**. This ensures the test catches the defect when the fix lands.
+
+### Pattern
+
+```gherkin
+  @bug
+  Scenario: AGD-YL-051 — Year limits for Custom Date Range
+    When I open the agency owner dashboard
+    When I select the time period "Custom Date Range"
+    Then the agency dashboard minimum selectable year should be 1990
+    # Known issue: the app currently allows selecting years below 1990; the expected
+    # minimum year limit is 1990 and the maximum is 2100.
+    And the agency dashboard maximum selectable year should be 2100
+```
+
+### Rules
+
+1. **Tag the scenario `@bug`** — makes it visible in reports and lets the team filter known-failing tests.
+2. **Add a `# Known issue` comment** above or below the affected step, describing what the app does wrong vs what the spec expects.
+3. **Assert the spec's expected value**, not the buggy value. The test intentionally fails until the app is fixed.
+4. **Do not skip the assertion** — a skipped assertion silently stops covering the requirement. The failure IS the signal.
+5. **Distinguish functional bugs from test issues**:
+   - **Functional bug**: app violates the spec (assert the spec; the test correctly fails).
+   - **Test issue**: locator/assertion/assumption in the test code is wrong (fix the test, not the app).
+
+### When to use `@bug`
+
+| Situation | Tag | Action |
+|---|---|---|
+| App calculates wrong result per spec | `@bug` | Assert expected value, add `# Known issue` |
+| Element is missing from DOM | `@bug` | Assert it should exist, add `# Known issue` |
+| Test locator is stale/wrong | (none) | Fix the locator — this is a test maintenance issue, not a bug |
+| Test assertion has wrong expected value | (none) | Fix the assertion — the test spec was wrong |
+
+## 2. Before/After Capture Pattern — verify filter changed the data
+
+When a filter, toggle, or action should change displayed values, capture the value before the action, then assert it changed in the expected direction after.
+
+### Pattern
+
+```gherkin
+  Scenario: AGD-ADF-019 — Line of Business filter refreshes dashboard widgets
+    ...
+    And I capture the Gross commission initial value
+    When I deselect a specific LOB
+    Then all dashboard widgets refresh dynamically based on the selected LOBs
+    And I validate current Gross commission is lessthan or equals to capture initial one
+```
+
+### Step definition implementation
+
+**Capture** (`steps/<module>/<module>.steps.ts`):
+```typescript
+Then('I capture the {word} initial value', async ({ pageObject }) => {
+  const value = await pageObject.getSomeMetricNumericValue();
+  expect(value).toBeGreaterThan(0);
+  setCapturedMetric(value);  // stored in utils/<module>/<module>Context.ts
+});
+```
+
+**Validate** (`steps/<module>/<module>.steps.ts`):
+```typescript
+Then(
+  'I validate current {word} is lessthan or equals to capture initial one',
+  async ({ pageObject }) => {
+    const initial = getCapturedMetric();
+    const current = await pageObject.getSomeMetricNumericValue();
+    expect(current).toBeLessThanOrEqual(initial);
+  },
+);
+```
+
+### Context object (`utils/<module>/<module>Context.ts`)
+
+```typescript
+let _captured: number | null = null;
+
+export function setCapturedMetric(value: number) { _captured = value; }
+export function getCapturedMetric(): number {
+  if (_captured === null) throw new Error('Not captured yet');
+  return _captured;
+}
+export function clearModuleContext() { _captured = null; }
+```
+
+### Rules
+
+1. **Always store captured values in a context object** in `utils/<module>/` — never in global variables.
+2. **Call `clearModuleContext()` in `Before` hook** (`Before({ tags: '@<module-tag>' }), ...`) to reset between scenarios.
+3. **Validate the captured value is reasonable** (`> 0`) before storing — catches stale/empty data early.
+4. **Use `toBeLessThanOrEqual` or `toBeGreaterThanOrEqual`** for monotonic comparisons; use `not.toBe()` for directionless change checks.
+5. **Name capture/validate steps with the metric name** (e.g. `Gross commission`, `total revenue`) to keep scenarios readable.
+
+### Variations
+
+| Assertion | Use case |
+|---|---|
+| `current <= initial` | Filter reduces the scope (deselecting options) |
+| `current === 0` | All items filtered out (e.g. uncheck all carriers) |
+| `current > 0` | After filter, data still exists |
+| `current !== previous` | Value changed (direction unknown or irrelevant) |
+| `stable for N seconds` | Value does NOT change when it shouldn't |
+
+## 3. Sidebar/Modal Heading Validation — verify the opened panel matches the clicked element
+
+When a row, link, or card opens a sidebar, modal, or detail panel, the panel's heading/title must match the element that was clicked.
+
+### Pattern
+
+```gherkin
+  When I click the Agent role in Commission Distribution
+  Then a role details panel is displayed with commission, number of agents, average, and percentage of total
+  When I close the sidebar modal on agency dashboard
+```
+
+For dynamic content (row text → sidebar heading):
+
+```gherkin
+  When I click the first row in the Top Performers list
+  Then the details panel heading matches the clicked performer name
+```
+
+### Page object implementation
+
+```typescript
+// In *Page.ts
+async clickRowAndCaptureHeading(rowIndex: number): Promise<string> {
+  const heading = await this.loc.performerName(rowIndex).innerText();
+  await this.loc.performerRow(rowIndex).click();
+  await waitForAppSettled(this.page);
+  await this.loc.detailsPanel().waitFor({ state: 'visible' });
+  return heading;
+}
+
+async expectDetailsPanelHeadingMatches(expected: string) {
+  const panelHeading = await this.loc.detailsPanelHeading().innerText();
+  expect(panelHeading.trim().toLowerCase()).toBe(expected.trim().toLowerCase());
+}
+```
+
+### Step definition
+
+```typescript
+When('I click the first row in the Top Performers list', async ({ pageObject }) => {
+  const name = await pageObject.clickRowAndCaptureHeading(0);
+  setClickedRowLabel(name);
+});
+
+Then('the details panel heading matches the clicked performer name', async ({ pageObject }) => {
+  const expected = getClickedRowLabel();
+  await pageObject.expectDetailsPanelHeadingMatches(expected);
+});
+```
+
+### Rules
+
+1. **Capture the clicked element's text before the click** — the panel might replace/obscure the original element.
+2. **Store the captured text in a context object** (same pattern as the capture pattern above).
+3. **Assert the panel heading after the panel is fully visible** (wait for the panel locator).
+4. **Use case-insensitive comparison** — heading casing might differ from the row text.
+5. **Clean up with a close step** — every modal/sidebar opened must be closed before the scenario ends (see feature-test-case-ids.mdc §Scenario cleanup).
+
+### When to use a close step
+
+```gherkin
+  When I click the Agent role in Commission Distribution
+  Then a role details panel is displayed ...
+  When I close the sidebar modal on agency dashboard    # <-- cleanup
+```
+
+Place the close step as the **last step** in the scenario, after all validation is done.
+
+## Checklist
+
+- [ ] Known bugs: tagged `@bug`, assertion asserts the **expected** (spec) value, `# Known issue` comment added
+- [ ] Before/after capture: value stored in context object, cleared in `Before` hook, assertion compares correctly
+- [ ] Sidebar/modal: heading validated against clicked element text, close step present as last step

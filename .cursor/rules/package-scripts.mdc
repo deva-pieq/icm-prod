@@ -1,0 +1,35 @@
+---
+description: Keep package.json scripts minimal — yarn test -g for modules, no per-module aliases
+alwaysApply: true
+---
+
+# Package Scripts — Keep Minimal
+
+Allowed `package.json` scripts (do **not** add others without an explicit user request):
+
+| Script | Purpose |
+|---|---|
+| `test` | Full BDD pipeline + Playwright. Filter with `-g` |
+| `bddgen` | Generate specs only (no test run) |
+| `audit:csv-coverage` | CSV ↔ feature coverage audit |
+
+## How to run tests
+
+```powershell
+yarn test -g "@module-tag"          # e.g. @agency-dashboard, @smoke
+yarn test -g "@TEST-AGD-001"        # single scenario
+yarn test -g "@TAG" --retries=0 --reporter=line  # debug — never omit --retries=0
+yarn test -g "@smoke" --headed      # headed
+yarn test --ui                      # Playwright UI mode
+yarn bddgen                         # generate only
+```
+
+Extra args after `yarn test` are appended to `playwright test`.
+
+## Do NOT add
+
+- Per-module aliases (`test:agency-dashboard`, `test:smoke`, …)
+- Headed/UI/cucumber variants (`test:headed`, `test:cucumber:open`, …)
+- One-off explore/debug wrappers — run `node scripts/….mjs` directly if needed
+
+When documenting or invoking OpenCode, use `yarn test -g "@<tag>"`, never `npm run test:<module>`.

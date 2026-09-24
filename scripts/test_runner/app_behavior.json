@@ -1,0 +1,161 @@
+{
+  "version": 1,
+  "updated": "2026-09-15",
+  "modules": {
+    "agency-dashboard": [
+      {
+        "id": "carrier-filter-cannot-deselect-all",
+        "fact": "Unchecking all carriers restores default selection; does not zero gross commission",
+        "implication": "Do not assert zero after deselect-all; scenario T056 removed",
+        "source": "REGRESSION_FIX_PLAN Task 4",
+        "confidence": "high"
+      },
+      {
+        "id": "athena-carrier-unselect-cors",
+        "fact": "Unselecting carrier on Athena console throws CORS",
+        "implication": "app_bug escalate; do not weaken filter refresh assert",
+        "source": "REGRESSION_FIX_PLAN Task 4 T022",
+        "confidence": "high"
+      }
+    ],
+    "ops-manager-dashboard": [
+      {
+        "id": "side-panel-ag-grid-scroll",
+        "fact": "Statement side panel is AG Grid; scroll .ag-body-vertical-scroll-viewport not MUI",
+        "implication": "Pattern L — sum/count must scroll AG viewport",
+        "source": "Task 5 T008/T003",
+        "confidence": "high"
+      },
+      {
+        "id": "exception-count-not-red",
+        "fact": "Exception Tracking Count column is black; red only on Carrier Ageing 16-30d/30d+",
+        "implication": "app_bug or product decision for T002-ET",
+        "source": "Task 5",
+        "confidence": "high"
+      }
+    ],
+    "agent-dashboard": [
+      {
+        "id": "kpi-volatile-use-ytd-dynamic",
+        "fact": "KPI amounts volatile; Last Quarter may be empty; prefer YTD + toBeGreaterThan(0)",
+        "implication": "Pattern N — no hardcoded fixtures",
+        "source": "Task 6",
+        "confidence": "high"
+      }
+    ],
+    "edit-transaction": [
+      {
+        "id": "save-dirty-tracks-set-not-count",
+        "fact": "Save enabled tracks set of selected rows, not count",
+        "implication": "Pattern T — add+remove distinct rows keeps Save enabled",
+        "source": "Task 8 MCP",
+        "confidence": "high"
+      }
+    ],
+    "payment-module": [
+      {
+        "id": "create-payment-min-threshold",
+        "fact": "Create Payment may stay disabled below amount threshold (~$25)",
+        "implication": "data_env / product rule — do not force-enable",
+        "source": "Task 10",
+        "confidence": "medium"
+      }
+    ],
+    "product-management": [
+      {
+        "id": "outline-needs-fresh-product",
+        "fact": "Shared seed product across Outline examples pollutes drafts",
+        "implication": "Pattern M — use @needs-fresh-product per example when empty state required",
+        "source": "Task 3 T005",
+        "confidence": "high"
+      },
+      {
+        "id": "advance-setup-product-missing",
+        "fact": "Product not found in Advance Setup usually means purged/missing product or missing commission+advance config — not a locator bug",
+        "implication": "Hail Intelligence HI-P: create product matching Excel product name alias, add commission template, verify Advance Setup row; do not weaken assert",
+        "source": "sanity 20260908T052755Z product-missing class",
+        "confidence": "high"
+      },
+      {
+        "id": "purged-product-team-data",
+        "fact": "Some e2e-commission-statements fixtures depend on product-team data that gets purged",
+        "implication": "Reseed with simple E2E product + template; validate upload→review→payables flow; escalate only unreseedable team fixtures",
+        "source": "Hail Intelligence — operator guidance",
+        "confidence": "high"
+      }
+    ],
+    "transfer-sheet": [
+      {
+        "id": "config-mirror-working-suite",
+        "fact": "Transfer Sheet regression + smoke cover working config/setup paths",
+        "implication": "Hail Intelligence HI-C: when config missing, mirror features/transfer-sheet and smoke settings flows to add config before chasing locators",
+        "source": "Hail Intelligence — operator guidance",
+        "confidence": "high"
+      }
+    ],
+    "statement-processing": [
+      {
+        "id": "advance-arf-product-seed",
+        "fact": "Creating product whose display name = Excel scale-name alias (e.g. aetna-aca-test-advance-month-july-21) + a matching Advance Setup record (default=10, monthly=9) resolves 'Product not found in Advance Setup grid' for advance-only/recovery/adjustment/commission-only modules; no commission template needed for the ARF check to pass",
+        "implication": "HI-P reseed: product display name must equal the Excel alias (advance grids search Advance Setup directly, no Products-page resolve); capture/assert Advance Default non-empty + Monthly > 0",
+        "source": "sanity 20260908T063816Z — verified: @TEST-001-Advance-Only-ARF / Advance-Recovery-ARF / Advance-Adjustment-ARF / Commission-Only all pass in isolation after seed",
+        "confidence": "high"
+      },
+      {
+        "id": "policy-cancellation-product-seed",
+        "fact": "Policy-cancellation modules resolve product via Products grid by carrier-product-name alias, then search Advance Setup by display name; both E2E-Product-30Jun2026-124753 (alias e2e-seed-carrier-30Jun2026-124753) and its Advance Setup row exist — all 3 policy-cancellation tests pass in isolation",
+        "implication": "HI-P reseed for policy-cancellation: alias = carrier-product-name on the product, display name = what Advance Setup search uses; serial-suite failures after seed are module-load transients (data_env), not test defects",
+        "source": "sanity 20260908T063816Z — verified 3/3 in isolation, 2/3 in serial (Failed to load module transient)",
+        "confidence": "high"
+      },
+      {
+        "id": "serial-suite-module-load-transient",
+        "fact": "Advance/policy-cancellation modules intermittently show 'Failed to load module' screen or 'Search data grid' box >30s late when several statement suites run serially; the SAME test passes alone",
+        "implication": "data_env — re-run tag in isolation before editing; do not weaken grid asserts; escalate serial-only failures as env transients",
+        "source": "sanity 20260908T063816Z — policy-cancellation + commission-only serial failures pass standalone",
+        "confidence": "high"
+      },
+      {
+        "id": "extract-backend-error-class",
+        "fact": "Some statement uploads end extract in 'waiting:Error:Extract' or time out at processing (commission-truth inbox file, commission-report upload submit) — backend extraction failure, not a locator/assert bug",
+        "implication": "data_env escalate with status/stage evidence; do not weaken pollUntilUploadReviewReady 'ready' assert",
+        "source": "sanity 20260908T063816Z — @validate-commission-truth received waiting:Error:Extract; @validate-commission-report* processing timeout",
+        "confidence": "medium"
+      },
+      {
+        "id": "mmp-ledger-rows-absent",
+        "fact": "MMP NB/RN transaction flows (T015/T016) process files to Completed/Needs-Attention but the agent ledger never shows rows with Type=mmp/marketing match within 300s; MMP-019 configure button also disabled — MMP module appears env-unconfigured or backend not posting MMP rows",
+        "implication": "data_env/unknown — MCP-prove whether any ledger Type=mmp rows exist post-reconcile before editing pollForMmpLedgerRows; escalate with screenshot of ledger",
+        "source": "sanity 20260908T063816Z — @TEST-015-Mmp-Flow and @TEST-016-Mmp-Flow identical pollForMmpLedgerRows timeout",
+        "confidence": "medium"
+      },
+      {
+        "id": "chargeback-detail-row-not-rendered",
+        "fact": "On the policy ledger, clicking a CHARGEBACK earning-type row (present, e.g. 'POL-DFGCJB 09/08/2026 CHARGEBACK ($78.90)') does NOT render a getByTestId('data-grid-detail-row') in preprod: run 2 found the row but innerText was '' (got: ''), run 3 the locator was not found in DOM (element(s) not found). Recovery-party labels (Agency/Agent/Sales Leader) never appear in detail",
+        "implication": "unknown/app-side — the app's expanded chargeback detail row is not rendering content on click; do not weaken assertion; MCP-probe the click→expand interaction (double-click? side panel?) before any test edit; escalate to product/backend with error-context snapshot",
+        "source": "sanity 20260908T063816Z — @TEST-001-Chargeback-Recovery-Options attempts 2-3 (error-context.md rowgroup shows CHARGEBACK row, no detail row)",
+        "confidence": "medium"
+      },
+      {
+        "id": "commission-report-policy-commission-missing",
+        "fact": "Commission-report derives expected agent commission from the policy's own Commission Structure (captureAgentCommissionForPeriod reads the 'Commission V1 | M1-12' period card Agent split). A policy with only an Override rule (type 4) or no rule cannot be captured — GET /api/v1/policy/{uuid}/commissions returns {data:{}} or Override only. 7 CSV policies: Taynor/Riffett/Rodriguez have Commission rules; Dorothy/Kendra/Megan/Benjamin need one.",
+        "implication": "HI-CR seed: POST /api/v1/policy/commission (array) with a Commission rule (type 1, Fixed Fee, feeAmount = CSV Commission $, M1-12 split 14/7/79/0; plus M13-No Limit 18/3/79/0). Detect via GET /commissions (ISO dates only). 400 POLICY_NUMBER_EXISTS on policy create = already seeded, verify not recreate. Do NOT weaken waitForHierarchySyncedToActivePeriod / stale-fingerprint (Agency 41 / Agent 55 under M1-12).",
+        "source": "Policy seed session 2026-09-15 — handoff .opencode/scenarios/commission-report-policy-seed-handoff.md",
+        "confidence": "high"
+      },
+      {
+        "id": "policy-commission-write-wire-format",
+        "fact": "PUT /api/v1/policy/commission/{ruleUuid} body: camelCase rule fields (policyUuid, ruleName, commissionType, paymentFrequency, monthFrom, monthTo, payoutMethod, feeAmount, premiumAmount, version) + commissionSplit[] with snake_case keys (order, role, user_name, user_uuid, user_code, commission_value, entity, level). POST /policy/commission takes an array for create. Response {data:{message,commissionUuid}}.",
+        "implication": "Use exact wire format when seeding Commission rules via API; GET /policy/{uuid}/commissions returns camelCase (userName/commissionValue) — do not reuse GET casing for writes.",
+        "source": "Policy seed session 2026-09-15 — live capture, PUT 200",
+        "confidence": "high"
+      }
+    ]
+  },
+  "ui_patterns": {
+    "readonly_date": "Never .fill(); use calendar popup helpers",
+    "sr_only_checkbox": "Click label; never input.uncheck({ force: true })",
+    "filter_apply": "After radio/checkbox change, click Apply if bar visible",
+    "ag_grid_scroll": "Use .ag-body-vertical-scroll-viewport / .ag-body-viewport, not .MuiDataGrid-virtualScroller"
+  }
+}

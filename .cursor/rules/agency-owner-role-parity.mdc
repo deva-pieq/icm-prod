@@ -1,0 +1,41 @@
+---
+description: Agency owner sidebar role parity — fill module gaps without duplicating agency dashboard; reuse smoke POM/steps; discover owner menus live
+globs: features/smoke/**,steps/smoke/**,pages/sidebar/**,pages/commission/**
+alwaysApply: false
+---
+
+# Agency Owner Role Parity (Sidebar Modules)
+
+## Intent
+
+Agency Owner (`E2E_EMAIL_OWNER`) can open the **same operational sidebar modules** Operations Manager exercises in `@smoke-modules`. Validate that with **owner login**, not by cloning `@agency-dashboard`.
+
+## Do NOT
+
+- Duplicate or extend [`features/dashboard/agency-dashboard.feature`](features/dashboard/agency-dashboard.feature) or owner dashboard smoke T057–T059 for this work
+- Assume owner menus match ops — **discover live first**
+- Change behavior of existing ops `open*` methods on shared POMs to “fix” owner paths
+
+## Do
+
+1. **Discover** owner sidebar before authoring:
+   - `node scripts/explore-role-dashboard.mjs owner`, or
+   - OpenCode `regression-writer` + Playwright MCP (`E2E_EMAIL_OWNER`)
+2. **Author** scenarios in [`features/smoke/smoke.feature`](features/smoke/smoke.feature) tagged `@owner` `@owner-modules` (T060–T088)
+3. **Login**: each scenario uses `Given I am logged into PieQ ICM as "agency owner"` (smoke Background is ops)
+4. **Reuse** existing smoke navigate / header steps and [`IcmSidebarPage`](pages/sidebar/IcmSidebarPage.ts) methods when the UI path is identical
+5. **Append-only** new methods when owner nav differs (e.g. Commission Setup vs Statement Setup) — see `openCommissionSetup()` / `CommissionManagementPage`; owner-specific steps live in [`steps/smoke/role.steps.ts`](steps/smoke/role.steps.ts)
+6. **Step conflicts**: if Gherkin text collides, add a page-name suffix (`as agency owner` / `on owner smoke`) per step-conflict-resolution
+7. **Validate**: `yarn bddgen` then `yarn test -g "@owner-modules"` — one simple fix, then escalate
+
+## Depth
+
+Smoke bar: sidebar open → URL/header (and key shell controls). Full E2E statement/payment clones under owner are out of scope unless explicitly requested.
+
+## Tags
+
+| Tag | Use |
+|-----|-----|
+| `@owner` | Agency owner role scenarios |
+| `@owner-modules` | Sidebar module parity (filter for this suite) |
+| `@sidebar-*` | Same per-menu tags as ops smoke for targeted runs |

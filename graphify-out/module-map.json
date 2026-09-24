@@ -1,0 +1,1313 @@
+{
+  "moduleMap": {
+    "pages/shared": [
+      "pages/appPaths.ts"
+    ],
+    "pages/A002_ops_pages/m003_statements/sp001_upload": [
+      "pages/commission-statements/StatementUploadPage.ts",
+      "pages/happy-flow/HappyFlowStatementPage.ts",
+      "pages/transfer-agent/TransferStatementPage.ts"
+    ],
+    "pages/A002_ops_pages/m002_commissions": [
+      "pages/happy-flow/CommissionRulePage.ts"
+    ],
+    "pages/A001_core_pages/m004_Products": [
+      "pages/happy-flow/ProductPage.ts"
+    ],
+    "pages/A002_ops_pages/m004_payment_processing": [
+      "pages/operations/payment-processing/PaymentProcessingPage.ts",
+      "pages/transfer-agent/TransferPaymentPage.ts"
+    ],
+    "pages/shared/sidebar": [
+      "pages/sidebar/IcmSidebarPage.ts"
+    ],
+    "pages/shared/smoke": [
+      "pages/smoke/AgentSmokePage.ts",
+      "pages/smoke/CommissionsSmokePage.ts",
+      "pages/smoke/DashboardSmokePage.ts",
+      "pages/smoke/GridSmokePage.ts",
+      "pages/smoke/locatorHelpers.ts",
+      "pages/smoke/LoginPage.ts",
+      "pages/smoke/ModulesSmokePage.ts",
+      "pages/smoke/PaymentProcessingSmokePage.ts",
+      "pages/smoke/ProfilePage.ts",
+      "pages/smoke/SettingsSmokePage.ts",
+      "pages/smoke/StatementsSmokePage.ts",
+      "pages/smoke/UserManagementSmokePage.ts"
+    ],
+    "pages/A002_ops_pages/m005_settings": [
+      "pages/transfer-agent/TransferSheetPage.ts"
+    ],
+    "pages/A001_core_pages/m001_user-management": [
+      "pages/user-management/UserManagementPage.ts"
+    ]
+  },
+  "stepPageMap": [
+    {
+      "stepFile": "steps/commission-statements/common.steps.ts",
+      "featureFile": null,
+      "pageImports": [
+        "../../pages/smoke/LoginPage"
+      ],
+      "phrases": [
+        {
+          "kind": "Given",
+          "phrase": "I am logged into PieQ ICM for statement upload tests"
+        }
+      ]
+    },
+    {
+      "stepFile": "steps/commission-statements/statement-upload.steps.ts",
+      "featureFile": "features/e2e-commission-statements/statement-upload-renewal.feature",
+      "pageImports": [],
+      "phrases": [
+        {
+          "kind": "Given",
+          "phrase": "the renewal statement upload file is prepared for upload"
+        },
+        {
+          "kind": "When",
+          "phrase": "I open the commission statement upload page"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the upload process button is disabled"
+        },
+        {
+          "kind": "When",
+          "phrase": "I upload the prepared renewal statement file"
+        },
+        {
+          "kind": "When",
+          "phrase": "I remove the uploaded statement file"
+        },
+        {
+          "kind": "When",
+          "phrase": "I select statement type {string}"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the upload process button is enabled"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the carrier and product type auto-detect fields are disabled"
+        },
+        {
+          "kind": "When",
+          "phrase": "I submit the statement upload"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the recently uploaded statements grid shows my upload in progress"
+        },
+        {
+          "kind": "When",
+          "phrase": "I refresh the recently uploaded statements grid"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the stored upload row shows status Waiting and stage Review"
+        },
+        {
+          "kind": "When",
+          "phrase": "I open the review page for the stored upload"
+        },
+        {
+          "kind": "Then",
+          "phrase": "I see the review statement file page for the stored upload"
+        },
+        {
+          "kind": "When",
+          "phrase": "I submit the statement for processing"
+        },
+        {
+          "kind": "Then",
+          "phrase": "I see the statement upload success notifications"
+        },
+        {
+          "kind": "When",
+          "phrase": "I open payable line items from the sidebar"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the payable line items source trace contains the stored file id"
+        }
+      ]
+    },
+    {
+      "stepFile": "steps/fixtures.ts",
+      "featureFile": null,
+      "pageImports": [
+        "../pages/smoke/LoginPage",
+        "../pages/user-management/UserManagementPage",
+        "../pages/smoke/AgentSmokePage",
+        "../pages/smoke/CommissionsSmokePage",
+        "../pages/smoke/DashboardSmokePage",
+        "../pages/smoke/ModulesSmokePage",
+        "../pages/smoke/PaymentProcessingSmokePage",
+        "../pages/smoke/SettingsSmokePage",
+        "../pages/transfer-agent/TransferSheetPage",
+        "../pages/transfer-agent/TransferStatementPage",
+        "../pages/transfer-agent/TransferPaymentPage",
+        "../pages/smoke/StatementsSmokePage",
+        "../pages/smoke/UserManagementSmokePage",
+        "../pages/happy-flow/ProductPage",
+        "../pages/happy-flow/CommissionRulePage",
+        "../pages/happy-flow/HappyFlowStatementPage"
+      ],
+      "phrases": []
+    },
+    {
+      "stepFile": "steps/happy-flow/common.steps.ts",
+      "featureFile": null,
+      "pageImports": [],
+      "phrases": []
+    },
+    {
+      "stepFile": "steps/happy-flow/happy-flow-001.steps.ts",
+      "featureFile": "features/e2e-happy-flow/happy-flow-001.feature",
+      "pageImports": [],
+      "phrases": [
+        {
+          "kind": "Given",
+          "phrase": "happy flow 001 product data is prepared"
+        },
+        {
+          "kind": "When",
+          "phrase": "I open the products page"
+        },
+        {
+          "kind": "When",
+          "phrase": "I click add product"
+        },
+        {
+          "kind": "When",
+          "phrase": "I fill the product mandate fields from prepared data"
+        },
+        {
+          "kind": "When",
+          "phrase": "I save the new product"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the product document is loaded"
+        },
+        {
+          "kind": "Then",
+          "phrase": "I am on the products dashboard page"
+        },
+        {
+          "kind": "When",
+          "phrase": "I open the product from the grid by prepared product name"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the product edit page title contains the prepared product name"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the product status chip shows {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I open commission structure for the product"
+        },
+        {
+          "kind": "When",
+          "phrase": "I click add commission rule"
+        },
+        {
+          "kind": "When",
+          "phrase": "I select commission type {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I save the add commission rule dialog"
+        },
+        {
+          "kind": "Then",
+          "phrase": "I am on the edit commission rule page"
+        },
+        {
+          "kind": "When",
+          "phrase": "I set the commission rule policy start date to the prepared effective date"
+        },
+        {
+          "kind": "When",
+          "phrase": "I set policy period slabs to {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I save the commission rule policy period changes"
+        },
+        {
+          "kind": "When",
+          "phrase": "I select commission template {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I publish the commission rule"
+        },
+        {
+          "kind": "Then",
+          "phrase": "I see a sliding notification containing {string}"
+        },
+        {
+          "kind": "Given",
+          "phrase": "the happy flow CSV file is prepared"
+        },
+        {
+          "kind": "When",
+          "phrase": "I upload the prepared happy flow CSV file"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the happy flow upload is located and file ID is captured"
+        },
+        {
+          "kind": "When",
+          "phrase": "I wait {int} seconds"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the stored happy flow upload shows status {string} and stage {string}"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the review URL contains the file ID"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the review page title is {string}"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the review page subtitle shows the file name and {string}"
+        },
+        {
+          "kind": "Then",
+          "phrase": "every transaction type is {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I hover over the warning icon on the review page"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the tooltip contains {string} and {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I click complete review and confirm"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the stored happy flow upload shows stage {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I click the stored happy flow upload record"
+        },
+        {
+          "kind": "Then",
+          "phrase": "all records show payment status {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I search payables by the uploaded filename"
+        },
+        {
+          "kind": "When",
+          "phrase": "I click all records containing the stored file id"
+        },
+        {
+          "kind": "When",
+          "phrase": "I click all records containing the uploaded filename"
+        },
+        {
+          "kind": "When",
+          "phrase": "I remove agents below $25.00 if required"
+        },
+        {
+          "kind": "When",
+          "phrase": "I open the record initiated today by {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I capture the payment batch id"
+        },
+        {
+          "kind": "When",
+          "phrase": "I capture the batch id"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the page title contains the batch id"
+        },
+        {
+          "kind": "When",
+          "phrase": "I open a record for the captured batch id"
+        }
+      ]
+    },
+    {
+      "stepFile": "steps/smoke/commissions.steps.ts",
+      "featureFile": null,
+      "pageImports": [],
+      "phrases": [
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate statement setup list"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate statement setup create"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate back to statement setup list"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate statement setup edit from grid"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke open commission structure from statement setup edit"
+        }
+      ]
+    },
+    {
+      "stepFile": "steps/smoke/common.steps.ts",
+      "featureFile": null,
+      "pageImports": [
+        "../../pages/smoke/LoginPage"
+      ],
+      "phrases": [
+        {
+          "kind": "Given",
+          "phrase": "I am logged into PieQ ICM for smoke tests"
+        }
+      ]
+    },
+    {
+      "stepFile": "steps/smoke/modules.steps.ts",
+      "featureFile": null,
+      "pageImports": [],
+      "phrases": [
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate carriers list"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate carriers create"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate back to carriers list"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate carriers edit from grid"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate agents list"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate agents add"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate back to agents list"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate agents edit from grid"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate products list"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate products create"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate back to products list"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate products edit from grid"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke open product commission structure from edit page"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate policies list"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate policies create"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate back to policies list"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate policies edit from grid"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate policy commission configuration"
+        }
+      ]
+    },
+    {
+      "stepFile": "steps/smoke/payment-processing.steps.ts",
+      "featureFile": null,
+      "pageImports": [],
+      "phrases": [
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate payment processing payables"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate payment processing approval"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke open payment approval record and verify authorize button"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate payment processing history"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke open disbursement history record with finalized chip"
+        }
+      ]
+    },
+    {
+      "stepFile": "steps/smoke/role.steps.ts",
+      "featureFile": null,
+      "pageImports": [
+        "../../pages/smoke/ProfilePage"
+      ],
+      "phrases": [
+        {
+          "kind": "Given",
+          "phrase": "I am logged into PieQ ICM as {string}"
+        },
+        {
+          "kind": "Then",
+          "phrase": "my profile role should be {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke open agency owner dashboard"
+        },
+        {
+          "kind": "Then",
+          "phrase": "agency owner dashboard components are visible"
+        },
+        {
+          "kind": "When",
+          "phrase": "I set dashboard time filter to {string}"
+        },
+        {
+          "kind": "Then",
+          "phrase": "dashboard shows date range from start of this month through today"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke open operations manager dashboard"
+        },
+        {
+          "kind": "Then",
+          "phrase": "operations manager dashboard components are visible"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate all agent accessible pages"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate agent ledger"
+        },
+        {
+          "kind": "When",
+          "phrase": "I sign out from PieQ ICM"
+        },
+        {
+          "kind": "Then",
+          "phrase": "I am logged out of PieQ ICM"
+        }
+      ]
+    },
+    {
+      "stepFile": "steps/smoke/settings.steps.ts",
+      "featureFile": null,
+      "pageImports": [],
+      "phrases": [
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate settings prompts"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate settings commission templates"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate settings transfer sheet"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate settings agency configuration"
+        }
+      ]
+    },
+    {
+      "stepFile": "steps/smoke/statements.steps.ts",
+      "featureFile": "features/e2e-commission-statements/statement-upload-renewal.feature",
+      "pageImports": [],
+      "phrases": [
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate commission statements upload"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate commission statements history"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate commission statement details from history grid"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate commission statements needs attention"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate commission reconciliation from needs attention"
+        }
+      ]
+    },
+    {
+      "stepFile": "steps/smoke/user-management.steps.ts",
+      "featureFile": "features/users/user-management.feature",
+      "pageImports": [],
+      "phrases": [
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate user management list"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate user management add user"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate back to user management list"
+        },
+        {
+          "kind": "When",
+          "phrase": "I smoke navigate user management edit from grid"
+        }
+      ]
+    },
+    {
+      "stepFile": "steps/transfer-sheet/transfer-sheet.steps.ts",
+      "featureFile": "features/e2e-transfer-sheet/transfer-sheet.feature",
+      "pageImports": [],
+      "phrases": [
+        {
+          "kind": "Given",
+          "phrase": "I open the transfer sheet page"
+        },
+        {
+          "kind": "Given",
+          "phrase": "a transfer sheet record exists for agent {string} product {string} with status {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I attempt to add a duplicate transfer sheet record for agent {string} product {string} with status {string} and date 3 years back"
+        },
+        {
+          "kind": "When",
+          "phrase": "I attempt to add a transfer sheet record for agent {string} product {string} with status {string} and date {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I add a transfer sheet record for agent {string} product {string} with status {string} and date 3 years back"
+        },
+        {
+          "kind": "When",
+          "phrase": "I add a transfer sheet record for agent {string} product {string} with status {string} and date {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I ensure a transfer sheet record exists for agent {string} product {string} with status {string} and date 3 years back"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the transfer sheet grid contains the new record"
+        },
+        {
+          "kind": "Then",
+          "phrase": "I see a sliding notification error {string}"
+        },
+        {
+          "kind": "Given",
+          "phrase": "the transfer agent excel file is prepared for upload"
+        },
+        {
+          "kind": "When",
+          "phrase": "I upload the prepared transfer agent file"
+        },
+        {
+          "kind": "Then",
+          "phrase": "I see a success notification"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the recently uploaded statements grid shows my upload and I capture the file id"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the warning tooltip on the review page contains {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I confirm the statement submission"
+        },
+        {
+          "kind": "When",
+          "phrase": "I navigate to needs attention statements"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the stored upload row shows status {string} and stage {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I open the stored upload from needs attention"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the commission details page shows:"
+        },
+        {
+          "kind": "Then",
+          "phrase": "I store the agent commission amount as {string}"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the page subtitle contains the file name, carrier {string}, and upload date"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the warning tooltip contains {string}"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the grid displays records with {string} and status {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I click a record with status {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I select transferring agent {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I enter rationale {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I click reconcile"
+        },
+        {
+          "kind": "When",
+          "phrase": "I refresh the grid"
+        },
+        {
+          "kind": "When",
+          "phrase": "I click the next record with status {string}"
+        },
+        {
+          "kind": "Then",
+          "phrase": "I see a notification containing {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I navigate to payable line items"
+        },
+        {
+          "kind": "When",
+          "phrase": "I search payables by the stored file id"
+        },
+        {
+          "kind": "When",
+          "phrase": "I select all visible records"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the right sidebar shows:"
+        },
+        {
+          "kind": "When",
+          "phrase": "I click create payment"
+        },
+        {
+          "kind": "When",
+          "phrase": "I confirm the payment batch"
+        },
+        {
+          "kind": "Then",
+          "phrase": "I see a success notification containing {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I navigate to payment approval"
+        },
+        {
+          "kind": "When",
+          "phrase": "I open the first record containing {string}"
+        },
+        {
+          "kind": "Then",
+          "phrase": "I capture the batch id starting with {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I click authorize payment"
+        },
+        {
+          "kind": "When",
+          "phrase": "I confirm the authorization"
+        },
+        {
+          "kind": "When",
+          "phrase": "I navigate to disbursement history"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the page title is {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I open a record for agent {string}"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the finalized settlement chip is visible"
+        }
+      ]
+    },
+    {
+      "stepFile": "steps/users/common.steps.ts",
+      "featureFile": null,
+      "pageImports": [
+        "../../pages/smoke/LoginPage"
+      ],
+      "phrases": [
+        {
+          "kind": "Given",
+          "phrase": "I am logged into PieQ ICM for user management tests"
+        }
+      ]
+    },
+    {
+      "stepFile": "steps/users/user-management.steps.ts",
+      "featureFile": "features/users/user-management.feature",
+      "pageImports": [],
+      "phrases": [
+        {
+          "kind": "When",
+          "phrase": "I open the User Management dashboard"
+        },
+        {
+          "kind": "When",
+          "phrase": "I click add user"
+        },
+        {
+          "kind": "When",
+          "phrase": "I fill mandatory fields only"
+        },
+        {
+          "kind": "When",
+          "phrase": "I select role {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I click save button"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the user is saved and I am on the User Management dashboard"
+        },
+        {
+          "kind": "When",
+          "phrase": "I fill email with invalid value"
+        },
+        {
+          "kind": "When",
+          "phrase": "I fill email with long valid format"
+        },
+        {
+          "kind": "When",
+          "phrase": "I fill valid email"
+        },
+        {
+          "kind": "When",
+          "phrase": "I fill valid firstname and lastname"
+        },
+        {
+          "kind": "Then",
+          "phrase": "I see email validation error"
+        },
+        {
+          "kind": "Then",
+          "phrase": "I see name validation errors"
+        },
+        {
+          "kind": "When",
+          "phrase": "I fill name with special characters"
+        },
+        {
+          "kind": "When",
+          "phrase": "I fill mandatory fields with duplicate email"
+        },
+        {
+          "kind": "Then",
+          "phrase": "I see duplicate email error"
+        },
+        {
+          "kind": "When",
+          "phrase": "I search the grid for {string}"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the grid search response is {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I filter the grid by {string} with value {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I filter by {string} with value {string}"
+        },
+        {
+          "kind": "Then",
+          "phrase": "all visible grid rows have status {string}"
+        },
+        {
+          "kind": "Then",
+          "phrase": "all visible rows have status {string}"
+        },
+        {
+          "kind": "Then",
+          "phrase": "all visible grid rows have role {string}"
+        },
+        {
+          "kind": "When",
+          "phrase": "I clear all grid filters"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the grid has records displayed"
+        },
+        {
+          "kind": "Then",
+          "phrase": "grid filters are cleared"
+        },
+        {
+          "kind": "Then",
+          "phrase": "registered users KPI matches total records count"
+        },
+        {
+          "kind": "Then",
+          "phrase": "active users KPI is consistent with registered users"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the grid shows zero total records"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the grid displays no records found"
+        },
+        {
+          "kind": "When",
+          "phrase": "I toggle off grid column {string}"
+        },
+        {
+          "kind": "Then",
+          "phrase": "grid column {string} is not visible"
+        },
+        {
+          "kind": "Then",
+          "phrase": "Reset the column"
+        },
+        {
+          "kind": "When",
+          "phrase": "I sort column {string} ascending"
+        },
+        {
+          "kind": "When",
+          "phrase": "I sort column {string} descending"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the grid is sorted by {string} ascending"
+        },
+        {
+          "kind": "Then",
+          "phrase": "the grid is sorted by {string} descending"
+        },
+        {
+          "kind": "When",
+          "phrase": "I search for user to edit"
+        },
+        {
+          "kind": "When",
+          "phrase": "I open edit for the first user from active search"
+        },
+        {
+          "kind": "When",
+          "phrase": "I apply conditional edit form updates"
+        },
+        {
+          "kind": "When",
+          "phrase": "I save edited user"
+        },
+        {
+          "kind": "Then",
+          "phrase": "I see validation errors"
+        },
+        {
+          "kind": "Then",
+          "phrase": "I capture a screenshot of the add user validation errors"
+        },
+        {
+          "kind": "Then",
+          "phrase": "I capture a screenshot of the user management page"
+        }
+      ]
+    }
+  ],
+  "featureSummaries": [
+    {
+      "featureFile": "features/e2e-commission-statements/statement-upload-renewal.feature",
+      "stepLines": [
+        "Given I am logged into PieQ ICM for statement upload tests",
+        "Given the renewal statement upload file is prepared for upload",
+        "When I open the commission statement upload page",
+        "Then the upload process button is disabled",
+        "When I upload the prepared renewal statement file",
+        "And I remove the uploaded statement file",
+        "Then the upload process button is disabled",
+        "Given the renewal statement upload file is prepared for upload",
+        "When I upload the prepared renewal statement file",
+        "And I select statement type \"Aetna ACA\"",
+        "Then the upload process button is enabled",
+        "And the carrier and product type auto-detect fields are disabled",
+        "When I submit the statement upload",
+        "Then the recently uploaded statements grid shows my upload in progress",
+        "When I refresh the recently uploaded statements grid",
+        "Then the stored upload row shows status Waiting and stage Review",
+        "When I open the review page for the stored upload",
+        "Then I see the review statement file page for the stored upload",
+        "When I submit the statement for processing",
+        "Then I see the statement upload success notifications",
+        "When I open payable line items from the sidebar",
+        "Then the payable line items source trace contains the stored file id"
+      ]
+    },
+    {
+      "featureFile": "features/e2e-happy-flow/happy-flow-001.feature",
+      "stepLines": [
+        "Given I am logged into PieQ ICM as \"operations manager\"",
+        "Given happy flow 001 product data is prepared",
+        "When I open the products page",
+        "And I click add product",
+        "And I fill the product mandate fields from prepared data",
+        "And I save the new product",
+        "Then the product document is loaded",
+        "And I am on the products dashboard page",
+        "When I open the product from the grid by prepared product name",
+        "Then the product edit page title contains the prepared product name",
+        "And the product status chip shows \"Active\"",
+        "When I open commission structure for the product",
+        "And I click add commission rule",
+        "And I select commission type \"Commission\"",
+        "And I save the add commission rule dialog",
+        "Then I am on the edit commission rule page",
+        "When I set the commission rule policy start date to the prepared effective date",
+        "And I set policy period slabs to \"10\"",
+        "And I save the commission rule policy period changes",
+        "And I select commission template \"ACA - Carrier with OVR - Regular\"",
+        "And I publish the commission rule",
+        "Then I see a sliding notification containing \"Rule published successfully\"",
+        "Given the happy flow CSV file is prepared",
+        "When I open the commission statement upload page",
+        "And I upload the prepared happy flow CSV file",
+        "And I select statement type \"Aetna ACA\"",
+        "And I submit the statement upload",
+        "Then the happy flow upload is located and file ID is captured",
+        "When I wait 2 seconds",
+        "And I refresh the recently uploaded statements grid",
+        "Then the stored happy flow upload shows status \"Waiting\" and stage \"Review\"",
+        "When I open the review page for the stored upload",
+        "Then the review URL contains the file ID",
+        "And the review page title is \"Review Statement File\"",
+        "And the review page subtitle shows the file name and \"Aetna ACA\"",
+        "And every transaction type is \"NB\"",
+        "When I hover over the warning icon on the review page",
+        "Then the tooltip contains \"Policy Number\" and \"New Policy\"",
+        "When I click complete review and confirm",
+        "When I wait 2 seconds",
+        "And I refresh the recently uploaded statements grid",
+        "Then the stored happy flow upload shows stage \"Completed\"",
+        "When I click the stored happy flow upload record",
+        "Then all records show payment status \"Ready for Payment\"",
+        "When I navigate to payable line items",
+        "And I search payables by the uploaded filename",
+        "And I click all records containing the uploaded filename",
+        "And I remove agents below $25.00 if required",
+        "And I click create payment",
+        "And I confirm the payment batch",
+        "When I navigate to payment approval",
+        "And I open the record initiated today by \"Deva\"",
+        "And I capture the payment batch id",
+        "Then the page title contains the batch id",
+        "When I click authorize payment",
+        "And I confirm the authorization",
+        "When I navigate to disbursement history",
+        "Then the page title is \"Disbursement History\"",
+        "When I open a record for the captured batch id",
+        "Then the finalized settlement chip is visible"
+      ]
+    },
+    {
+      "featureFile": "features/e2e-transfer-sheet/transfer-sheet.feature",
+      "stepLines": [
+        "Given I am logged into PieQ ICM as \"operations manager\"",
+        "Given I open the transfer sheet page",
+        "And a transfer sheet record exists for agent \"Test Transfer Agent\" product \"Aetna-Test-Product\" with status \"Active\"",
+        "When I attempt to add a duplicate transfer sheet record for agent \"Test Transfer Agent\" product \"Aetna-Test-Product\" with status \"Active\" and date 3 years back",
+        "Then I see a sliding notification error \"A transfer sheet already exists for this carrier agent and product\"",
+        "Given I open the transfer sheet page",
+        "When I attempt to add a transfer sheet record for agent \"Test Transfer Agent\" product \"Aetna-Test-Product\" with status \"Active\" and date \"00/00/0000\"",
+        "Then I see a sliding notification error \"Please enter a valid effective date.\"",
+        "Given I open the transfer sheet page",
+        "When I ensure a transfer sheet record exists for agent \"Test Transfer Agent\" product \"Aetna-Test-Product\" with status \"Active\" and date 3 years back",
+        "Given the transfer agent excel file is prepared for upload",
+        "When I open the commission statement upload page",
+        "And I upload the prepared transfer agent file",
+        "And I select statement type \"Aetna ACA\"",
+        "And I submit the statement upload",
+        "Then I see a success notification",
+        "When I refresh the recently uploaded statements grid",
+        "Then the recently uploaded statements grid shows my upload and I capture the file id",
+        "When I open the review page for the stored upload",
+        "Then the warning tooltip on the review page contains \"New Policy\"",
+        "When I submit the statement for processing",
+        "And I confirm the statement submission",
+        "Then I see a success notification",
+        "When I navigate to needs attention statements",
+        "Then the stored upload row shows status \"waiting\" and stage \"review\"",
+        "When I open the stored upload from needs attention",
+        "Then the commission details page shows:",
+        "And I store the agent commission amount as \"commission-amt\"",
+        "And the page subtitle contains the file name, carrier \"Aetna\", and upload date",
+        "And the warning tooltip contains \"Policy Transfer Required\"",
+        "And the grid displays records with \"NB\" and status \"Unmatched\"",
+        "When I click a record with status \"Policy Transfer\"",
+        "And I select transferring agent \"DevaTest Agent\"",
+        "And I enter rationale \"Testing...\"",
+        "And I click reconcile",
+        "Then I see a success notification",
+        "When I refresh the grid",
+        "And I click the next record with status \"Unmatched\"",
+        "Then I see a notification containing \"Policy is already created with the Number\"",
+        "When I navigate to payable line items",
+        "And I search payables by the stored file id",
+        "And I select all visible records",
+        "Then the right sidebar shows:",
+        "When I click create payment",
+        "And I confirm the payment batch",
+        "Then I see a success notification containing \"Successfully created payment batch\"",
+        "When I navigate to payment approval",
+        "And I open the first record containing \"Deva\"",
+        "Then I capture the batch id starting with \"PAY-\"",
+        "When I click authorize payment",
+        "And I confirm the authorization",
+        "Then I see a success notification",
+        "When I navigate to disbursement history",
+        "Then the page title is \"Disbursement History\"",
+        "When I open a record for agent \"DevaTest Agent\"",
+        "Then the finalized settlement chip is visible"
+      ]
+    },
+    {
+      "featureFile": "features/smoke/smoke.feature",
+      "stepLines": [
+        "Given I am logged into PieQ ICM for smoke tests",
+        "When I smoke navigate user management list",
+        "And I smoke navigate user management add user",
+        "And I smoke navigate back to user management list",
+        "And I smoke navigate user management edit from grid",
+        "When I smoke navigate carriers list",
+        "And I smoke navigate carriers create",
+        "And I smoke navigate back to carriers list",
+        "And I smoke navigate carriers edit from grid",
+        "When I smoke navigate agents list",
+        "And I smoke navigate agents add",
+        "And I smoke navigate back to agents list",
+        "And I smoke navigate agents edit from grid",
+        "When I smoke navigate products list",
+        "And I smoke navigate products create",
+        "And I smoke navigate back to products list",
+        "And I smoke navigate products edit from grid",
+        "When I smoke navigate products list",
+        "And I smoke navigate products edit from grid",
+        "And I smoke open product commission structure from edit page",
+        "When I smoke navigate policies list",
+        "And I smoke navigate policies create",
+        "And I smoke navigate back to policies list",
+        "And I smoke navigate policies edit from grid",
+        "And I smoke navigate policy commission configuration",
+        "When I smoke navigate statement setup list",
+        "And I smoke navigate statement setup create",
+        "And I smoke navigate back to statement setup list",
+        "And I smoke navigate statement setup edit from grid",
+        "When I smoke navigate commission statements upload",
+        "And I smoke navigate commission statements history",
+        "And I smoke navigate commission statement details from history grid",
+        "And I smoke navigate commission statements needs attention",
+        "And I smoke navigate commission reconciliation from needs attention",
+        "When I smoke navigate payment processing payables",
+        "And I smoke navigate payment processing approval",
+        "And I smoke open payment approval record and verify authorize button",
+        "And I smoke navigate payment processing history",
+        "And I smoke open disbursement history record with finalized chip",
+        "When I smoke navigate settings prompts",
+        "And I smoke navigate settings commission templates",
+        "And I smoke navigate settings transfer sheet",
+        "And I smoke navigate settings agency configuration",
+        "Then my profile role should be \"Operations Manager\"",
+        "Given I am logged into PieQ ICM as \"agent\"",
+        "Then my profile role should be \"Agent\"",
+        "When I smoke navigate all agent accessible pages",
+        "And I smoke navigate agent ledger",
+        "Given I am logged into PieQ ICM as \"agency owner\"",
+        "Then my profile role should be \"Agency Owner\"",
+        "When I smoke open agency owner dashboard",
+        "Then agency owner dashboard components are visible",
+        "When I set dashboard time filter to \"This Month\"",
+        "Then dashboard shows date range from start of this month through today",
+        "Given I am logged into PieQ ICM as \"operations manager\"",
+        "Then my profile role should be \"Operations Manager\"",
+        "When I smoke open operations manager dashboard",
+        "Then operations manager dashboard components are visible",
+        "When I sign out from PieQ ICM",
+        "Then I am logged out of PieQ ICM"
+      ]
+    },
+    {
+      "featureFile": "features/users/user-management.feature",
+      "stepLines": [
+        "Given I am logged into PieQ ICM for user management tests",
+        "When I open the User Management dashboard",
+        "And I click add user",
+        "And I fill mandatory fields only",
+        "And I select role \"Operations Manager\"",
+        "And I click save button",
+        "Then the user is saved and I am on the User Management dashboard",
+        "When I open the User Management dashboard",
+        "And I click add user",
+        "And I fill email with invalid value",
+        "And I fill valid firstname and lastname",
+        "And I select role \"Operations Manager\"",
+        "And I click save button",
+        "Then I see email validation error",
+        "When I open the User Management dashboard",
+        "And I click add user",
+        "And I fill name with special characters",
+        "And I fill valid email",
+        "And I select role \"Operations Manager\"",
+        "And I click save button",
+        "Then I see name validation errors",
+        "When I open the User Management dashboard",
+        "And I click add user",
+        "And I fill email with long valid format",
+        "And I fill valid firstname and lastname",
+        "And I select role \"Operations Manager\"",
+        "And I click save button",
+        "Then I see validation errors",
+        "And I capture a screenshot of the add user validation errors",
+        "When I open the User Management dashboard",
+        "And I click add user",
+        "And I fill mandatory fields with duplicate email",
+        "And I select role \"Operations Manager\"",
+        "And I click save button",
+        "Then I see duplicate email error",
+        "When I open the User Management dashboard",
+        "And I search the grid for \"<query>\"",
+        "Then the grid search response is \"<result>\"",
+        "When I open the User Management dashboard",
+        "And I filter the grid by \"Status\" with value \"<status>\"",
+        "Then all visible grid rows have status \"<status>\"",
+        "When I open the User Management dashboard",
+        "And I filter the grid by \"Role\" with value \"<role>\"",
+        "Then all visible grid rows have role \"<role>\"",
+        "When I open the User Management dashboard",
+        "And I filter the grid by \"Status\" with value \"Active\"",
+        "And I clear all grid filters",
+        "Then the grid has records displayed",
+        "And grid filters are cleared",
+        "When I open the User Management dashboard",
+        "Then registered users KPI matches total records count",
+        "And active users KPI is consistent with registered users",
+        "When I open the User Management dashboard",
+        "And I search the grid for \"zzz-invalid-no-match-xyz\"",
+        "Then the grid shows zero total records",
+        "And the grid displays no records found",
+        "When I open the User Management dashboard",
+        "And I toggle off grid column \"<column>\"",
+        "Then grid column \"<column>\" is not visible",
+        "And Reset the column",
+        "When I open the User Management dashboard",
+        "And I search the grid for \"e2e\"",
+        "When I sort column \"<column>\" ascending",
+        "Then the grid is sorted by \"<column>\" ascending",
+        "When I sort column \"<column>\" descending",
+        "Then the grid is sorted by \"<column>\" descending",
+        "When I open the User Management dashboard",
+        "And I search for user to edit",
+        "And I open edit for the first user from active search",
+        "And I apply conditional edit form updates",
+        "And I save edited user",
+        "Then the user is saved and I am on the User Management dashboard",
+        "When I open the User Management dashboard",
+        "Then I capture a screenshot of the user management page"
+      ]
+    }
+  ]
+}

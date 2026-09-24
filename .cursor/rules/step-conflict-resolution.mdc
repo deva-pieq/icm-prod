@@ -1,0 +1,91 @@
+---
+description: When writing new Gherkin scenarios, check for step definition conflicts and add page-name suffix if needed
+globs: features/**/*.feature
+alwaysApply: true
+---
+
+# Step Definition Conflict Resolution
+
+When writing new Gherkin feature scenarios in this project, you MUST check for step definition text conflicts before finalizing.
+
+## Why conflicts happen
+
+`playwright-bdd` loads all `steps/**/*.ts` files globally. If two step definition files register the same Gherkin text (the first argument to `Given`/`When`/`Then`), the runner throws:
+
+```
+Error: Multiple definitions matched scenario step.
+```
+
+This commonly occurs when two modules (e.g. Ops Manager Dashboard and Agency Owner Dashboard) have similar UI concepts with identical Gherkin phrasing.
+
+## Workflow
+
+### 1. Before writing a new scenario
+
+Search existing step definitions in `steps/` for any step text you plan to write:
+
+```bash
+rg "Then\('the viewing period" steps/ --include '*.ts'
+```
+
+If an **exact match** exists, your new step MUST use a **page-name suffix** to differentiate it.
+
+### 2. Adding the page-name suffix
+
+Modify both the `.feature` file AND the step definition to append ` {page-name}`:
+
+**Feature file (before):**
+```gherkin
+Then the viewing period shows last month's date range
+```
+
+**Feature file (after):**
+```gherkin
+Then the viewing period shows last month's date range on agency dashboard
+```
+
+**Step definition (before):**
+```typescript
+Then('the viewing period shows last month\'s date range', async ({ agencyOwnerDashboardPage }) => { ... });
+```
+
+**Step definition (after):**
+```typescript
+Then('the viewing period shows last month\'s date range on agency dashboard', async ({ agencyOwnerDashboardPage }) => { ... });
+```
+
+### 3. Conventions for page-name suffixes
+
+| Page | Suffix |
+|---|---|
+| Agency Owner Dashboard | `on agency dashboard` |
+| Ops Manager Dashboard | `on ops manager dashboard` |
+| User Management | `in user management` |
+| Product Management | `in products` |
+| Statement Upload | `on statement upload` |
+| Commission Split | `in commission split` |
+| Transfer Sheet | `on transfer sheet` |
+
+For pages not listed, use the module directory name (e.g. if steps live in `steps/carriers/`, use `in carriers`).
+
+### 4. Validation
+
+After adding the suffix, run `bddgen` to confirm no duplicate step conflicts:
+
+```bash
+npx bddgen
+```
+
+If bddgen exits with `Error: Multiple definitions matched scenario step`, your suffix is still conflicting — add more context (e.g. `on agency dashboard by clicking Apply`).
+
+## When NOT to add a suffix
+
+- The step text is already unique (no existing match in any `steps/**/*.ts` file)
+- The step is a generic, shared action used across modules (e.g. login, logout)
+- The step definition is already designed to be reused across modules (uses `{word}` or `{string}` parameters)
+
+## Checklist
+
+- [ ] Searched `steps/` for matching step text before writing
+- [ ] If duplicate found: added `on {page name}` suffix to both feature and step definition
+- [ ] Ran `npx bddgen` and verified zero "Multiple definitions matched" errors

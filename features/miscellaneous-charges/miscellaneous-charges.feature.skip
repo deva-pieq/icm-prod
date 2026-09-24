@@ -1,0 +1,178 @@
+@miscellaneous-charges @regression-test @icm
+Feature: Miscellaneous Charges — page load, add, validate, batch actions, and grid
+
+  Payment Processing Miscellaneous Charges regression.
+  Requires E2E_EMAIL and E2E_PASSWORD in .env.
+
+  Background:
+    Given I am logged into PieQ ICM for miscellaneous charges tests
+
+  @miscellaneous-charges @page @TEST-001-Miscellaneous-Charges-PROD
+  Scenario: T001-MSC-LST — Miscellaneous Charges page loads with correct heading
+    When I open the miscellaneous charges page in misc charges
+    Then the miscellaneous charges heading "Miscellaneous Charges" is displayed
+    And the Add Miscellaneous Charge button is visible in misc charges
+
+  @miscellaneous-charges @page @TEST-002-Miscellaneous-Charges-PROD
+  Scenario: T002-MSC-GRD — Grid displays all required columns
+    When I open the miscellaneous charges page in misc charges
+    Then the miscellaneous charges grid shows all expected columns
+
+  @miscellaneous-charges @page @TEST-003-Miscellaneous-Charges-PROD
+  Scenario: T003-MSC-EMP — Empty grid shows No Records Found
+    When I open the miscellaneous charges page in misc charges
+    Then the miscellaneous charges grid shows the empty state or has records
+
+  @miscellaneous-charges @page @TEST-004-Miscellaneous-Charges-PROD
+  Scenario: T004-MSC-SRC — Search box placeholder text is displayed
+    When I open the miscellaneous charges page in misc charges
+    Then the miscellaneous charges search placeholder contains "Search by agent"
+
+  @miscellaneous-charges @page @TEST-005-Miscellaneous-Charges-PROD
+  Scenario: T005-MSC-FTR — Footer shows record count
+    When I open the miscellaneous charges page in misc charges
+    Then the miscellaneous charges footer shows record count
+
+  @miscellaneous-charges @add @modal @TEST-006-Miscellaneous-Charges-PROD
+  Scenario: T006-MSC-ADD — Add Miscellaneous Charge modal opens with all fields
+    When I open the miscellaneous charges page in misc charges
+    When I click the Add Miscellaneous Charge button in misc charges
+    Then the miscellaneous charges modal heading is displayed
+    And the miscellaneous charges Save button is disabled
+
+  @miscellaneous-charges @add @modal @TEST-007-Miscellaneous-Charges-PROD
+  Scenario: T007-MSC-TDT — Transaction Date defaults to today's date
+    When I open the miscellaneous charges page in misc charges
+    When I click the Add Miscellaneous Charge button in misc charges
+    Then the miscellaneous charges transaction date defaults to today
+
+  @miscellaneous-charges @add @validation @TEST-008-Miscellaneous-Charges-PROD
+  Scenario: T008-MSC-SDI — Save is disabled when required fields are empty
+    When I open the miscellaneous charges page in misc charges
+    When I click the Add Miscellaneous Charge button in misc charges
+    Then the miscellaneous charges Save button is disabled
+
+  @miscellaneous-charges @add @modal @TEST-009-Miscellaneous-Charges-PROD
+  Scenario: T009-MSC-CLS — Close button closes modal without saving
+    When I open the miscellaneous charges page in misc charges
+    When I click the Add Miscellaneous Charge button in misc charges
+    When I click the modal close button in misc charges
+    Then the miscellaneous charges modal is not visible
+
+  @miscellaneous-charges @add @modal @TEST-010-Miscellaneous-Charges-PROD
+  Scenario: T010-MSC-CNL — Cancel with unsaved changes shows confirmation
+    When I open the miscellaneous charges page in misc charges
+    When I click the Add Miscellaneous Charge button in misc charges
+    And I fill misc charges amount with "250"
+    And I fill misc charges description with "Test charge"
+    When I click the modal Cancel button in misc charges
+    Then the Cancel Changes confirmation dialog is displayed
+
+  @miscellaneous-charges @add @modal @TEST-011-Miscellaneous-Charges-PROD
+  Scenario: T011-MSC-KEP — Keep Editing returns to modal preserving values
+    When I open the miscellaneous charges page in misc charges
+    When I click the Add Miscellaneous Charge button in misc charges
+    And I fill misc charges amount with "250"
+    And I fill misc charges description with "Test charge"
+    When I click the modal Cancel button in misc charges
+    When I click Keep Editing in the Cancel Changes dialog
+    Then the miscellaneous charges modal is still visible
+
+  @miscellaneous-charges @add @modal @TEST-012-Miscellaneous-Charges-PROD
+  Scenario: T012-MSC-CFD — Confirming Cancel discards changes and closes modal
+    When I open the miscellaneous charges page in misc charges
+    When I click the Add Miscellaneous Charge button in misc charges
+    And I fill misc charges amount with "250"
+    And I fill misc charges description with "Test charge"
+    When I click the modal Cancel button in misc charges
+    When I click Cancel in the Cancel Changes dialog
+    Then the miscellaneous charges modal is not visible
+
+  @miscellaneous-charges @add @save @TEST-013-Miscellaneous-Charges-PROD
+  Scenario: T013-MSC-SAV — Valid miscellaneous charge saves and appears in grid
+    When I open the miscellaneous charges page in misc charges
+    When I save a miscellaneous charge for agent "90058" with amount "250" and description "E2E test charge"
+    Then the miscellaneous charges grid shows saved charge
+
+  @miscellaneous-charges @add @edit @modal @TEST-020-Miscellaneous-Charges-PROD
+  Scenario: T020-MSC-EDT — Edit a misellaneous charge and update fields
+    When I open the miscellaneous charges page in misc charges
+    When I click the Add Miscellaneous Charge button in misc charges
+    And I fill misc charges amount with "250"
+    And I fill misc charges description with "Original charge"
+    And I click the modal Save button in misc charges
+    Then the miscellaneous charges grid shows saved charge
+    And I click the first row in miscellaneous charges grid
+    And I fill misc charges amount with "100"
+    And I fill misc charges description with "Updated charge"
+    When I click the modal Save button in misc charges
+    Then the miscellaneous charges grid shows updated charge
+
+  @miscellaneous-charges @batch @TEST-014-Miscellaneous-Charges-PROD
+  Scenario: T014-MSC-PRC — Process button is disabled when no rows are selected
+    When I open the miscellaneous charges page in misc charges
+    Then the Process button is disabled in misc charges
+    And the Cancel batch button is disabled in misc charges
+
+  @miscellaneous-charges @batch @TEST-015-Miscellaneous-Charges-PROD
+  Scenario: T015-MSC-SLC — Selecting a row enables batch buttons
+    When I open the miscellaneous charges page in misc charges
+    And I select the first row in miscellaneous charges grid
+    Then the Process button is enabled in misc charges
+    And the Cancel batch button is enabled in misc charges
+
+  @miscellaneous-charges @batch @TEST-016-Miscellaneous-Charges-PROD
+  Scenario: T016-MSC-SAL — Select-all checkbox selects all grid rows
+    When I open the miscellaneous charges page in misc charges
+    When I click the select-all checkbox in miscellaneous charges
+    Then the Process button is enabled in misc charges
+
+  @miscellaneous-charges @batch @TEST-021-Miscellaneous-Charges-PROD
+  Scenario: T021-MSC-DEL — Delete a miscellaneous charge
+    When I open the miscellaneous charges page in misc charges
+    And I select the first row in miscellaneous charges grid
+    When I click the Cancel batch button in misc charges
+    Then the Cancel batch button is enabled in misc charges
+    And the Process button is enabled in misc charges
+    When I click the Delete button on the first row in misc charges
+    Then the miscellaneous charge is deleted
+    And the grid shows No Records Found or reduced count
+
+  @miscellaneous-charges @page @toolbar @TEST-022-Miscellaneous-Charges-PROD
+  Scenario: T022-MSC-SRCH — Search box filters results by query
+    When I open the miscellaneous charges page in misc charges
+    When I fill misc charges search with "90058"
+    Then the miscellaneous charges grid shows filtered results for agent "90058"
+    And the miscellaneous charges search placeholder contains "Search by agent"
+
+  @miscellaneous-charges @page @toolbar @TEST-023-Miscellaneous-Charges-PROD
+  Scenario: T023-MSC-STF — Status filter shows specific status
+    When I open the miscellaneous charges page in misc charges
+    And I select the first row in miscellaneous charges grid
+    Then the Process button is enabled in misc charges
+    And the Cancel batch button is enabled in misc charges
+    When I filter misc charges status by "Draft"
+    Then the miscellaneous charges grid shows only Draft status charges
+
+  @miscellaneous-charges @page @toolbar @TEST-017-Miscellaneous-Charges-PROD
+  Scenario: T017-MSC-TLB — Export, Refresh, and Columns toggle are visible
+    When I open the miscellaneous charges page in misc charges
+    Then the miscellaneous charges export button is visible
+    And the miscellaneous charges refresh button is visible
+    And the miscellaneous charges columns toggle is visible
+
+  @miscellaneous-charges @add @validation @TEST-018-Miscellaneous-Charges-PROD
+  Scenario: T018-MSC-AMT — Amount 0 keeps Save disabled
+    When I open the miscellaneous charges page in misc charges
+    When I click the Add Miscellaneous Charge button in misc charges
+    And I fill misc charges amount with "0"
+    And I fill misc charges description with "Test"
+    Then the miscellaneous charges Save button is disabled
+
+  @miscellaneous-charges @add @validation @TEST-019-Miscellaneous-Charges-PROD
+  Scenario: T019-MSC-NEG — Negative amount keeps Save disabled
+    When I open the miscellaneous charges page in misc charges
+    When I click the Add Miscellaneous Charge button in misc charges
+    And I fill misc charges amount with "-50"
+    And I fill misc charges description with "Test"
+    Then the miscellaneous charges Save button is disabled
