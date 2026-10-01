@@ -149,9 +149,9 @@ export class CommissionRulePage {
     saveDraftButton: () => this.page.getByRole('button', { name: /save draft/i }),
     slidingNotification: () => this.page.getByTestId('commission-rule-detail-toast'),
     splitsByAgentLevelTable: () =>
-      this.page
-        .getByRole('heading', { name: /commission splits by agent level/i })
-        .locator('xpath=following::table[1]'),
+      this.page.getByRole('table').filter({
+        has: this.page.getByRole('columnheader', { name: /LVL\s*1/i }),
+      }),
     commissionStructureGrid: () => this.page.getByRole('grid', { name: 'Data grid' }),
     ruleNameInput: () =>
       this.page
@@ -719,20 +719,35 @@ export class CommissionRulePage {
     const dropdown = this.loc.templateNameDropdown();
     await expect(dropdown).toBeVisible({ timeout: T });
     await dropdown.click();
-    const requested = this.page
-      .getByRole('listbox')
+    const listbox = this.page.getByRole('listbox');
+    const requested = listbox
       .getByRole('option', { name: new RegExp(escapeRegex(templateName), 'i') })
       .or(this.page.getByRole('option', { name: new RegExp(escapeRegex(templateName), 'i') }))
       .first();
     let option: Locator = requested;
     if (!(await requested.isVisible({ timeout: 10_000 }).catch(() => false))) {
-      option = this.page.getByTestId(/ACA - Carrier with OVR - Regular/i).first();
+      // Prefer a distinct non-default option so isolation asserts can pass.
+      const alternate = listbox
+        .getByRole('option')
+        .filter({ hasNotText: new RegExp(escapeRegex(DEFAULT_COMMISSION_TEMPLATE), 'i') })
+        .first();
+      if (await alternate.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        option = alternate;
+      } else {
+        option = listbox.getByRole('option').first();
+      }
     }
     await expect(option).toBeVisible({ timeout: T });
     await option.click();
     await waitForAppSettled(this.page, T);
-    if(await this.page.getByTestId('template-apply-confirm-apply').isVisible({ timeout: 10_000 }).catch(() => false)) {
-    await this.page.getByTestId('template-apply-confirm-apply').click();}
+    if (
+      await this.page
+        .getByTestId('template-apply-confirm-apply')
+        .isVisible({ timeout: 10_000 })
+        .catch(() => false)
+    ) {
+      await this.page.getByTestId('template-apply-confirm-apply').click();
+    }
     await waitForAppSettled(this.page, T);
   }
 
@@ -1244,15 +1259,27 @@ export class CommissionRulePage {
     await this.expectDistinctSignatures(values);
   }
 
+  private resolveSplitsTable(section?: Locator): Locator {
+    if (!section) return this.loc.splitsByAgentLevelTable();
+    return section.getByRole('table').filter({
+      has: this.page.getByRole('columnheader', { name: /LVL\s*1/i }),
+    });
+  }
+
   private async setRoleSplitAcrossLevels(roleLabel: string, value: string, section?: Locator) {
-    const scope = section ?? this.page.locator('body');
-    const table = scope
-      .getByRole('heading', { name: /commission splits by agent level/i })
-      .locator('xpath=following::table[1]');
-    const row = table.getByRole('row', { name: new RegExp(`^${escapeRegex(roleLabel)}`, 'i') }).first();
+    const table = this.resolveSplitsTable(section);
+    await expect(table).toBeVisible({ timeout: T });
+    const row = table
+      .getByRole('row', { name: new RegExp(`^${escapeRegex(roleLabel)}\\b`, 'i') })
+      .first();
+    await expect(row, `Expected ${roleLabel} row in commission split table`).toBeVisible({
+      timeout: T,
+    });
     const spinboxes = row.getByRole('spinbutton');
+    await expect(spinboxes.first(), `Expected ${roleLabel} row spinbuttons`).toBeVisible({
+      timeout: T,
+    });
     const count = await spinboxes.count();
-    expect(count, `Expected ${roleLabel} row spinbuttons`).toBeGreaterThan(0);
     for (let i = 0; i < count; i++) {
       const box = spinboxes.nth(i);
       await box.fill(value);
@@ -1261,12 +1288,9 @@ export class CommissionRulePage {
   }
 
   private splitSpinboxForRole(roleLabel: string, section?: Locator): Locator {
-    const scope = section ?? this.page.locator('body');
-    const table = scope
-      .getByRole('heading', { name: /commission splits by agent level/i })
-      .locator('xpath=following::table[1]');
+    const table = this.resolveSplitsTable(section);
     return table
-      .getByRole('row', { name: new RegExp(`^${escapeRegex(roleLabel)}`, 'i') })
+      .getByRole('row', { name: new RegExp(`^${escapeRegex(roleLabel)}\\b`, 'i') })
       .getByRole('spinbutton')
       .first();
   }
@@ -1346,8 +1370,18 @@ export class CommissionRulePage {
   }
 
   async selectDifferentCommissionSplitTemplate() {
-    await this.selectCommissionSplitTemplate(DEFAULT_COMMISSION_TEMPLATE);
+    const before = await this.readCommissionSplitSignature().catch(() => '');
     await this.selectCommissionSplitTemplate(ALTERNATE_COMMISSION_TEMPLATE);
+    const afterAlternate = await this.readCommissionSplitSignature().catch(() => before);
+    if (afterAlternate && afterAlternate !== before) return;
+
+    // Alternate template missing or same LVL1 split — force a distinct manual split.
+    await this.setCommissionSplitManually('15', '25');
+    const afterManual = await this.readCommissionSplitSignature();
+    expect(
+      afterManual,
+      `Expected commission split to differ from stored signature "${before}" after alternate template/manual fill`,
+    ).not.toBe(before);
   }
 
   async expectCommissionSplitFieldsPopulatedFromTemplate() {

@@ -13,6 +13,20 @@ export const STATEMENT_PROCESSING = {
   ),
   statementType: 'Aetna ACA',
   carrierName: 'Aetna',
+  /**
+   * Prod seed for real-processing uploads (SP-001/002/003/006/007/008/009).
+   * Scale name cell must be the **alias** (carrier product name), not display name.
+   * SP-004 blank UID + SP-005 invalid format must NOT overwrite these.
+   */
+  seed: {
+    // 0987654321 (test-DevaTest) is LVL1 but stuck Onboarding — status dropdown locked
+    // until email activation. Use Active LVL5 advance agent so extract can start.
+    agentFirstName: 'test-AgentX',
+    agentLastName: 'Test',
+    agentNpn: '600011',
+    productAlias: 'test-2025-jan-1-aetna-test-001',
+    productDisplayName: 'test-Aetna-Test-Product',
+  },
   customerUidPrefix: 'IANG12370001IL',
   customerUidPad: 3,
   reviewHeading: 'Review Statement File',

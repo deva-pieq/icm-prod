@@ -31,14 +31,15 @@ Then('the add agent level drawer is visible in agents', async ({ agentEditTabsPa
 
 When('I add agent level with a valid effective start date in agents', async ({ agentEditTabsPage }) => {
   await agentEditTabsPage.clickAddLevel();
-  await agentEditTabsPage.selectLevelInDrawer('Level 1');
+  // Prod MLB uses LVL1 (not "Level 1")
+  await agentEditTabsPage.selectLevelInDrawer('LVL1');
   // Current badge only renders when today falls in start–end range (future start hides it)
   await agentEditTabsPage.setLevelStartDate(todayMmDdYyyy());
   await agentEditTabsPage.saveLevel();
 });
 
 Then('the agent level appears in the Agent Level table in agents', async ({ agentEditTabsPage }) => {
-  await agentEditTabsPage.expectLevelInTable('Level 1');
+  await agentEditTabsPage.expectLevelInTable('LVL1');
 });
 
 Then('the current level label appears when today is in range in agents', async ({ agentEditTabsPage }) => {
@@ -48,8 +49,8 @@ Then('the current level label appears when today is in range in agents', async (
 // ── T036: Add multiple levels with non-overlapping dates ────────────────────
 
 When('I add multiple agent levels with non-overlapping effective dates in agents', async ({ agentEditTabsPage }) => {
-  // Use available levels from dropdown: Level 2 and SA1
-  const levels = ['Level 2', 'SA1'];
+  // Prod MLB levels: LVL1–LVL5, SA1… (not "Level 2")
+  const levels = ['LVL2', 'SA1'];
   // Use dates far in the future (2027) to avoid overlap with all existing records
   const dates = ['02/01/2027', '03/01/2027'];
   for (let i = 0; i < levels.length; i++) {
@@ -76,9 +77,8 @@ Then('agent level history has no delete or editable end date in agents', async (
 
 When('I try to add agent level with overlapping effective start date in agents', async ({ agentEditTabsPage }) => {
   await agentEditTabsPage.clickAddLevel();
-  // Try to add SA6 (available in dropdown) with a date that overlaps with Level 1 (01/01/2027)
+  // SA6 still available; date must fall inside open-ended LVL1 range (start=today)
   await agentEditTabsPage.selectLevelInDrawer('SA6');
-  // Use 01/15/2027 which overlaps with Level 1 (01/01/2027)
   await agentEditTabsPage.setLevelStartDate('01/15/2027');
   await agentEditTabsPage.saveLevel();
 });

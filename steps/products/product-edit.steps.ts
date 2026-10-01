@@ -11,6 +11,7 @@ import {
   getLastSavedProduct,
   getSeedProduct,
   setLastSavedProduct,
+  setSeedProduct,
 } from '../../utils/products/productContext';
 import { When, Then } from '../fixtures';
 
@@ -137,6 +138,7 @@ When('I edit product {string} field with valid unique data on edit', async (
     case 'product code':
       await productEditPage.setProductCode(data.productCode);
       setLastSavedProduct({ ...base, productCode: data.productCode });
+      setSeedProduct({ ...getSeedProduct(), productCode: data.productCode });
       break;
     case 'carrier product name':
       await productEditPage.setCarrierProductNameOnEdit(`e2e-edit-carrier-${productRunStamp()}`);

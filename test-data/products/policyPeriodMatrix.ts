@@ -16,7 +16,9 @@ export const IPV_SLAB_SPLIT_MATRIX = {
   regular: { toMonths: '12', value: '10.00' },
   renewal: { value: '7.00' },
   templateKeywords: { aetna: 'Aetna', aca: 'ACA' },
+  /** Prefer distinct templates so IPV/period isolation asserts see different LVL1 splits. */
   templateFallbacks: {
-    Aetna: 'ACA - Carrier with OVR - Regular',
+    Aetna: 'Aetna',
+    ACA: 'ACA - New Test 001 - Regular',
   },
 } as const;

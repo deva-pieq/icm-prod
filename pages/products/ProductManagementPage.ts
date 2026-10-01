@@ -282,9 +282,15 @@ export class ProductManagementPage extends ProductsPage {
   async expectProductSavedOnDashboard(productCode: string) {
     await expect(this.page).toHaveURL(AppUrlPatterns.products, { timeout: 60_000 });
     await this.expectDashboardReady();
-    await this.searchGrid(productCode);
-    const row = await this.findRowByText(productCode);
-    expect(row, `Product code "${productCode}" not found in grid`).not.toBeNull();
+    await expect
+      .poll(
+        async () => {
+          await this.searchGrid(productCode);
+          return this.findRowByText(productCode);
+        },
+        { timeout: 30_000, intervals: [500, 1000, 2000] },
+      )
+      .not.toBeNull();
   }
 
   async countGridRowsMatching(query: string): Promise<number> {

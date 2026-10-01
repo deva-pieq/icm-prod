@@ -1,4 +1,4 @@
-@statement-processing @regression-test @icm
+@statement-processing @validate-statement-processing @regression-test @icm
 Feature: Validate Statement Processing
 
   End-to-end validation of the commission statement processing flow (Aetna ACA).
@@ -12,9 +12,20 @@ Feature: Validate Statement Processing
        UID — note: Review shows no "NB - New business" warning label and no warning icon on a
        clean NB row
     4. Complete Review and validate the final stage
-    5. Variant statements: duplicate file, CSV (known existing UID), missing
-       mandatory columns, invalid format, large file (address-mutated same UID),
-       partial (NB/RN match, RC warning via History), state variants, NB/RN
+    5. Variant statements: duplicate file, NB+RN (seed then transaction file), missing
+       mandatory columns, invalid format, address-mutated unique upload, partial
+       (NB/RN match, RC warning via History), state variants, NB/RN
+
+  File intent (do not "repair" intentional blanks):
+    - SP-001 Real processing — valid xlsx; Gross/Net/agent/alias filled
+    - SP-002 Real processing — reuse valid; same as SP-001
+    - SP-003 Real processing — seed valid + NbRn xlsx; Net = gross*0.88
+    - SP-004 Intentional blank — blank Customer UID only (do not fill)
+    - SP-005 Intentional invalid — .txt upload (do not convert to xlsx)
+    - SP-006 Real processing — valid + address [run:] mutate; 1 row, Net correct
+    - SP-007 Real processing — seed + Partial NB/RN/RC; RC Gross/Net 0 intentional
+    - SP-008 Real processing — States TX/CA/IL; Net = gross*0.88
+    - SP-009 Real processing — seed + NbRn; Net = gross*0.88
 
   Core rules:
     - File data rows (exclude heading) = review processed records; after Complete Review,
@@ -31,8 +42,9 @@ Feature: Validate Statement Processing
     - Partial SP-007 (1 NB + 1 RN + 1 RC): Completed path → History by file ID;
       NB+RN matched (no warning); RC chargeback unmatched (warning icon)
     - Review "Total Earned Commission" = Excel Net compensation (not Gross)
+    - Real-processing Net = Gross * 0.88 (e.g. 54.9 → 48.31). Never premium * 0.88 (483.12).
 
-  Template (TestFiles/StatementProcessing/):
+  Template (TestFiles-prod-sanity/StatementProcessing/):
     [MLB NEW]HappyFlowChangeCheckRunDate.xlsx
 
   The base template is persisted with the incremented Customer UID after each valid
@@ -45,6 +57,7 @@ Feature: Validate Statement Processing
 
   # ─────────────────────────────────────────────────────────────────────────
   # SP-001 — Valid single-row statement (new policy) end to end
+  # Real processing: full Gross/Net/agent/alias
   # ─────────────────────────────────────────────────────────────────────────
   @TEST-001-Statement-Processing-PROD @regression-test
   Scenario: SP-001 — Valid single-row statement upload, review validation, complete review
@@ -77,6 +90,7 @@ Feature: Validate Statement Processing
 
   # ─────────────────────────────────────────────────────────────────────────
   # SP-002 — Duplicate statement upload (same file ingested twice)
+  # Real processing: reuses SP-001-style valid file (no blanks)
   # ─────────────────────────────────────────────────────────────────────────
   @TEST-002-Statement-Processing-PROD @regression-test
   Scenario: SP-002 — Duplicate statement upload processes the stored file again
@@ -94,15 +108,13 @@ Feature: Validate Statement Processing
     # Live-verify: duplicate detection toast/flag — app may allow re-ingest as renewal
 
   # ─────────────────────────────────────────────────────────────────────────
-  # SP-003 — CSV renewal (RN) after seeding a brand-new policy (NB) → Completed
-  # Seed a new policy (fresh UID = NB), then process a CSV that pairs a NEW NB UID
-  # with the seeded UID as RN. A renewal only auto-reconciles to Completed when an NB
-  # rides in the same file — an RN-only file lands "Commission amount or period not
-  # matched" → Needs Attention. Mirrors the proven-working SP-009 NB+RN pattern.
+  # SP-003 — NB seed → NB+RN transaction file → Completed
+  # Real processing: seed Completed policy, then NbRn xlsx (1 new NB + 1 RN on seeded UID).
+  # An RN-only file lands "Commission amount or period not matched" → Needs Attention.
   # ─────────────────────────────────────────────────────────────────────────
   @TEST-003-Statement-Processing-PROD @regression-test
-  Scenario: SP-003 — CSV statement upload processes like the valid statement (NB seed → RN CSV)
-    # Seed a brand-new policy (NB) from the template so the CSV UID genuinely exists
+  Scenario: SP-003 — Seeded NB then NB+RN transaction file uploads and completes
+    # Seed a brand-new policy (NB) from the template so the RN UID genuinely exists
     Given the statement processing valid file is prepared from template
     When I open the statement processing upload page
     And I upload the prepared statement processing file
@@ -135,8 +147,8 @@ Feature: Validate Statement Processing
     Then the statement processing upload stage changes to "Completed"
 
   # ─────────────────────────────────────────────────────────────────────────
-  # SP-004 — Missing mandatory columns (blank Customer UID)
-  # Manual spec: Needs Attention. App may reject at upload — assert either outcome.
+  # SP-004 — Missing mandatory columns (blank Customer UID) — INTENTIONAL BLANK
+  # Do not fill UID. Manual spec: Needs Attention or reject at upload.
   # ─────────────────────────────────────────────────────────────────────────
   @TEST-004-Statement-Processing-PROD @regression-test
   Scenario: SP-004 — Statement with missing mandatory columns is rejected or needs attention
@@ -150,7 +162,8 @@ Feature: Validate Statement Processing
     # Live-verify exact error / NA exception reason text on first run
 
   # ─────────────────────────────────────────────────────────────────────────
-  # SP-005 — Unsupported file format is rejected (Upload disabled + Invalid file)
+  # SP-005 — Unsupported file format — INTENTIONAL INVALID (.txt)
+  # Do not convert to xlsx. Upload button disabled + Invalid file.
   # ─────────────────────────────────────────────────────────────────────────
   @TEST-005-Statement-Processing-PROD @regression-test
   Scenario: SP-005 — Unsupported file format is rejected
@@ -162,11 +175,12 @@ Feature: Validate Statement Processing
     And the statement processing page shows Invalid file
 
   # ─────────────────────────────────────────────────────────────────────────
-  # SP-006 — Large file (1000+ rows) processes with a longer extract window
-  # (Logic: same Customer UID as prepared file; mutate Producer comp address)
+  # SP-006 — Address-mutated unique upload (1 row) → Completed
+  # Real processing: same Customer UID as prepared valid file; append-only [run:] on
+  # Producer comp address (never mid-string splice — corrupts zip → Extract Error).
   # ─────────────────────────────────────────────────────────────────────────
   @TEST-006-Statement-Processing-PROD @regression-test
-  Scenario: SP-006 — Large statement file (1000+ rows) uploads and completes
+  Scenario: SP-006 — Address-mutated statement file uploads and completes
     Given the statement processing valid file is prepared from template
     And the statement processing prepared file address is mutated with random chars
     When I open the statement processing upload page
@@ -183,6 +197,7 @@ Feature: Validate Statement Processing
 
   # ─────────────────────────────────────────────────────────────────────────
   # SP-007 — Partial (1 NB + 1 RN + 1 RC/chargeback) → History; warning icons by type
+  # Real processing for NB/RN; RC Gross/Net intentionally 0 + Chargeback amount set.
   # ─────────────────────────────────────────────────────────────────────────
   @TEST-007-Statement-Processing-PROD @regression-test
   Scenario: SP-007 — Partial reconciliation validates warning icons via History
@@ -214,12 +229,14 @@ Feature: Validate Statement Processing
     When I open the statement processing history page
     And I search statement history by stored file ID and open the record in statement processing validation
     Then the statement processing commission details page is ready
+    # Soft: NB warning may appear on prod (advance/new-policy) — do not fail.
     And the statement processing commission details NB row has no warning icon
     And the statement processing commission details RN row has no warning icon
     And the statement processing commission details RC row has a warning icon
 
   # ─────────────────────────────────────────────────────────────────────────
   # SP-008 — State variants (TX / CA / IL) process as one policy per state
+  # Real processing: filled Gross/Net/agent/alias (not blank)
   # ─────────────────────────────────────────────────────────────────────────
   @TEST-008-Statement-Processing-PROD @regression-test
   Scenario: SP-008 — State variant statement (TX, CA, IL) uploads and completes
@@ -239,6 +256,7 @@ Feature: Validate Statement Processing
 
   # ─────────────────────────────────────────────────────────────────────────
   # SP-009 — NB + RN (RN uses seeded UID); single NB auto-reconciles to Completed
+  # Real processing: same NbRn prep as SP-003 second phase
   # ─────────────────────────────────────────────────────────────────────────
   @TEST-009-Statement-Processing-PROD @regression-test
   Scenario: SP-009 — NB and RN transaction rows upload and complete

@@ -110,6 +110,49 @@ function addOneDay(date: Date): Date {
   return next;
 }
 
+/** Prod seed — from test-data (same as Payment ACH / StatementUpload golden). */
+const PROD_SEED = {
+  agentLastName: STATEMENT_PROCESSING.seed.agentLastName,
+  agentFirstName: STATEMENT_PROCESSING.seed.agentFirstName,
+  agentNpn: STATEMENT_PROCESSING.seed.agentNpn,
+  productAlias: STATEMENT_PROCESSING.seed.productAlias,
+  carrierName: STATEMENT_PROCESSING.carrierName,
+} as const;
+
+/** Gross = 10% premium; Net = 88% of gross (NOT premium*0.88 → 483.12 mismatch). Tax 0 matches golden. */
+function commissionFromPremium(premium: number): { gross: number; net: number; tax: number } {
+  const gross = Math.round(premium * 0.1 * 100) / 100;
+  const net = Math.round(gross * 0.88 * 100) / 100;
+  return { gross, net, tax: 0 };
+}
+
+/**
+ * Force prod agent / alias / carrier on a data row. Real-processing paths only —
+ * SP-004 (blank UID) and SP-005 (invalid format) must not call this to "repair" negatives.
+ */
+function applyProdAgentAndAlias(
+  row: ExcelJS.Row,
+  columns: Map<string, number>,
+): void {
+  row.getCell(columns.get('selling agent last name') ?? 1).value = PROD_SEED.agentLastName;
+  row.getCell(columns.get('selling agent first name') ?? 2).value = PROD_SEED.agentFirstName;
+  row.getCell(columns.get('selling agent npn') ?? 3).value = PROD_SEED.agentNpn;
+  row.getCell(columns.get('scale name/adjustment description') ?? 16).value =
+    PROD_SEED.productAlias;
+  const carrierCol = columns.get('carrier name');
+  if (carrierCol) row.getCell(carrierCol).value = PROD_SEED.carrierName;
+}
+
+function applyCommissionAmounts(
+  row: ExcelJS.Row,
+  columns: Map<string, number>,
+  amounts: { gross: number; net: number; tax: number },
+): void {
+  row.getCell(columns.get('gross compensation') ?? 13).value = amounts.gross;
+  row.getCell(columns.get('tax withholding') ?? 14).value = amounts.tax;
+  row.getCell(columns.get('net compensation') ?? 15).value = amounts.net;
+}
+
 /**
  * Valid commission statement — clone the base template, increment the Customer UID
  * by +1 on every data row (preserving prefix + zero-padding), bump the Check run date
@@ -132,9 +175,7 @@ export async function prepareValidStatementFile(): Promise<StatementProcessingPr
   const columns = headerColumnMap(sheet);
   const uidCol = columns.get('customer uid') ?? 7;
   const checkRunCol = columns.get('check run date') ?? 17;
-  const grossCol = columns.get('gross compensation') ?? 13;
-  const taxCol = columns.get('tax withholding') ?? 14;
-  const netCol = columns.get('net compensation') ?? 15;
+  const premiumCol = columns.get('premium') ?? 20;
 
   let dataRows = 0;
   for (let rowIndex = 2; rowIndex <= sheet.rowCount; rowIndex++) {
@@ -162,21 +203,10 @@ export async function prepareValidStatementFile(): Promise<StatementProcessingPr
       }
     }
 
-    // Extract does not evaluate Excel formulas. Template Net/Tax are often
-    // formula-only with no cached result → blank on ingest. Materialize numbers.
-    const gross = cellNumericValue(row.getCell(grossCol).value);
-    if (Number.isFinite(gross)) {
-      let tax = cellNumericValue(row.getCell(taxCol).value);
-      if (!Number.isFinite(tax)) {
-        tax = Math.round(gross * 0.12 * 100) / 100;
-      }
-      let net = cellNumericValue(row.getCell(netCol).value);
-      if (!Number.isFinite(net)) {
-        net = Math.round(gross * 0.88 * 100) / 100;
-      }
-      row.getCell(taxCol).value = tax;
-      row.getCell(netCol).value = net;
-    }
+    // Real-processing seed: prod agent/alias + plain Gross/Net (no blank formulas).
+    applyProdAgentAndAlias(row, columns);
+    const premium = cellNumericValue(row.getCell(premiumCol).value) || 549;
+    applyCommissionAmounts(row, columns, commissionFromPremium(premium));
   }
 
   // Module requirement: exactly one data row with a unique Customer UID.
@@ -254,8 +284,6 @@ export async function prepareCsvWithExistingCustomerUid(
   const uidCol = columns.get('customer uid') ?? 7;
   const addressCol = columns.get('producer comp address') ?? 4;
   const checkRunCol = columns.get('check run date') ?? 17;
-  const grossCol = columns.get('gross compensation') ?? 13;
-  const netCol = columns.get('net compensation') ?? 15;
   const premiumCol = columns.get('premium') ?? 20;
   const effectiveDateCol = columns.get('customer effective date') ?? 9;
 
@@ -278,28 +306,17 @@ export async function prepareCsvWithExistingCustomerUid(
   row.getCell(checkRunCol).value = addOneDay(checkCurrent);
 
   const premium = cellNumericValue(row.getCell(premiumCol).value) || 549;
-  let gross = cellNumericValue(row.getCell(grossCol).value);
-  if (!Number.isFinite(gross) || gross === 0) {
-    gross = Math.round(premium * 0.1 * 100) / 100;
-  }
-  let net = cellNumericValue(row.getCell(netCol).value);
-  if (!Number.isFinite(net)) {
-    net = Math.round(gross * 0.88 * 100) / 100;
-  }
+  let amounts = commissionFromPremium(premium);
 
-  // RN (renewal) rows mirror the working SP-009 NB+RN pattern so the renewal accrual
-  // reconciles: effective = today - 13 months, gross/net recomputed from premium
-  // (net = Math.round(premium * 0.88 * 100) / 100). The app expects this exact RN net,
-  // NOT the template's net cell (48.31) — using the latter yields Commission Mismatch.
+  // RN: effective = today - N months; keep Gross/Net on prod commission formula.
   if (options?.rnEffectiveMonthsAgo != null) {
     const rnEffective = new Date();
     rnEffective.setUTCMonth(rnEffective.getUTCMonth() - options.rnEffectiveMonthsAgo);
     row.getCell(effectiveDateCol).value = rnEffective;
-    gross = Math.round(premium * 0.1 * 100) / 100;
-    net = Math.round(premium * 0.88 * 100) / 100;
+    amounts = commissionFromPremium(premium);
   }
-  row.getCell(grossCol).value = gross;
-  row.getCell(netCol).value = net;
+  applyProdAgentAndAlias(row, columns);
+  applyCommissionAmounts(row, columns, amounts);
 
   const absolutePath = await writeFullCsvFromSheet(sheet, columns, customerUid);
   return { absolutePath, customerUid, recordCount: 1 };
@@ -403,19 +420,23 @@ function randomChars(length: number): string {
   return out;
 }
 
-/** Remove a random substring and append random chars — avoids duplicate-file detection. */
+/**
+ * Append a unique `[run:…]` suffix only — never splice the middle of the address.
+ * Mid-string deletes corrupt city/state/zip (e.g. MALVERN → LVERN, zip → 193550PlJh)
+ * and prod extract returns Stage Extract / Status Error.
+ * Matches smoke prep (`utils/excelStatementPrep.ts`).
+ */
 function mutateProducerCompAddress(current: string): string {
-  const trimmed = String(current ?? '').trim();
+  const trimmed = String(current ?? '')
+    .replace(/\s*\[run:[^\]]+\]\s*$/i, '')
+    .trim();
   if (!trimmed) return `Addr-${randomChars(8)}`;
-  const removeCount = Math.min(3, Math.max(1, Math.floor(trimmed.length / 4)));
-  const removeAt = Math.floor(Math.random() * Math.max(1, trimmed.length - removeCount));
-  const shortened = trimmed.slice(0, removeAt) + trimmed.slice(removeAt + removeCount);
-  return `${shortened}${randomChars(4 + Math.floor(Math.random() * 4))}`;
+  return `${trimmed} [run:${Date.now()}${randomChars(4)}]`;
 }
 
 /**
- * Mutate Producer comp address on the prepared workbook in place: remove a random
- * substring and append random chars. Customer UID and other fields stay unchanged.
+ * Mutate Producer comp address on the prepared workbook in place via append-only
+ * `[run:…]` suffix. Customer UID and other fields stay unchanged.
  */
 export async function mutatePreparedFileAddress(
   prepared: StatementProcessingPreparedFile,
@@ -472,25 +493,32 @@ export async function prepareLargeStatementFile(rowCount = 1000): Promise<{
   const columns = headerColumnMap(sheet);
   const uidCol = columns.get('customer uid') ?? 7;
   const premiumCol = columns.get('premium') ?? 20;
-  const grossCol = columns.get('gross compensation') ?? 13;
-  const netCol = columns.get('net compensation') ?? 15;
   const checkRunCol = columns.get('check run date') ?? 17;
   const stateCol = columns.get('customer contract state') ?? 10;
 
   const template = sheet.getRow(2);
   const stamp = Date.now();
   const basePremium = cellNumericValue(template.getCell(premiumCol).value) || 549;
+  const amounts = commissionFromPremium(basePremium);
   const checkRunDate = cellDateValue(template.getCell(checkRunCol).value) ?? new Date();
   const state = String(template.getCell(stateCol).value ?? '').trim();
+
+  // Start from template UID and increment per row so each Customer UID is unique (IANG pattern).
+  let nextUid = String(template.getCell(uidCol).value ?? '').trim() || STATEMENT_PROCESSING.customerUidPrefix;
 
   for (let i = 0; i < rowCount; i++) {
     const row = sheet.getRow(i + 2);
     template.eachCell({ includeEmpty: false }, (cell, col) => {
       row.getCell(col).value = cell.value;
     });
-    row.getCell(uidCol).value = `SMK-LARGE-${stamp}-${String(i + 1).padStart(6, '0')}`;
-    row.getCell(grossCol).value = Math.round(basePremium * 0.1 * 100) / 100;
-    row.getCell(netCol).value = Math.round(basePremium * 0.88 * 100) / 100;
+    nextUid = incrementUid(
+      nextUid,
+      STATEMENT_PROCESSING.customerUidPrefix,
+      STATEMENT_PROCESSING.customerUidPad,
+    );
+    row.getCell(uidCol).value = nextUid;
+    applyProdAgentAndAlias(row, columns);
+    applyCommissionAmounts(row, columns, amounts);
     row.getCell(checkRunCol).value = checkRunDate;
     if (i % 3 === 1) {
       row.getCell(stateCol).value = 'TX';
@@ -592,8 +620,6 @@ export async function preparePartialReconciliationFile(seededUid: string): Promi
 
   const columns = headerColumnMap(sheet);
   const uidCol = columns.get('customer uid') ?? 7;
-  const grossCol = columns.get('gross compensation') ?? 13;
-  const netCol = columns.get('net compensation') ?? 15;
   const premiumCol = columns.get('premium') ?? 20;
   const effectiveDateCol = columns.get('customer effective date') ?? 9;
   const checkRunCol = columns.get('check run date') ?? 17;
@@ -608,8 +634,7 @@ export async function preparePartialReconciliationFile(seededUid: string): Promi
   const template = sheet.getRow(2);
   const stamp = Date.now();
   const basePremium = cellNumericValue(template.getCell(premiumCol).value) || 549;
-  const baseGross = Math.round(basePremium * 0.1 * 100) / 100;
-  const baseNet = Math.round(baseGross * 0.88 * 100) / 100;
+  const commission = commissionFromPremium(basePremium);
   const today = new Date();
   const nbEffective = new Date(today.getTime());
   nbEffective.setUTCMonth(nbEffective.getUTCMonth() - 1);
@@ -622,8 +647,7 @@ export async function preparePartialReconciliationFile(seededUid: string): Promi
   const rows: Array<{
     uid: string;
     effective: Date;
-    gross: number;
-    net: number;
+    amounts: { gross: number; net: number; tax: number };
     chargeback: number;
   }> = [
     {
@@ -634,23 +658,21 @@ export async function preparePartialReconciliationFile(seededUid: string): Promi
         STATEMENT_PROCESSING.customerUidPad,
       ),
       effective: nbEffective,
-      gross: baseGross,
-      net: baseNet,
+      amounts: commission,
       chargeback: 0,
     },
     {
       uid: seededUid,
       effective: rnEffective,
-      gross: baseGross,
-      net: baseNet,
+      amounts: commission,
       chargeback: 0,
     },
     {
+      // RC: Gross/Net intentionally 0; Chargeback = gross (unmatched exception).
       uid: seededUid,
       effective: rnEffective,
-      gross: 0,
-      net: 0,
-      chargeback: baseGross,
+      amounts: { gross: 0, net: 0, tax: 0 },
+      chargeback: commission.gross,
     },
   ];
 
@@ -661,8 +683,8 @@ export async function preparePartialReconciliationFile(seededUid: string): Promi
     });
     row.getCell(uidCol).value = spec.uid;
     row.getCell(effectiveDateCol).value = spec.effective;
-    row.getCell(grossCol).value = spec.gross;
-    row.getCell(netCol).value = spec.net;
+    applyProdAgentAndAlias(row, columns);
+    applyCommissionAmounts(row, columns, spec.amounts);
     row.getCell(chargebackCol!).value = spec.chargeback;
     row.getCell(checkRunCol).value = checkRunDate;
   });
@@ -707,14 +729,13 @@ export async function prepareStateVariantsFile(): Promise<string> {
   const columns = headerColumnMap(sheet);
   const uidCol = columns.get('customer uid') ?? 7;
   const stateCol = columns.get('customer contract state') ?? 10;
-  const grossCol = columns.get('gross compensation') ?? 13;
-  const netCol = columns.get('net compensation') ?? 15;
   const premiumCol = columns.get('premium') ?? 20;
   const checkRunCol = columns.get('check run date') ?? 17;
 
   const template = sheet.getRow(2);
   const stamp = Date.now();
   const basePremium = cellNumericValue(template.getCell(premiumCol).value) || 549;
+  const amounts = commissionFromPremium(basePremium);
   const baseUid = String(template.getCell(uidCol).value ?? '').trim();
   if (!baseUid) {
     throw new Error('Template has empty Customer UID — cannot prepare state variants');
@@ -731,8 +752,8 @@ export async function prepareStateVariantsFile(): Promise<string> {
     // IANG12370001IL039 → IANG12370001TX039 (keep existing numeric pad; swap state).
     row.getCell(uidCol).value = baseUid.replace(/IL(?=\d+$)/i, state);
     row.getCell(stateCol).value = state;
-    row.getCell(grossCol).value = Math.round(basePremium * 0.1 * 100) / 100;
-    row.getCell(netCol).value = Math.round(basePremium * 0.88 * 100) / 100;
+    applyProdAgentAndAlias(row, columns);
+    applyCommissionAmounts(row, columns, amounts);
     row.getCell(checkRunCol).value = checkRunDate;
   });
 
@@ -771,13 +792,12 @@ export async function prepareTransactionTypeFile(seededUid: string): Promise<str
   const columns = headerColumnMap(sheet);
   const uidCol = columns.get('customer uid') ?? 7;
   const effectiveDateCol = columns.get('customer effective date') ?? 9;
-  const grossCol = columns.get('gross compensation') ?? 13;
-  const netCol = columns.get('net compensation') ?? 15;
   const premiumCol = columns.get('premium') ?? 20;
 
   const template = sheet.getRow(2);
   const stamp = Date.now();
   const basePremium = cellNumericValue(template.getCell(premiumCol).value) || 549;
+  const amounts = commissionFromPremium(basePremium);
   const today = new Date();
   const nbEffective = new Date(today.getTime());
   nbEffective.setUTCMonth(nbEffective.getUTCMonth() - 1);
@@ -807,8 +827,8 @@ export async function prepareTransactionTypeFile(seededUid: string): Promise<str
     });
     row.getCell(uidCol).value = uid;
     row.getCell(effectiveDateCol).value = effective;
-    row.getCell(grossCol).value = Math.round(basePremium * 0.1 * 100) / 100;
-    row.getCell(netCol).value = Math.round(basePremium * 0.88 * 100) / 100;
+    applyProdAgentAndAlias(row, columns);
+    applyCommissionAmounts(row, columns, amounts);
     row.getCell(checkRunCol).value = checkRunDate;
   });
 

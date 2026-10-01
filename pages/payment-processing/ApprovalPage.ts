@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { expect, type Download, type Page } from '@playwright/test';
+import { expect, type Download, type Locator, type Page } from '@playwright/test';
 import { AppUrlPatterns } from '../appPaths';
 import { IcmSidebarPage } from '../sidebar/IcmSidebarPage';
 import { ensurePageReady, waitForAppSettled } from '../../utils/pageLoader';
@@ -61,6 +61,9 @@ export class ApprovalPage extends GridPage {
         name: /^(Ok|OK|Confirm|Yes|Remove)$/i,
       }),
     detailsDatagrid: () => this.page.getByTestId('payout-batch-details-datagrid'),
+    /** Payment Batches list — dollar Amount column (AG Grid). Txns is count-only. */
+    amountCell: (row: Locator) =>
+      row.locator('[col-id="amount"], [role="gridcell"][col-id="amount"]').first(),
   };
 
   constructor(page: Page) {
@@ -151,9 +154,9 @@ export class ApprovalPage extends GridPage {
   }
 
   /**
-   * Open the approval batch whose Net Disbursement matches `amountText`.
-   * Captured amounts are normalized (no `$`/commas), while the grid shows `$1,234.56`
-   * — match numerically so formatting cannot miss the row.
+   * Open the approval batch whose Amount matches `amountText`.
+   * Amount is read from the Amount column (`[col-id="amount"]`) — not Txns (count-only)
+   * and not whole-row `$` scans. Match numerically so `$1,234.56` vs `1234.56` works.
    *
    * Optional `paymentMethod` (Check / ACH) skips same-amount batches for the other
    * method (CHK agent 600002 vs ACH 600001 often share identical Net Settlement).
@@ -179,11 +182,21 @@ export class ApprovalPage extends GridPage {
       const amountMatches: number[] = [];
       const agentMatches: number[] = [];
       for (let i = 0; i < count; i++) {
-        const text = (await rows.nth(i).innerText()).replace(/\s+/g, ' ').trim();
-        const amounts = text.match(/\$[\d,]+(?:\.\d{2})?/g) ?? [];
+        const row = rows.nth(i);
+        const amountTextCell = (await this.loc.amountCell(row).innerText().catch(() => ''))
+          .replace(/\s+/g, ' ')
+          .trim();
+        const dollarAmounts = amountTextCell.match(/\$[\d,]+(?:\.\d{2})?/g);
+        const amounts =
+          dollarAmounts && dollarAmounts.length > 0
+            ? dollarAmounts
+            : (amountTextCell.match(/[\d,]+(?:\.\d{2})/g) ?? []);
         if (!amounts.some((a) => Math.abs(parseAmountNumber(a) - target) < 0.005)) continue;
         amountMatches.push(i);
-        if (agentNeedle && text.includes(agentNeedle)) agentMatches.push(i);
+        if (agentNeedle) {
+          const rowText = (await row.innerText()).replace(/\s+/g, ' ').trim();
+          if (rowText.includes(agentNeedle)) agentMatches.push(i);
+        }
       }
       return agentMatches.length > 0 ? agentMatches : amountMatches;
     };
@@ -191,7 +204,7 @@ export class ApprovalPage extends GridPage {
     const candidates = await collectCandidates();
     expect(
       candidates.length,
-      `No approval batch row matched Net Settlement/Disbursement ≈ ${target}` +
+      `No approval batch row matched Amount ≈ ${target}` +
         (agentNeedle ? ` (agent ${agentNeedle})` : '') +
         ` (from "${amountText}")`,
     ).toBeGreaterThan(0);

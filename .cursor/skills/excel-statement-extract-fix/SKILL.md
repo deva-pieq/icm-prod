@@ -141,6 +141,8 @@ If still Extract Error after checklist → escalate (statement setup / backend),
 | Extract Error / weird parse | Shared Excel formulas | Flatten to plain numbers/dates |
 | RN Extract Error | RN template has 3+ duplicate rows | Rebuild RN as 1 data row |
 | Smoke run-2 Extract Error | Same check-run / bad prep override | Extra check-run days + persist date only; force prod agent/alias in prep |
+| Extract Error after address mutate (SP-006) | Mid-string splice corrupted city/state/zip | Append-only `[run:…]` suffix (see `excelStatementPrep.ts`); never delete middle of address |
+| Needs Attention / Commission Mismatch on NbRn/States | Net set to `premium * 0.88` (483.12) | Net = `gross * 0.88` (48.31); Partial prep already does this |
 | SP points at `TestFiles/` | Preprod template | Point `templateDir` at `TestFiles-prod-sanity` |
 | Status `""` but Stage `Review` | Grid Status column virtualized | Assert Stage / Waiting+Review poll — not a file bug |
 

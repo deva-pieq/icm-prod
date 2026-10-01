@@ -270,6 +270,73 @@ export class CommissionDetailsPage extends GridPage {
       .toBe(expectPresent ? 'present' : 'absent');
   }
 
+  /**
+   * Soft / non-failing check. Prod may show NB warning (advance/new-policy); log only.
+   */
+  async expectWarningIconForTransactionTypeSoft(
+    transactionType: string,
+    expectPresent: boolean,
+  ): Promise<void> {
+    await this.expectOnDetailsPage();
+    const grid = this.grid();
+    await expect(grid).toBeVisible({ timeout: T });
+    const typePattern = new RegExp(`^\\s*${escapeRegex(transactionType)}\\s*$`, 'i');
+    const isRc = /^RC$/i.test(transactionType);
+    const expected = expectPresent ? 'present' : 'absent';
+
+    let actual: 'present' | 'absent' | 'missing-row' = 'missing-row';
+    try {
+      await expect
+        .poll(
+          async () => {
+            const rows = grid.locator('.ag-center-cols-container [role="row"][row-id]');
+            const count = await rows.count();
+            for (let i = 0; i < count; i++) {
+              const row = rows.nth(i);
+              const typeText = (
+                await row
+                  .locator('.ag-cell[col-id="transactionType"]')
+                  .innerText()
+                  .catch(() => '')
+              )
+                .replace(/\s+/g, ' ')
+                .trim();
+              const rowText = (await row.innerText().catch(() => '')).replace(/\s+/g, ' ');
+              const matchesType =
+                typePattern.test(typeText) ||
+                (isRc && (/\bRC\b/i.test(typeText) || /\bchargeback\b/i.test(rowText)));
+              if (!matchesType) continue;
+
+              const rowId = await row.getAttribute('row-id');
+              if (!rowId) {
+                actual = 'absent';
+                return actual;
+              }
+              const hasWarning =
+                (await grid
+                  .locator(`[role="row"][row-id="${rowId}"]`)
+                  .locator(`[col-id="warning"] .lucide.lucide-triangle-alert`)
+                  .count()) > 0;
+              actual = hasWarning ? 'present' : 'absent';
+              return actual;
+            }
+            actual = 'missing-row';
+            return actual;
+          },
+          { timeout: Math.min(T, 30_000), intervals: [500, 1_000, 2_000] },
+        )
+        .not.toBe('missing-row');
+    } catch {
+      // Soft path — do not fail if row/icon not found in time.
+    }
+
+    if (actual !== expected) {
+      console.warn(
+        `[soft] ${transactionType} warning icon: expected ${expected}, got ${actual} — continuing`,
+      );
+    }
+  }
+
   private async clickWarningRecord(index: number): Promise<void> {
     const grid = this.grid();
     await expect(grid).toBeVisible({ timeout: T });

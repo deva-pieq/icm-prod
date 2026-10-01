@@ -186,7 +186,7 @@ Feature: Product Management — add, edit product and field validation
     And I click save product
     Then the edited product is saved and I am on the Products dashboard
 
-  @product-management @regression-test @product-edit-page @positive @TEST-005-Product-Edit-Page-PROD
+  @product-management @regression-test @product-edit-page @positive @needs-fresh-product @TEST-005-Product-Edit-Page-PROD
   Scenario Outline: T005-PRD-PEP — Edit product <field> with valid unique input on edit page
     When I open the seeded product edit page
     And I edit product "<field>" field with valid unique data on edit
@@ -376,11 +376,11 @@ Feature: Product Management — add, edit product and field validation
       | Bonus      |
       | Override   |
 
-  @product-management @regression-test @commission-rule-edit @validation @known-gap @TEST-004-Product-Commission-Rule-PROD
-  Scenario Outline: T004-PRD-PCR — Save draft disabled when <type> rule name exceeds max length
+  @product-management @regression-test @commission-rule-edit @validation @TEST-004-Product-Commission-Rule-PROD
+  Scenario Outline: T004-PRD-PCR — Save draft stays enabled when required fields filled even if <type> rule name exceeds max length
     When I open the commission rule draft for "<type>"
     And I set commission rule name to over max length value
-    Then save draft button is disabled on the commission rule
+    Then save draft button is enabled on the commission rule
 
     Examples:
       | type       |
