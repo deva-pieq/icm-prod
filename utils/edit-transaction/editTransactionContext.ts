@@ -12,7 +12,7 @@ export type EditTransactionContext = {
   rnFilePath: string;
   /** ACH Customer UID when a mixed ACH+CHK batch is prepared. */
   achCustomerUid?: string;
-  /** CHK Customer UID (agent 600002) for mixed batches. */
+  /** CHK Customer UID (prod transfer agent 120876543) for mixed batches. */
   chkCustomerUid?: string;
   /** True after ACH NB+RN upload finished. */
   achStatementsReady?: boolean;

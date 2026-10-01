@@ -6,8 +6,8 @@ Feature: Edit Transaction Regression — Download ACH & Edit Batch (Approval)
   validates Generate and Download ACH, Last Generated timestamp, agent/payable edits
   on the unpaid Approval batch.
 
-  Templates: TestFiles/PaymentModule/ACH/[MLB][NB|RN]PaymentModule-ACH.xlsx
-  Ops Manager: Agency3 Ops | Agent: 600001 (ACH)
+  Templates: TestFiles-prod-sanity/PaymentModule/ACH/[MLB][NB|RN]PaymentModule-ACH.xlsx
+  Ops Manager: Agency3 Ops | Agent: 0987654321 test-DevaTest (ACH) | Product: test-2025-jan-1-aetna-test-001
 
   Background:
     Given I am logged into PieQ ICM for edit transaction validation

@@ -2,6 +2,7 @@ import { expect, type Locator, type Page } from '@playwright/test';
 import { AppUrlPatterns } from '../appPaths';
 import { IcmSidebarPage } from '../sidebar/IcmSidebarPage';
 import { TRANSFER_SHEET } from '../../test-data/transfer-agent/transferSheet';
+import { getTransferContext } from '../../utils/transfer-agent/transferSheetContext';
 import { captureToast, ensurePageReady, waitForAppSettled } from '../../utils/pageLoader';
 import { smokeStepTimeoutMs, smokeStaticWaitMs } from '../../utils/smokeTimeouts';
 
@@ -1156,17 +1157,20 @@ export class TransferSheetPage {
     await expect(this.loc.policyListDatagrid()).toBeVisible({ timeout: T });
   }
 
+  /** V20260924: live columns are Policy Information | Member | Carrier & Product | Status. */
   async expectPolicyListColumns() {
     const headers = await this.loc
       .policyListDatagrid()
       .locator('[role="columnheader"], .ag-header-cell-text, th')
       .allTextContents();
     const joined = headers.map(h => h.replace(/\s+/g, ' ').trim().toLowerCase()).join(' | ');
-    expect(joined).toMatch(/carrier agent/);
-    expect(joined).toMatch(/writing agent/);
+    expect(joined).toMatch(/policy information/);
+    expect(joined).toMatch(/member/);
+    expect(joined).toMatch(/carrier\s*&\s*product/);
+    expect(joined).toMatch(/status/);
   }
 
-  async expectPolicyListHasAgentPair() {
+  async expectPolicyListHasPolicyAndMember() {
     const rows = this.loc
       .policyListDatagrid()
       .getByRole('row')
@@ -1175,10 +1179,56 @@ export class TransferSheetPage {
     expect(count, 'Transfer Policy List should have data rows').toBeGreaterThan(0);
     const firstText = (await rows.first().innerText()).replace(/\s+/g, ' ').trim();
     expect(firstText.length).toBeGreaterThan(0);
+    // Policy Information embeds policy id + Effective date; Member is a name token.
     expect(firstText).toMatch(/\S+/);
+    expect(firstText).toMatch(/Effective:\s*\d{2}\/\d{2}\/\d{4}/i);
+  }
+
+  private async searchPolicyList(query: string) {
+    const search = this.loc.gridSearch();
+    await expect(search).toBeVisible({ timeout: T });
+    await search.click();
+    await search.fill('');
+    await search.fill(query);
+    await search.press('Enter');
+    await this.page.waitForTimeout(1_200);
+    await waitForAppSettled(this.page, T);
+  }
+
+  /** After upload-check reconcile — assert stored Customer UID appears in Policy List. */
+  async expectPolicyListRowForStoredPolicy() {
+    const ctx = getTransferContext();
+    // Policy List "Policy Information" shows Customer UID (e.g. TRAN001-A00-{stamp}),
+    // not the Excel scale-name/adjustment-description field used as policyNumber.
+    const searchToken = (ctx.customerUid || ctx.policyNumber || '').trim();
+    expect(searchToken, 'stored transfer customerUid/policyNumber').toBeTruthy();
+    await this.loc.gridRefresh().click().catch(() => undefined);
+    await waitForAppSettled(this.page, T);
+    await this.searchPolicyList(searchToken);
+    const rows = this.loc
+      .policyListDatagrid()
+      .getByRole('row')
+      .filter({ hasNot: this.page.getByRole('columnheader') });
+    await expect
+      .poll(
+        async () => {
+          const count = await rows.count();
+          for (let i = 0; i < count; i++) {
+            const text = (await rows.nth(i).innerText()).replace(/\s+/g, ' ');
+            if (text.toLowerCase().includes(searchToken.toLowerCase())) return true;
+          }
+          // Retry search in case grid lagged after reconcile.
+          await this.loc.gridRefresh().click().catch(() => undefined);
+          await this.searchPolicyList(searchToken);
+          return false;
+        },
+        { timeout: T, intervals: [1_000, 2_000] },
+      )
+      .toBe(true);
   }
 
   async expectPolicyListRowForAgents(carrierAgent: string, writingAgent: string) {
+    // Kept for older callers; agent columns removed — fall back to combined text search.
     const rows = this.loc
       .policyListDatagrid()
       .getByRole('row')

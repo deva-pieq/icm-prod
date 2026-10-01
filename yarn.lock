@@ -378,7 +378,7 @@
 
 "@types/imap-simple@^4.2.10":
   version "4.2.10"
-  resolved "https://registry.yarnpkg.com/@types/imap-simple/-/imap-simple-4.2.10.tgz#46ba9826b1bff25cc06c1aa4fa848669f2b4c1cd"
+  resolved "https://registry.npmjs.org/@types/imap-simple/-/imap-simple-4.2.10.tgz"
   integrity sha512-ZLITvpfY4+oPtH3z7axYRGJqOB/9M6cb4ye8eEydOlgXZuJFX0z9l+hxzXgrFDnWKwxH39ZPCT4bGIFUKSJ52g==
   dependencies:
     "@types/imap" "*"
@@ -386,14 +386,14 @@
 
 "@types/imap@*":
   version "0.8.43"
-  resolved "https://registry.yarnpkg.com/@types/imap/-/imap-0.8.43.tgz#36067426239db252b3ebd7e1dab51a4c4c3349d1"
+  resolved "https://registry.npmjs.org/@types/imap/-/imap-0.8.43.tgz"
   integrity sha512-POPoqrDax9mxM2N4ITZYCWaFtg1ORVfzJe4S7xwSh9aHawdEb7FwWTJYiAhzIvWp7DM+6BajnzYOwZ1BUrqtow==
   dependencies:
     "@types/node" "*"
 
 "@types/jsdom@^30.0.0":
   version "30.0.0"
-  resolved "https://registry.yarnpkg.com/@types/jsdom/-/jsdom-30.0.0.tgz#40950b6b36e826e3cf0b155c452cb5ed1741443f"
+  resolved "https://registry.npmjs.org/@types/jsdom/-/jsdom-30.0.0.tgz"
   integrity sha512-uAHGxujGE0cDaKGdK28zgDotFtNA7MKq5DXl8LrfdxdCI8VHcg15oJz+amHTChPNI5JpgEPQWc2xFdrw3em/nQ==
   dependencies:
     "@types/node" "*"
@@ -403,7 +403,7 @@
 
 "@types/mailparser@^3.4.6":
   version "3.4.6"
-  resolved "https://registry.yarnpkg.com/@types/mailparser/-/mailparser-3.4.6.tgz#fcca99fe9f919f3da691a0bf5e3022c6283c3068"
+  resolved "https://registry.npmjs.org/@types/mailparser/-/mailparser-3.4.6.tgz"
   integrity sha512-wVV3cnIKzxTffaPH8iRnddX1zahbYB1ZEoAxyhoBo3TBCBuK6nZ8M8JYO/RhsCuuBVOw/DEN/t/ENbruwlxn6Q==
   dependencies:
     "@types/node" "*"
@@ -430,7 +430,7 @@
 
 "@types/tough-cookie@*":
   version "4.0.5"
-  resolved "https://registry.yarnpkg.com/@types/tough-cookie/-/tough-cookie-4.0.5.tgz#cb6e2a691b70cb177c6e3ae9c1d2e8b2ea8cd304"
+  resolved "https://registry.npmjs.org/@types/tough-cookie/-/tough-cookie-4.0.5.tgz"
   integrity sha512-/Ad8+nIOV7Rl++6f1BdKxFSMgmoqEoYbHRpPcx3JEfv8VRsQe9Z4mCXeJBzxs7mbHY/XOZZuXlRNfhpVPbs6ZA==
 
 "@types/uuid@10.0.0":
@@ -1106,7 +1106,7 @@ iconv-lite@0.7.3:
 
 iconv-lite@^0.6.3:
   version "0.6.3"
-  resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.6.3.tgz#a52f80bf38da1952eb5c681790719871a1a72501"
+  resolved "https://registry.npmjs.org/iconv-lite/-/iconv-lite-0.6.3.tgz"
   integrity sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==
   dependencies:
     safer-buffer ">= 2.1.2 < 3.0.0"
@@ -1989,7 +1989,7 @@ undefsafe@^2.0.5:
 
 undici-types@^8.9.0:
   version "8.10.0"
-  resolved "https://registry.yarnpkg.com/undici-types/-/undici-types-8.10.0.tgz#345466f95636cce5b526e319c1e61a837c82af0b"
+  resolved "https://registry.npmjs.org/undici-types/-/undici-types-8.10.0.tgz"
   integrity sha512-ibvdovq3nCFs8Msrd95BW+zUOq+aOVbT+wpHUoPWhztbHEoPc6oof51iFDB6Es8lTKvNvVW9jNSAB8dwrKTMGg==
 
 undici-types@~6.21.0:

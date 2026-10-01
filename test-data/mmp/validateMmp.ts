@@ -6,6 +6,8 @@ const projectRoot = path.resolve(__dirname, '..', '..');
 
 export const MMP = {
   templateFileName: '[MLB]MmpStatement-NB.xlsx',
+  /** Separate Bonus statement — posts BONUS ledger after NB commission file. */
+  bonusTemplateFileName: '[MLB]MmpStatement-Bonus.xlsx',
   templateDir: path.join(projectRoot, 'TestFiles-prod-sanity', 'MmpTemplate'),
   generatedDir: path.join(projectRoot, 'TestFiles-prod-sanity', 'MmpTemplate', '.generated'),
   statementType: 'Aetna ACA',
@@ -23,7 +25,7 @@ export const MMP = {
   maxContributionAmount: 2000,
   /**
    * Product Bonus earning kept at $200.
-   * File1 commission + bonus = contributionAmount (1800 + 200 = 2000).
+   * File1 commission $1800 + Bonus statement $200 = contributionAmount $2000.
    */
   bonusAmount: 200,
   earningTypes: ['Commission', 'Bonus'] as const,
@@ -45,13 +47,23 @@ export const MMP = {
   mmpToggleLabel: /opt for marketing match program/i,
   maxContributionLabel: /maximum contribution:\s*\$2000\/per month/i,
   /**
-   * File1: single NB — Commission $1800 + Bonus $200 = $2000 (MMP max).
-   * premium 18000 → commission 10% = 1800.
+   * File1 NB commission: premium 18000 → commission 10% = 1800.
+   * Bonus posts only after uploading the separate Bonus statement (see bonusFile).
    */
   file1: {
     premium: 18_000,
     grossCompensation: 1800,
     netCompensation: 1800,
+    taxWithholding: 0,
+  },
+  /**
+   * Bonus statement (same Customer UID + scale name as File1).
+   * Gross/Net $200, premium $1800 — posts BONUS on agent ledger / MMP debit.
+   */
+  bonusFile: {
+    premium: 1_800,
+    grossCompensation: 200,
+    netCompensation: 200,
     taxWithholding: 0,
   },
   /**
@@ -102,15 +114,21 @@ export const MMP = {
     fileId: 'File ID',
   },
   /** Actual product name in Products grid (not the scale name from Excel). */
-  productGridName: 'Aetna-Test-Product',
+  productGridName: 'test-Aetna-Test-Product',
   /**
    * Unique product code shown in the Products grid as "Code: <code>".
-   * The grid also contains "Aetna-Test-Product II" (Code: AetnaTestProductIII),
-   * which matches a name-only search — use the code to disambiguate.
+   * Search by code, not name: a name-only search for "test-Aetna-Test-Product"
+   * also matches the "... II" variant, and the wrong product (first
+   * alphabetical match) has no published Bonus -> the flow would create a
+   * conflicting draft and fail at publish (MCP-verified).
    */
-  productGridCode: 'AetnaTestProduct001',
+  productGridCode: 'TEST-AETNA-XFER',
 } as const;
 
 export function mmpTemplatePath(): string {
   return path.join(MMP.templateDir, MMP.templateFileName);
+}
+
+export function mmpBonusTemplatePath(): string {
+  return path.join(MMP.templateDir, MMP.bonusTemplateFileName);
 }

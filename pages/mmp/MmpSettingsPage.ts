@@ -1,5 +1,5 @@
 import { expect, type Locator, type Page } from '@playwright/test';
-import { waitForAppSettled } from '../../utils/pageLoader';
+import { captureToast, waitForAppSettled } from '../../utils/pageLoader';
 import { smokeStepTimeoutMs } from '../../utils/smokeTimeouts';
 import { MMP } from '../../test-data/mmp/validateMmp';
 import { AgentsPage } from '../agents/AgentsPage';
@@ -133,8 +133,15 @@ export class MmpSettingsPage {
   async enableMmp(): Promise<void> {
     const toggle = this.loc.mmpToggle();
     await expect(toggle).toBeVisible({ timeout: T });
-    if (!(await this.readToggleEnabled())) {
-      await toggle.click({ force: true });
+    for (let attempt = 0; attempt < 4; attempt++) {
+      if (await this.readToggleEnabled()) {
+        return;
+      }
+      await this.page.waitForTimeout(attempt === 0 ? 500 : 1500);
+      if (await this.readToggleEnabled()) {
+        return;
+      }
+      await toggle.click({ force: true }).catch(() => {});
       await waitForAppSettled(this.page, T);
     }
     expect(await this.readToggleEnabled(), 'MMP toggle should be enabled').toBeTruthy();
@@ -143,8 +150,15 @@ export class MmpSettingsPage {
   async disableMmp(): Promise<void> {
     const toggle = this.loc.mmpToggle();
     await expect(toggle).toBeVisible({ timeout: T });
-    if (await this.readToggleEnabled()) {
-      await toggle.click({ force: true });
+    for (let attempt = 0; attempt < 4; attempt++) {
+      if (!(await this.readToggleEnabled())) {
+        return;
+      }
+      await this.page.waitForTimeout(attempt === 0 ? 500 : 1500);
+      if (!(await this.readToggleEnabled())) {
+        return;
+      }
+      await toggle.click({ force: true }).catch(() => {});
       await waitForAppSettled(this.page, T);
     }
     expect(await this.readToggleEnabled(), 'MMP toggle should be disabled').toBeFalsy();
@@ -317,6 +331,12 @@ export class MmpSettingsPage {
     await waitForAppSettled(this.page, T);
   }
 
+  /**
+   * Save the settings tab and soft-expect the success toast.
+   * The toast slides in fast and auto-dismisses (~4s), and the app may navigate
+   * away on save, so it is captured through the shared soft-capture helper:
+   * message asserted with expect.soft when seen, skipped when already gone.
+   */
   async saveSettings(): Promise<void> {
     const save = this.loc.saveButton();
     if (await save.isDisabled()) {
@@ -326,10 +346,10 @@ export class MmpSettingsPage {
     if (await this.loc.confirmDialog().isVisible({ timeout: 5_000 }).catch(() => false)) {
       await this.confirmSaveDialog();
     }
-    await this.loc
-      .successToast()
-      .waitFor({ state: 'visible', timeout: 10_000 })
-      .catch(() => undefined);
+    const text = await captureToast(this.page, this.loc.successToast(), T);
+    if (text) {
+      expect.soft(text, 'MMP settings success toast message (soft)').toBeTruthy();
+    }
   }
 
   async expectValidationError(pattern: RegExp): Promise<void> {

@@ -19,7 +19,7 @@ import {
   activateAgentOnPage,
   waitForActivationEmail,
 } from '../../utils/agent-activation/agentActivation';
-import { prepareMmpFile1, prepareMmpFile2, prepareMmpRenewalFile } from '../../utils/mmp/mmpExcelPrep';
+import { prepareMmpFile1, prepareMmpFile2, prepareMmpRenewalFile, prepareMmpBonusFile } from '../../utils/mmp/mmpExcelPrep';
 import { agency3OpsCredentials } from '../../utils/loadEnv';
 import {
   getMmpActivationUrl,
@@ -158,7 +158,7 @@ export class MmpFlowPage extends StatementUploadPage {
       `[mmp] File1 prepared: ${file.fileName} product="${file.productName}" uid=${file.customerUid} agent=${agent.firstName} ${agent.lastName} npn=${agent.npn || agent.agentId}`,
     );
     console.log(
-      `[mmp] HUMAN CONFIG — product="${file.productName}" opsEmail=${MMP.opsEmail} (set Bonus $${MMP.bonusAmount} on this product; Commission $${MMP.file1.grossCompensation} + Bonus $${MMP.bonusAmount} = $${MMP.contributionAmount})`,
+      `[mmp] HUMAN CONFIG — product="${file.productName}" opsEmail=${MMP.opsEmail} (set Bonus $${MMP.bonusAmount} on this product; File1 Commission $${MMP.file1.grossCompensation} + Bonus statement $${MMP.bonusAmount} = $${MMP.contributionAmount})`,
     );
   }
 
@@ -252,11 +252,20 @@ export class MmpFlowPage extends StatementUploadPage {
     await commissionRulePage.setCommissionRuleNameToValidUniqueValue();
     await commissionRulePage.setCommissionRuleEffectiveStartDate('01/01/2021');
 
-    // Configure policy period slabs - set Regular period value to bonusAmount
+    // Configure policy period slabs - set Regular period value to bonusAmount.
+    // Bonus pays a flat amount, not a percentage of premium, so the Payout type
+    // must be "Amount" (earning_type = dollar) before the value is entered.
+    await commissionRulePage.setPolicyPeriodEarningType('Dollar Amount', 'Regular');
     await commissionRulePage.configureRegularPolicyPeriod('12', String(bonusAmount));
+    await commissionRulePage.expectPolicyPeriodEarningType('Dollar Amount');
+    await commissionRulePage.expectPolicyPeriodRow('Regular', '12', String(bonusAmount));
 
-    // Set commission splits: 100% to Agent, 0% to Agency and Sales Leader
-    await commissionRulePage.setCommissionSplitManually('0', '0');
+    // Set commission splits: 100% to Agent, 0% to Agency and Sales Leader.
+    // The app only redistributes the other roles when the typed value is
+    // non-zero, so a 0 into Agency/Sales Leader never assigns anything to
+    // Agent. Agent has to be written directly or every level stays at 0 and
+    // Publish Rule never becomes enabled.
+    await commissionRulePage.setCommissionSplitToAgentOnly('100');
 
     // Save draft
     await commissionRulePage.saveTheDraft();
@@ -434,7 +443,11 @@ export class MmpFlowPage extends StatementUploadPage {
     await new ProfilePage(this.page).signOut();
     const loginPage = new LoginPage(this.page);
     await loginPage.goto();
-    await loginPage.loginWithEmailPasswordToApp(agent.email, MMP.agentPassword);
+    // A freshly activated agent lands on the profile-onboarding interstitial;
+    // dismiss it when present so the Ledger nav is reachable.
+    await loginPage.loginWithEmailPasswordToApp(agent.email, MMP.agentPassword, {
+      skipProfileSetup: true,
+    });
   }
 
   async openAgentLedger(): Promise<void> {
@@ -618,6 +631,30 @@ export class MmpFlowPage extends StatementUploadPage {
     setMmpPreparedFile2(file);
     console.log(
       `[mmp] Renewal prepared: ${file.fileName} uid=${file.customerUid} agent=${agent.firstName} ${agent.lastName} npn=${agent.npn || agent.agentId}`,
+    );
+  }
+
+  /**
+   * Bonus statement after File1 commission: same agent / Customer UID / scale name.
+   * Stored as preparedFile2 (same upload/review/process helpers as renewal).
+   */
+  async prepareBonusFile(): Promise<void> {
+    const agent = getMmpAgent();
+    const seed = getMmpPreparedFile1();
+    const file = await prepareMmpBonusFile(
+      {
+        agentId: agent.npn || agent.agentId,
+        firstName: agent.firstName,
+        lastName: agent.lastName,
+      },
+      seed.customerUid,
+      seed.productName,
+    );
+    setMmpPreparedFile2(file);
+    console.log(
+      `[mmp] Bonus prepared: ${file.fileName} uid=${file.customerUid} product="${file.productName}" ` +
+        `agent=${agent.firstName} ${agent.lastName} npn=${agent.npn || agent.agentId} ` +
+        `gross=$${MMP.bonusFile.grossCompensation}`,
     );
   }
 }

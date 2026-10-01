@@ -256,6 +256,35 @@ export class StatementUploadPage extends GridPage {
     await waitForAppSettled(this.page, T);
   }
 
+  /**
+   * Reads the file lifecycle status (Extract / Processing / Waiting) for `fileName`.
+   *
+   * The upload grid renders a Stage column but has no Status column, so a
+   * `readCellText(row, 'Status')` always returns ''. Status is only present in
+   * the carrierfiles list payload the grid fetches — read it from that response
+   * so Waiting stays assertable. Returns '' when the grid issues no request or
+   * the file is outside the fetched window, so callers can poll.
+   */
+  async readCarrierFileStatusFromList(fileName: string): Promise<string> {
+    const target = fileName.trim().toLowerCase();
+    if (!target) return '';
+
+    const isCarrierFilesList = (url: string) => /\/api\/v1\/carrierfiles\//i.test(url);
+    const response = await Promise.all([
+      this.page.waitForResponse((r) => isCarrierFilesList(r.url()) && r.ok(), { timeout: T }),
+      this.refreshRecentlyUploadedGrid(),
+    ])
+      .then(([matched]) => matched)
+      .catch(() => null);
+    if (!response) return '';
+
+    const payload = (await response.json().catch(() => null)) as {
+      data?: { name?: string; status?: string }[];
+    } | null;
+    const record = (payload?.data ?? []).find((r) => (r.name ?? '').trim().toLowerCase() === target);
+    return (record?.status ?? '').replace(/_/g, ' ').trim();
+  }
+
   async waitMs(ms: number): Promise<void> {
     await this.page.waitForTimeout(ms);
   }

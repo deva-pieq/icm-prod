@@ -23,6 +23,11 @@ export class LoginPage {
         .or(this.page.locator('input[type="password"]'))
         .first(),
     signInButton: () => this.page.getByRole('button', { name: /sign in|log in/i }).first(),
+    /**
+     * Post-activation profile onboarding interstitial. Rendered only for freshly
+     * activated agents on their first login, so callers must treat it as optional.
+     */
+    profileSkip: () => this.page.getByTestId('profile-skip'),
   };
 
   constructor(private readonly page: Page) {}
@@ -62,7 +67,36 @@ export class LoginPage {
     await this.page.waitForLoadState('domcontentloaded').catch(() => undefined);
   }
 
-  async loginWithEmailPasswordToApp(email: string, password: string) {
+  /**
+   * Click the optional post-activation "Skip" interstitial when the app renders it.
+   *
+   * Only newly activated agents see the profile screen, so this must stay soft:
+   * a missing button is the normal case and must not fail the login. Returns true
+   * when the button was found and clicked.
+   */
+  async skipProfileSetupIfPresent(timeout = 5_000): Promise<boolean> {
+    const skip = this.loc.profileSkip();
+    const visible = await skip
+      .waitFor({ state: 'visible', timeout })
+      .then(() => true)
+      .catch(() => false);
+    if (!visible) return false;
+    await skip.click();
+    await this.page.waitForLoadState('domcontentloaded').catch(() => undefined);
+    console.log('[login] Clicked profile-skip (agent profile onboarding)');
+    return true;
+  }
+
+  /**
+   * @param opts.skipProfileSetup opt-in: click the profile-onboarding "Skip" button
+   * when present. Off by default so the ~60 existing callers that log in as staff
+   * keep their current behaviour.
+   */
+  async loginWithEmailPasswordToApp(
+    email: string,
+    password: string,
+    opts: { skipProfileSetup?: boolean } = {},
+  ) {
     await this.waitForLoginPageOrApp();
     await expect(this.loc.emailInput()).toBeVisible({ timeout: 30_000 });
     await this.loc.emailInput().fill(email);
@@ -70,6 +104,11 @@ export class LoginPage {
     await expect(this.loc.passwordInput()).toBeVisible();
     await this.loc.passwordInput().fill(password);
     await this.loc.signInButton().click();
+    // Before waitForSidebarNavigation: the interstitial can cover the app shell,
+    // so the sidebar may never mount unless Skip is dismissed first.
+    if (opts.skipProfileSetup) {
+      await this.skipProfileSetupIfPresent();
+    }
     await this.waitForSidebarNavigation();
   }
 

@@ -1,0 +1,347 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: features\edit-transaction\edit-transaction.feature.spec.ts >> Edit Transaction Regression — Download ACH & Edit Batch (Approval) >> T008-ET — Unchecking all payables disables Save Batch
+- Location: .features-gen\features\edit-transaction\edit-transaction.feature.spec.ts:95:7
+
+# Error details
+
+```
+Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: "ready"
+Received: "waiting:Error:Extract"
+
+Call Log:
+- Timeout 300000ms exceeded while waiting on the predicate
+```
+
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]:
+          - img [ref=e9]
+          - generic [ref=e13]:
+            - heading "MLB" [level=1] [ref=e14]
+            - paragraph [ref=e15]: Insurance Operations
+        - button "Collapse sidebar" [ref=e16] [cursor=pointer]:
+          - img [ref=e17]
+      - navigation "Sidebar navigation" [ref=e20]:
+        - button "Dashboard" [ref=e22] [cursor=pointer]:
+          - img [ref=e23]
+          - generic [ref=e28]: Dashboard
+        - button "User Management" [ref=e30] [cursor=pointer]:
+          - img [ref=e31]
+          - generic [ref=e35]: User Management
+        - button "Carriers" [ref=e37] [cursor=pointer]:
+          - img [ref=e38]
+          - generic [ref=e40]: Carriers
+        - button "Agents" [ref=e42] [cursor=pointer]:
+          - img [ref=e43]
+          - generic [ref=e48]: Agents
+        - button "Products" [ref=e50] [cursor=pointer]:
+          - img [ref=e51]
+          - generic [ref=e55]: Products
+        - button "Policies" [ref=e57] [cursor=pointer]:
+          - img [ref=e58]
+          - generic [ref=e61]: Policies
+        - button "Commissions" [ref=e63] [cursor=pointer]:
+          - img [ref=e64]
+          - generic [ref=e66]: Commissions
+          - img [ref=e68]
+        - button "Advance" [ref=e71] [cursor=pointer]:
+          - img [ref=e72]
+          - generic [ref=e78]: Advance
+          - img [ref=e80]
+        - generic [ref=e82]:
+          - button "Statements" [ref=e83] [cursor=pointer]:
+            - img [ref=e84]
+            - generic [ref=e87]: Statements
+            - img [ref=e89]
+          - generic [ref=e91]:
+            - button "Upload" [ref=e93] [cursor=pointer]:
+              - generic [ref=e95]: Upload
+            - button "History" [ref=e97] [cursor=pointer]:
+              - generic [ref=e98]: History
+            - button "Needs Attention" [ref=e100] [cursor=pointer]:
+              - generic [ref=e101]: Needs Attention
+        - button "Payment Processing" [ref=e103] [cursor=pointer]:
+          - img [ref=e104]
+          - generic [ref=e106]: Payment Processing
+          - img [ref=e108]
+        - button "Settings" [ref=e111] [cursor=pointer]:
+          - img [ref=e112]
+          - generic [ref=e115]: Settings
+          - img [ref=e117]
+        - button "Agency Configuration" [ref=e120] [cursor=pointer]:
+          - img [ref=e121]
+          - generic [ref=e124]: Agency Configuration
+          - img [ref=e126]
+      - button "Open user menu" [ref=e132] [cursor=pointer]:
+        - generic [ref=e135]: DO
+        - generic [ref=e136]:
+          - paragraph [ref=e137]: Deva Prod Ops
+          - paragraph [ref=e138]: Operations Manager
+      - generic [ref=e139]: V20260924.01
+    - main [ref=e141]:
+      - generic [ref=e144]:
+        - generic [ref=e145]:
+          - heading "Upload Commission Statement" [level=1] [ref=e146]
+          - paragraph [ref=e147]: Upload carrier commission files in CSV or Excel format.
+        - generic [ref=e149]:
+          - generic [ref=e152]:
+            - generic [ref=e153]: Statement File*
+            - generic [ref=e154]:
+              - img [ref=e156]
+              - paragraph [ref=e159]: Drag and drop file here
+              - button "Browse" [ref=e161] [cursor=pointer]:
+                - generic [ref=e163]: Browse
+              - paragraph
+          - generic [ref=e164]:
+            - generic [ref=e165]:
+              - generic [ref=e167]:
+                - button "Select type..." [ref=e168] [cursor=pointer]:
+                  - generic [ref=e170]: Select type...
+                  - img [ref=e171]
+                - generic [ref=e173]: Statement Type*
+              - generic [ref=e175]:
+                - textbox "Auto-detect" [disabled] [ref=e176]
+                - generic [ref=e177]:
+                  - text: Product Type
+                  - img [ref=e178]
+              - generic [ref=e182]:
+                - textbox "Auto-detect" [disabled] [ref=e183]
+                - generic [ref=e184]:
+                  - text: Carrier
+                  - img [ref=e185]
+              - generic [ref=e190]:
+                - img [ref=e192] [cursor=pointer]
+                - textbox "MM/DD/YYYY" [ref=e194] [cursor=pointer]: 10/06/2026
+                - img [ref=e196] [cursor=pointer]
+                - generic [ref=e199]: Processing Date*
+              - generic [ref=e202]:
+                - img [ref=e204] [cursor=pointer]
+                - textbox "MM/DD/YYYY" [ref=e206] [cursor=pointer]
+                - generic [ref=e207]: Statement Date
+            - generic [ref=e208]:
+              - button "Cancel" [ref=e209] [cursor=pointer]:
+                - generic [ref=e211]: Cancel
+              - button "Upload Statement" [disabled]:
+                - generic:
+                  - generic: Upload Statement
+        - generic [ref=e212]:
+          - grid "Data grid" [ref=e214]:
+            - status [ref=e215]: Loading data...
+            - generic [ref=e217]:
+              - generic [ref=e219]:
+                - heading "Recently Uploaded Statements" [level=2] [ref=e220]
+                - button "No Refresh" [ref=e224] [cursor=pointer]:
+                  - generic [ref=e226]: No Refresh
+                  - img [ref=e227]
+              - generic [ref=e229]:
+                - button "Export grid data to Excel" [ref=e230] [cursor=pointer]:
+                  - img [ref=e233]
+                - button "Refresh grid data" [active] [ref=e236] [cursor=pointer]:
+                  - img [ref=e239]
+          - generic [ref=e449]: Showing all 62 records
+  - tooltip "Refresh" [ref=e450]:
+    - generic [ref=e452]: Refresh
+```
+
+# Test source
+
+```ts
+  1   | import { expect } from '@playwright/test';
+  2   | import { STATEMENT_UPLOAD } from '../../test-data/commission-statements/statementUpload';
+  3   | import type { PreparedStatementFile } from '../../utils/excelStatementPrep';
+  4   | import { escapeRegex } from '../../utils/escapeRegex';
+  5   | import { debugLogAssertion, debugLogFileIdCaptured } from '../../utils/debugSteps';
+  6   | import { smokeStepTimeoutMs } from '../../utils/smokeTimeouts';
+  7   | import type { StatementUploadPage, RecentlyUploadedRow } from './StatementUploadPage';
+  8   | 
+  9   | const T = smokeStepTimeoutMs;
+  10  | 
+  11  | export type UploadGridPollOptions = {
+  12  |   maxAttempts?: number;
+  13  |   intervalMs?: number;
+  14  | };
+  15  | 
+  16  | export class StatementUploadAssertions {
+  17  |   constructor(private readonly uploadPage: StatementUploadPage) {}
+  18  | 
+  19  |   private logAssertion(label: string, actual: unknown, expected: unknown, passed: boolean): void {
+  20  |     debugLogAssertion(label, actual, expected, passed);
+  21  |   }
+  22  | 
+  23  |   private async readStatusAndStage(
+  24  |     fileName: string,
+  25  |     fileId?: string,
+  26  |   ): Promise<{
+  27  |     row: Awaited<ReturnType<StatementUploadPage['resolveStoredUploadRow']>>;
+  28  |     status: string;
+  29  |     stage: string;
+  30  |   }> {
+  31  |     await this.uploadPage.ensureOnUploadPage();
+  32  |     const row = await this.uploadPage.resolveStoredUploadRow({ fileId, fileName });
+  33  |     const { status, stage } = await this.uploadPage.readUploadRowStatusAndStage(row);
+  34  |     return { row, status, stage };
+  35  |   }
+  36  | 
+  37  |   /**
+  38  |    * Poll upload grid when status/stage is Extract + Processing.
+  39  |    * Refreshes every `intervalMs` up to `maxAttempts`, then throws.
+  40  |    */
+  41  |   /**
+  42  |    * Poll until upload grid shows the expected status + stage (e.g. Waiting / Review).
+  43  |    */
+  44  |   async pollUntilUploadReviewReady(
+  45  |     fileName: string,
+  46  |     status: string,
+  47  |     stage: string,
+  48  |     options: UploadGridPollOptions = {},
+  49  |     fileId?: string,
+  50  |   ): Promise<string> {
+  51  |     const intervalMs = options.intervalMs ?? 2_000;
+  52  |     const maxAttempts = options.maxAttempts ?? 30;
+  53  |     const timeoutMs = Math.max(T * 3, maxAttempts * intervalMs);
+  54  |     const statusPattern = new RegExp(escapeRegex(status), 'i');
+  55  |     const stagePattern = new RegExp(escapeRegex(stage), 'i');
+  56  | 
+  57  |     let resolvedFileId = '';
+  58  | 
+  59  |     await expect
+  60  |       .poll(
+  61  |         async () => {
+  62  |           try {
+  63  |             await this.uploadPage.refreshRecentlyUploadedGrid();
+  64  |             const { row, status: statusText, stage: stageText } = await this.readStatusAndStage(
+  65  |               fileName,
+  66  |               fileId,
+  67  |             );
+  68  | 
+  69  |             if (statusPattern.test(statusText) && stagePattern.test(stageText)) {
+  70  |               resolvedFileId = await this.uploadPage.readFileIdFromRow(row);
+  71  |               this.logAssertion('uploadStatus', statusText, statusPattern, true);
+  72  |               this.logAssertion('uploadStage', stageText, stagePattern, true);
+  73  |               return 'ready';
+  74  |             }
+  75  | 
+  76  |             return `waiting:${statusText || '(empty)'}:${stageText || '(empty)'}`;
+  77  |           } catch (error) {
+  78  |             return `waiting:lookup:${error instanceof Error ? error.message : 'row lookup failed'}`;
+  79  |           }
+  80  |         },
+  81  |         { timeout: timeoutMs, intervals: [intervalMs, intervalMs, intervalMs * 2] },
+  82  |       )
+> 83  |       .toBe('ready');
+      |        ^ Error: expect(received).toBe(expected) // Object.is equality
+  84  | 
+  85  |     if (!resolvedFileId) {
+  86  |       const { row } = await this.readStatusAndStage(fileName, fileId);
+  87  |       resolvedFileId = await this.uploadPage.readFileIdFromRow(row);
+  88  |     }
+  89  |     return resolvedFileId;
+  90  |   }
+  91  | 
+  92  |   async pollPastExtractProcessing(
+  93  |     fileName: string,
+  94  |     options: UploadGridPollOptions = {},
+  95  |     fileId?: string,
+  96  |   ): Promise<string> {
+  97  |     const intervalMs = options.intervalMs ?? 2_000;
+  98  |     const maxAttempts = options.maxAttempts ?? 3;
+  99  |     const timeoutMs = Math.max(T * 3, maxAttempts * intervalMs);
+  100 | 
+  101 |     let resolvedFileId = '';
+  102 | 
+  103 |     await expect
+  104 |       .poll(
+  105 |         async () => {
+  106 |           await this.uploadPage.refreshRecentlyUploadedGrid();
+  107 |           const { row, status, stage } = await this.readStatusAndStage(fileName, fileId);
+  108 | 
+  109 |           const isExtractProcessing = /extract/i.test(status) && /processing/i.test(stage);
+  110 |           const isStillUploaded =
+  111 |             /uploaded/i.test(stage) &&
+  112 |             !/waiting|review|completed|attention|extract|processing/i.test(status);
+  113 | 
+  114 |           if (!isExtractProcessing && !isStillUploaded) {
+  115 |             resolvedFileId = await this.uploadPage.readFileIdFromRow(row);
+  116 |             return 'ready';
+  117 |           }
+  118 | 
+  119 |           return `processing:${status || '(empty)'}:${stage}`;
+  120 |         },
+  121 |         { timeout: timeoutMs, intervals: [intervalMs, intervalMs, intervalMs * 2] },
+  122 |       )
+  123 |       .toBe('ready');
+  124 | 
+  125 |     if (!resolvedFileId) {
+  126 |       const { row } = await this.readStatusAndStage(fileName, fileId);
+  127 |       resolvedFileId = await this.uploadPage.readFileIdFromRow(row);
+  128 |     }
+  129 |     return resolvedFileId;
+  130 |   }
+  131 | 
+  132 |   /**
+  133 |    * Wait until upload stage is Completed, refreshing while stage still contains "processing".
+  134 |    */
+  135 |   async pollUntilStageCompleted(
+  136 |     fileName: string,
+  137 |     options: UploadGridPollOptions = {},
+  138 |     fileId?: string,
+  139 |   ): Promise<string> {
+  140 |     const maxAttempts = options.maxAttempts ?? 15;
+  141 |     const intervalMs = options.intervalMs ?? 2_000;
+  142 |     const completedPattern = /completed/i;
+  143 | 
+  144 |     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+  145 |       await this.uploadPage.ensureOnUploadPage();
+  146 |       try {
+  147 |         const { row, stage } = await this.readStatusAndStage(fileName, fileId);
+  148 |         if (completedPattern.test(stage)) {
+  149 |           return this.uploadPage.readFileIdFromRow(row);
+  150 |         }
+  151 |         if (!/processing/i.test(stage) && attempt === maxAttempts) {
+  152 |           throw new Error(
+  153 |             `Upload "${fileName}" stage "${stage}" did not reach Completed after ${maxAttempts} attempts`,
+  154 |           );
+  155 |         }
+  156 |       } catch (error) {
+  157 |         const message = error instanceof Error ? error.message : String(error);
+  158 |         // Stale AG Grid row after Complete Review refresh — re-resolve next attempt.
+  159 |         if (!/not attached|not stable|detached/i.test(message) || attempt === maxAttempts) {
+  160 |           throw error;
+  161 |         }
+  162 |       }
+  163 |       await this.uploadPage.waitMs(intervalMs);
+  164 |       await this.uploadPage.refreshRecentlyUploadedGrid();
+  165 |     }
+  166 | 
+  167 |     const { row, stage } = await this.readStatusAndStage(fileName, fileId);
+  168 |     if (!completedPattern.test(stage)) {
+  169 |       throw new Error(`Upload "${fileName}" stage "${stage}" is not Completed`);
+  170 |     }
+  171 |     return this.uploadPage.readFileIdFromRow(row);
+  172 |   }
+  173 | 
+  174 |   async expectRecentlyUploadedInProgress(
+  175 |     file: PreparedStatementFile,
+  176 |     uploadedByTag: string,
+  177 |   ): Promise<RecentlyUploadedRow> {
+  178 |     const row = await this.uploadPage.findStoredRowByFileName(file.fileName, T * 2);
+  179 |     const uploadedCell = await this.uploadPage.readCellText(row, STATEMENT_UPLOAD.gridColumns.uploaded);
+  180 |     const rowText = await row.innerText();
+  181 |     const uploadedByMatch =
+  182 |       uploadedCell.toLowerCase().includes(uploadedByTag.toLowerCase()) ||
+  183 |       rowText.toLowerCase().includes(uploadedByTag.toLowerCase());
+```

@@ -59,6 +59,53 @@ export class ProductsPage extends GridPage {
     await this.openList();
   }
 
+  /**
+   * Products grid search is a live "results update as you type" filter, so the
+   * base GridPage.searchGrid (fill() in one shot, no wait for the filter to
+   * apply) can leave the grid unfiltered — the search box holds the query while
+   * every row is still rendered. Type it like a user, then poll the grid until
+   * the filter has actually been applied. Mirrors AgentsPage.searchGrid.
+   */
+  override async searchGrid(query: string) {
+    const search = this.gridLoc.searchInput();
+    await expect(search).toBeVisible({ timeout: T });
+    await search.click();
+    await search.fill('');
+    if (query) {
+      await search.pressSequentially(query, { delay: 25 });
+    }
+    await search.press('Enter');
+    await expect(search).toHaveValue(query, { timeout: 5_000 });
+    await waitForAppSettled(this.page);
+    await expect
+      .poll(
+        async () => {
+          const value = await search.inputValue().catch(() => '');
+          if (value !== query) return false;
+          const footer = ((await this.gridLoc.footerText().textContent().catch(() => null)) ?? '').replace(
+            /\s+/g,
+            ' ',
+          );
+          if (!query) return !/all\s+0\s+records|showing\s+0\b/i.test(footer);
+          if (/all\s+0\s+records|showing\s+0\b/i.test(footer)) return true;
+          if (await this.gridLoc.noRecords().isVisible().catch(() => false)) return true;
+          if (/showing\s+\d+\s+of\s+\d+/i.test(footer) && !/showing\s+(\d+)\s+of\s+\1\s+total/i.test(footer)) {
+            return true;
+          }
+          const matched = this.getDataRows().filter({
+            hasText: new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'),
+          });
+          return (await matched.count()) > 0;
+        },
+        {
+          timeout: 30_000,
+          intervals: [500, 1_000, 2_000],
+          message: `Products search for "${query}" did not update the grid`,
+        },
+      )
+      .toBe(true);
+  }
+
   async clickAddProduct() {
     await this.loc.addButton().click();
     await waitForAppSettled(this.page);

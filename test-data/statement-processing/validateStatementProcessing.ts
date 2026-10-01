@@ -4,9 +4,13 @@ const projectRoot = path.resolve(__dirname, '..', '..');
 
 export const STATEMENT_PROCESSING = {
   templateFileName: '[MLB NEW]HappyFlowChangeCheckRunDate.xlsx',
-  // No TestFiles-prod-sanity/StatementProcessing variant — keeps pre-prod template.
-  templateDir: path.join(projectRoot, 'TestFiles', 'StatementProcessing'),
-  generatedDir: path.join(projectRoot, 'TestFiles', 'StatementProcessing', '.generated'),
+  templateDir: path.join(projectRoot, 'TestFiles-prod-sanity', 'StatementProcessing'),
+  generatedDir: path.join(
+    projectRoot,
+    'TestFiles-prod-sanity',
+    'StatementProcessing',
+    '.generated',
+  ),
   statementType: 'Aetna ACA',
   carrierName: 'Aetna',
   customerUidPrefix: 'IANG12370001IL',

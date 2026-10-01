@@ -136,6 +136,12 @@ export class CommissionRulePage {
     addPeriodButton: () => this.page.getByRole('button', { name: /\+?\s*add period/i }),
     savePolicyPeriodButton: () =>
       this.loc.policyPeriodSlabsTable().getByRole('button', { name: /save (changes|period)/i }).first(),
+    policyPeriodEarningTypeDropdown: (index = 0) =>
+      this.page.getByTestId(`period-earning-type-${index}`),
+    policyPeriodEarningTypeConfirmModal: () =>
+      this.page.getByTestId('policy-period-earning-type-confirm-modal'),
+    policyPeriodEarningTypeConfirmYes: () =>
+      this.page.getByTestId('policy-period-earning-type-confirm-modal-yes'),
     templateNameDropdown: () =>
       this.page
     .getByTestId('main-template-name-dropdown').getByRole("button"),
@@ -414,6 +420,56 @@ export class CommissionRulePage {
     await valueInput.blur();
   }
 
+  static earningTypeLabel(earningType: 'Percentage' | 'Dollar Amount') {
+    return earningType === 'Dollar Amount' ? 'Amount' : 'Percentage';
+  }
+
+  private async editingOrFirstPolicyPeriodRow() {
+    if (await this.loc.policyPeriodSlabsRow().isVisible().catch(() => false)) {
+      return this.loc.policyPeriodSlabsRow();
+    }
+    return this.policyPeriodDataRows().first();
+  }
+
+  async setPolicyPeriodEarningType(
+    earningType: 'Percentage' | 'Dollar Amount',
+    periodName?: string,
+  ) {
+    await this.enterEditPolicyPeriodRow(periodName);
+    const row = await this.editingOrFirstPolicyPeriodRow();
+    await expect(row).toBeVisible({ timeout: T });
+    const label = CommissionRulePage.earningTypeLabel(earningType);
+    const dropdown = row.getByTestId(/^period-earning-type-\d+$/).first();
+    await expect(dropdown).toBeVisible({ timeout: T });
+    const trigger = dropdown.getByRole('button');
+    await expect(trigger).toBeEnabled({ timeout: T });
+    if ((await dropdown.innerText()).trim() !== label) {
+      await trigger.click();
+      const option = this.page
+        .getByRole('listbox')
+        .getByRole('option', { name: new RegExp(`^${escapeRegex(label)}$`, 'i') })
+        .or(this.page.getByRole('option', { name: new RegExp(`^${escapeRegex(label)}$`, 'i') }))
+        .first();
+      await expect(option).toBeVisible({ timeout: T });
+      await option.click();
+      await waitForAppSettled(this.page, T);
+      const confirmYes = this.loc.policyPeriodEarningTypeConfirmYes();
+      if (await confirmYes.isVisible({ timeout: 5_000 }).catch(() => false)) {
+        await confirmYes.click();
+        await waitForAppSettled(this.page, T);
+      }
+    }
+    await expect(dropdown).toHaveText(new RegExp(`^${escapeRegex(label)}$`, 'i'), { timeout: T });
+  }
+
+  async expectPolicyPeriodEarningType(expected: 'Percentage' | 'Dollar Amount') {
+    const label = CommissionRulePage.earningTypeLabel(expected);
+    await expect(this.loc.policyPeriodEarningTypeDropdown().first()).toHaveText(
+      new RegExp(`^${escapeRegex(label)}$`, 'i'),
+      { timeout: T },
+    );
+  }
+
   async addPolicyPeriod() {
     if (await this.loc.policyPeriodSlabsRow().isVisible().catch(() => false)) {
       await this.savePolicyPeriodChanges();
@@ -690,7 +746,17 @@ export class CommissionRulePage {
     await captureToast(this.page, this.loc.slidingNotification(), T);
 
     const publish = this.loc.publishRuleButton();
-    await expect(publish).toBeEnabled({ timeout: T });
+    try {
+      await expect(publish).toBeEnabled({ timeout: T });
+    } catch (error) {
+      const splits = await this.readCommissionSplitTableSignature().catch(() => 'unreadable');
+      throw new Error(
+        `Publish Rule stayed disabled. The app enables it only when every agent level's ` +
+          `commission split totals 100% with at least one non-zero role, and the period value ` +
+          `is valid. Commission splits read back as -> ${splits}`,
+        { cause: error },
+      );
+    }
     await publish.click();
     const dialog = this.page.getByRole('dialog');
     if (await dialog.isVisible({ timeout: 10_000 }).catch(() => false)) {
@@ -1209,6 +1275,29 @@ export class CommissionRulePage {
     await this.setRoleSplitAcrossLevels('Agency', agency);
     await this.setRoleSplitAcrossLevels('Sales Leader', salesLeader);
     await waitForAppSettled(this.page, T);
+  }
+
+  async setCommissionSplitToAgentOnly(agentPercent: string) {
+    await this.setRoleSplitAcrossLevels('Agency', '0');
+    await this.setRoleSplitAcrossLevels('Sales Leader', '0');
+    await this.setRoleSplitAcrossLevels('Agent', agentPercent);
+    await waitForAppSettled(this.page, T);
+    await this.expectCommissionSplitRoleValue('Agency', '0');
+    await this.expectCommissionSplitRoleValue('Sales Leader', '0');
+    await this.expectCommissionSplitRoleValue('Agent', agentPercent);
+  }
+
+  async expectCommissionSplitRoleValue(roleLabel: string, expected: string) {
+    await expect(this.splitSpinboxForRole(roleLabel)).toHaveValue(parseFloat(expected).toFixed(2), {
+      timeout: T,
+    });
+  }
+
+  async readCommissionSplitTableSignature(): Promise<string> {
+    const rows = await this.readCommissionSplitsByAgentLevel();
+    return rows
+      .map((r) => `${r.level}: A=${r.agency} SL=${r.salesLeader} AG=${r.agent}`.replace(/\s+/g, ''))
+      .join(' | ');
   }
 
   async expectCommissionSplitAgentValue(expected: string) {

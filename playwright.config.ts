@@ -45,7 +45,7 @@ const chromiumUse = { ...devices['Desktop Chrome'] };
 export default defineConfig({
   testDir,
   timeout: 1_800_000,
-  retries: 2,
+  retries: 0,
   maxFailures: 0,
   /** Shared-context modules need a single worker. */
   workers:

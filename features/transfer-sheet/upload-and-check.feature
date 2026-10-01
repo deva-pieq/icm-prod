@@ -11,7 +11,7 @@ Feature: Transfer Sheet — Upload and Check (NB / RN)
   @transfer-sheet-regression @upload-check @nb @e2e @sanity-prod @TEST-TS-UC-001-PROD
   Scenario: T001-TS-UC — NB workflow after transfer rule; validate Transfer Policy List
     Given I open the Transfer Sheet page on transfer sheet
-    And I ensure a transfer sheet record exists for agent "Test Transfer Agent" product "Aetna-Test-Product" with status "Active" and date 3 years back
+    And I ensure a transfer sheet record exists for agent "Test Transfer" product "Aetna-Test-Product" with status "Active" and date 3 years back
     And the transfer agent excel file is prepared for upload
     When I open the commission statement upload page
     And I upload the prepared transfer agent file
@@ -20,7 +20,8 @@ Feature: Transfer Sheet — Upload and Check (NB / RN)
     And I refresh the recently uploaded statements grid
     Then the recently uploaded statements grid shows my upload and I capture the file id
     When I open the review page for the stored upload
-    Then the warning tooltip on the review page contains "New Policy"
+    # V20260915.01: "New Policy" warning tooltip removed — marker is Transaction Type "NB"
+    Then every transaction type is "NB" on transfer sheet review
     When I submit the statement for processing
     And I confirm the statement submission
     And I navigate to needs attention statements
@@ -36,12 +37,13 @@ Feature: Transfer Sheet — Upload and Check (NB / RN)
     Then all grid records show "NB" as transaction type and no warning icons
     When I open the Transfer Sheet page on transfer sheet
     And I open the Transfer Policy List tab on transfer sheet
-    Then the Transfer Policy List shows a row for Carrier Agent "Test Transfer Agent" and Writing Agent "DevaTest Agent" on transfer sheet
+    # V20260924: Carrier/Writing Agent columns removed — assert stored policy appears
+    Then the Transfer Policy List shows a row for the stored transfer policy on transfer sheet
 
   @transfer-sheet-regression @regression-test @upload-check @nb @positive @TEST-TS-UC-002-PROD
   Scenario: T002-TS-UC — Policy Transfer Mismatch dropdown lists transferring agent
     Given I open the Transfer Sheet page on transfer sheet
-    And I ensure a transfer sheet record exists for agent "Test Transfer Agent" product "Aetna-Test-Product" with status "Active" and date 3 years back
+    And I ensure a transfer sheet record exists for agent "Test Transfer" product "Aetna-Test-Product" with status "Active" and date 3 years back
     And the transfer agent excel file is prepared for upload
     When I open the commission statement upload page
     And I upload the prepared transfer agent file
@@ -50,20 +52,21 @@ Feature: Transfer Sheet — Upload and Check (NB / RN)
     And I refresh the recently uploaded statements grid
     Then the recently uploaded statements grid shows my upload and I capture the file id
     When I open the review page for the stored upload
-    Then the warning tooltip on the review page contains "New Policy"
+    # V20260915.01: "New Policy" warning tooltip removed — marker is Transaction Type "NB"
+    Then every transaction type is "NB" on transfer sheet review
     When I submit the statement for processing
     And I confirm the statement submission
     And I navigate to needs attention statements
     Then the stored upload row shows status "waiting" and stage "needs attention"
     When I open the stored upload from needs attention
     And I click a record with status "Policy Transfer"
-    Then the Policy Transfer Mismatch agent dropdown lists "Test Transfer Agent" on transfer sheet
+    Then the Policy Transfer Mismatch agent dropdown lists "Test Transfer" on transfer sheet
     And the Policy Transfer Mismatch agent dropdown lists "DevaTest Agent" on transfer sheet
 
   @transfer-sheet-regression @regression-test @upload-check @rn @positive @TEST-TS-UC-003-PROD
   Scenario: T003-TS-UC — Renewal workflow reaches Ready for Payment without exception
     Given I open the Transfer Sheet page on transfer sheet
-    And I ensure a transfer sheet record exists for agent "Test Transfer Agent" product "Aetna-Test-Product" with status "Active" and date 3 years back
+    And I ensure a transfer sheet record exists for agent "Test Transfer" product "Aetna-Test-Product" with status "Active" and date 3 years back
     And the transfer agent renewal excel file is prepared for upload
     When I open the commission statement upload page
     And I upload the prepared transfer agent file

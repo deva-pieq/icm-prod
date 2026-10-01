@@ -3,12 +3,14 @@ Feature: Marketing Match Program — Statement / Ledger Flows
 
   E2E MMP flows (T013–T016, T019) plus cap ledger proof.
   Template: TestFiles/MmpTemplate/[MLB]MmpStatement-NB.xlsx
+  Bonus template: TestFiles/MmpTemplate/[MLB]MmpStatement-Bonus.xlsx
   Statement type: Aetna ACA
   Ops login: agency3OpsCredentials (deva.r+ag3@pieq.ai)
   Agency 3 levels: LVL1 (not Level 1 / SA1), effective start 01/01/2015 via calendar.
-  MMP amount: 2000. File1 Commission 1800 + Bonus 200 = 2000.
+  MMP amount: 2000. File1 Commission 1800 + Bonus statement 200 = 2000.
   One shared agent for all scenarios (create+activate+LVL1+MMP once in Background).
   Customer UID: ATENA-MMP-TEST-A000 then +1 each prep (never reuse).
+  Bonus / RN reuse File1 Customer UID (do not invent).
   Order: table → Bonus-only → NB ledger → RN → monthly cap.
 
   After statement prep, console prints product name + ops email for Bonus product config.
@@ -44,6 +46,15 @@ Feature: Marketing Match Program — Statement / Ledger Flows
     When I open the mmp file 1 review page in mmp validation
     And I complete review on the mmp review page in mmp validation
     And I process the mmp file 1 until Completed in mmp validation
+    Given the mmp bonus statement file is prepared from stored policy in mmp validation
+    When I open the statement upload page in mmp validation
+    And I upload the prepared mmp bonus file in mmp validation
+    And I select the mmp statement type in mmp validation
+    And I submit the mmp upload for processing in mmp validation
+    Then the mmp bonus extract processing completes and file ID is captured in mmp validation
+    When I open the mmp bonus review page in mmp validation
+    And I complete review on the mmp review page in mmp validation
+    And I process the mmp bonus until Completed in mmp validation
     When I log out and log in as the created agent in mmp validation
     And I open the agent Ledger in mmp validation
     Then the agent ledger shows Bonus credit and MMP debit in mmp validation

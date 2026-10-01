@@ -187,7 +187,18 @@ Given(
   },
 );
 
+Given(
+  'the mmp bonus statement file is prepared from stored policy in mmp validation',
+  async ({ mmpFlowPage }) => {
+    await mmpFlowPage.prepareBonusFile();
+  },
+);
+
 When('I upload the prepared mmp renewal file in mmp validation', async ({ mmpFlowPage }) => {
+  await mmpFlowPage.uploadFile2();
+});
+
+When('I upload the prepared mmp bonus file in mmp validation', async ({ mmpFlowPage }) => {
   await mmpFlowPage.uploadFile2();
 });
 
@@ -198,12 +209,30 @@ Then(
   },
 );
 
+Then(
+  'the mmp bonus extract processing completes and file ID is captured in mmp validation',
+  async ({ mmpFlowPage }) => {
+    await mmpFlowPage.pollExtractAndCaptureFileId(2);
+  },
+);
+
 When('I open the mmp renewal review page in mmp validation', async ({ mmpFlowPage }) => {
+  await mmpFlowPage.openReview(2);
+});
+
+When('I open the mmp bonus review page in mmp validation', async ({ mmpFlowPage }) => {
   await mmpFlowPage.openReview(2);
 });
 
 When(
   'I process the mmp renewal until Completed in mmp validation',
+  async ({ mmpFlowPage }) => {
+    await mmpFlowPage.processUntilCompleted(2);
+  },
+);
+
+When(
+  'I process the mmp bonus until Completed in mmp validation',
   async ({ mmpFlowPage }) => {
     await mmpFlowPage.processUntilCompleted(2);
   },

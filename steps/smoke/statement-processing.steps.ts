@@ -29,8 +29,8 @@ Given('I am logged into PieQ ICM for smoke statement processing', async ({ login
   await loginPage.loginWithEmailPasswordToApp(email, password);
 });
 
-/** Preprod Carrier Product Name alias on product "Aetna U80 IL" (statement Scale name column). */
-const SMOKE_STATEMENT_PRODUCT_ALIAS = '2026 $31 PMPM Medical (Cap 5 applied)';
+/** Prod Carrier Product Name alias on product "test-Aetna-Test-Product". */
+const SMOKE_STATEMENT_PRODUCT_ALIAS = 'test-2025-jan-1-aetna-test-001';
 
 async function prepareSmokeStatementFile() {
   return prepareStatementUploadFile({
@@ -77,13 +77,24 @@ When('I upload the prepared smoke statement file', async ({ statementUploadPage 
 
 Then('the smoke upload appears in the recently uploaded grid', async ({ statementUploadPage }) => {
   const { email } = agency3OpsCredentials();
-  await statementUploadPage.expectRecentlyUploadedInProgress(email);
+  // Capture by uploader + file name — do not require Status Extract|Processing|Waiting
+  // (prod often lands Waiting/Review quickly; Status cell can be empty while Stage is set).
+  await statementUploadPage.captureUploadByUploader(email);
 });
 
 Then(
   'the smoke upload shows status {string} and stage {string}',
   async ({ statementUploadPage }, _status: string, _stage: string) => {
-    await statementUploadPage.expectStoredRowReviewState();
+    // Prod: Status often empty while Stage shows Extract → Review.
+    // Wait for Waiting + Review (feature strings Uploaded/Review are legacy).
+    const file = statementUploadPage.getPreparedFile();
+    const fileId = statementUploadPage.getStoredRow()?.fileId;
+    await statementUploadPage.assertions.expectStoredUploadStatusAndStage(
+      file.fileName,
+      'Waiting',
+      'Review',
+      fileId,
+    );
   },
 );
 
@@ -168,14 +179,21 @@ Then(
   'the second smoke upload appears in the recently uploaded grid',
   async ({ statementUploadPage }) => {
     const { email } = agency3OpsCredentials();
-    await statementUploadPage.expectRecentlyUploadedInProgress(email);
+    await statementUploadPage.captureUploadByUploader(email);
   },
 );
 
 Then(
   'the second smoke upload shows status {string} and stage {string}',
   async ({ statementUploadPage }, _status: string, _stage: string) => {
-    await statementUploadPage.expectStoredRowReviewState();
+    const file = statementUploadPage.getPreparedFile();
+    const fileId = statementUploadPage.getStoredRow()?.fileId;
+    await statementUploadPage.assertions.expectStoredUploadStatusAndStage(
+      file.fileName,
+      'Waiting',
+      'Review',
+      fileId,
+    );
   },
 );
 

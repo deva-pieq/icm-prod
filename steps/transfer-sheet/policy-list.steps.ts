@@ -9,16 +9,16 @@ Then('the Transfer Policy List grid is displayed on transfer sheet', async ({ tr
 });
 
 Then(
-  'the Transfer Policy List shows Carrier Agent and Writing Agent columns on transfer sheet',
+  'the Transfer Policy List shows Policy Information, Member, Carrier & Product, and Status columns on transfer sheet',
   async ({ transferSheetPage }) => {
     await transferSheetPage.expectPolicyListColumns();
   },
 );
 
 Then(
-  'at least one Transfer Policy List row shows non-empty Carrier Agent and Writing Agent on transfer sheet',
+  'at least one Transfer Policy List row shows non-empty Policy Information and Member on transfer sheet',
   async ({ transferSheetPage }) => {
-    await transferSheetPage.expectPolicyListHasAgentPair();
+    await transferSheetPage.expectPolicyListHasPolicyAndMember();
   },
 );
 
@@ -39,8 +39,8 @@ Then(
 );
 
 Then(
-  'the Transfer Policy List shows a row for Carrier Agent {string} and Writing Agent {string} on transfer sheet',
-  async ({ transferSheetPage }, carrierAgent: string, writingAgent: string) => {
-    await transferSheetPage.expectPolicyListRowForAgents(carrierAgent, writingAgent);
+  'the Transfer Policy List shows a row for the stored transfer policy on transfer sheet',
+  async ({ transferSheetPage }) => {
+    await transferSheetPage.expectPolicyListRowForStoredPolicy();
   },
 );

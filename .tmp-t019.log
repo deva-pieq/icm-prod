@@ -1,0 +1,59 @@
+yarn run v1.22.22
+$ node scripts/clean-bdd-gen.mjs && bddgen && node scripts/rename-bdd-gen-to-ts.mjs && node scripts/fix-bdd-gen-spec.mjs && playwright test -g @TEST-019-Mmp-Flow-PROD --retries=0 --reporter=line
+
+Running 1 test using 1 worker
+
+[1A[2K[1/1] [chromium] › .features-gen\features\mmp\validate-mmp-flows.feature.spec.ts:24:7 › Marketing Match Program — Statement / Ledger Flows › T019 — MMP for Bonus earning type @mmp @validate-mmp @e2e @sanity-prod @icm @TEST-019-Mmp-Flow-PROD @positive
+[1A[2K[chromium] › .features-gen\features\mmp\validate-mmp-flows.feature.spec.ts:24:7 › Marketing Match Program — Statement / Ledger Flows › T019 — MMP for Bonus earning type @mmp @validate-mmp @e2e @sanity-prod @icm @TEST-019-Mmp-Flow-PROD @positive
+📝 Creating agent: TestAgent0118 TestAgent0118 (deva.r+test+a+118@pieq.ai)
+
+[1A[2K[pageLoader] toast not visible after click — soft continue after settle
+
+[1A[2K📧 Waiting for activation email...
+
+[1A[2K🔍 Search: 220 welcome email(s); looking for deva.r+test+a+118@pieq.ai
+
+[1A[2K🔗 Activation link length=976
+
+[1A[2K🔗 Activation link head=https://tn92l3sw.r.us-east-1.awstrack.me/L0/https:%2F%2Fprod.auth.pieq.ai%2Frealms%2Fpieq-sso%2Flogi…
+
+[1A[2K🔗 Activation link tail=…67c-b906-94092b20b009-000000/mgskFpy8DkVJwstobSZppKzctp8=473
+
+[1A[2K🚪 Logging out ops before activation...
+
+[1A[2K🌐 Opening activation link...
+
+[1A[2K🔘 Clicking "» Click here to proceed"...
+
+[1A[2K🔐 Filling password fields...
+
+[1A[2K📤 Submitting password form...
+
+[1A[2K↩️ Clicking "« Back to Application"...
+
+[1A[2K🔑 Logging in with agent credentials...
+
+[1A[2K[login] Clicked profile-skip (agent profile onboarding)
+
+[1A[2K✅ Agent activated successfully!
+
+[1A[2K🚪 Logging out agent; restoring ops session...
+
+[1A[2K[mmp] Agent created+activated: TestAgent0118 TestAgent0118 id=90118 email=deva.r+test+a+118@pieq.ai
+
+[1A[2K[pageLoader] toast not visible after click — soft continue after settle
+
+[1A[2K[mmp] Shared agent ready (LVL1 + MMP enabled)
+
+[1A[2K[pageLoader] toast not visible after click — soft continue after settle
+
+[1A[2K[mmp] File1 prepared: Mmp-File1-1790772808951.xlsx product="test-2025-jan-1-aetna-test-001" uid=ATENA-MMP-TEST-A118 agent=TestAgent0118 TestAgent0118 npn=90118
+
+[1A[2K[mmp] HUMAN CONFIG — product="test-2025-jan-1-aetna-test-001" opsEmail=deva.r+prod+ops@pieq.ai (set Bonus $200 on this product; Commission $1800 + Bonus $200 = $2000)
+
+[1A[2K[mmp] Configuring product "test-Aetna-Test-Product" (TEST-AETNA-XFER) with Bonus $200 (100% to agent)
+
+[1A[2K[mmp] Product "test-Aetna-Test-Product" already has a published Bonus rule — skipping create/publish (test requirement already satisfied)
+
+[1A[2K[pageLoader] no toast text captured — soft skip message assert
+

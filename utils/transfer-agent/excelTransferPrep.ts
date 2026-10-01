@@ -114,19 +114,20 @@ export async function prepareTransferAgentUploadFile(): Promise<PreparedTransfer
   await wb.xlsx.writeFile(absolutePath);
   registerGeneratedFile(absolutePath);
 
-  // Stopping here to not overwrite the main template file with the new UID and policy number
-  
-  // const mainWb = new ExcelJS.Workbook();
-  // await mainWb.xlsx.readFile(templatePath);
-  // const mainSheet = mainWb.worksheets[0];
-  // if (mainSheet) {
-  //   const mainRow = mainSheet.getRow(2);
-  //   if (mainRow.hasValues && latestUid) {
-  //     mainRow.getCell(uidCol).value = latestUid;
-  //     mainRow.getCell(policyCol).value = policyNumber;
-  //     await mainWb.xlsx.writeFile(templatePath);
-  //   }
-  // }
+  // Persist stamped Customer UID back to template so renewal prep reuses the
+  // same UID that NB just transferred (Policy List / no Policy Transfer path).
+  const mainWb = new ExcelJS.Workbook();
+  await mainWb.xlsx.readFile(templatePath);
+  const mainSheet = mainWb.worksheets[0];
+  if (mainSheet) {
+    for (let rowIndex = 2; rowIndex <= mainSheet.rowCount; rowIndex++) {
+      const mainRow = mainSheet.getRow(rowIndex);
+      if (!mainRow.hasValues) continue;
+      if (latestUid) mainRow.getCell(uidCol).value = latestUid;
+      mainRow.getCell(policyCol).value = policyNumber;
+    }
+    await mainWb.xlsx.writeFile(templatePath);
+  }
 
   return {
     absolutePath,

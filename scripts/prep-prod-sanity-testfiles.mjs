@@ -17,7 +17,7 @@ const destRoot = path.join(root, 'TestFiles-prod-sanity');
 
 /** alias / scale-name rewrites only */
 const ALIAS_REWRITES = [
-  ['aetna-aca-test-advance-month-july-21', 'test-aetna-aca-test-advance-month-july-21'],
+  ['aetna-aca-test-advance-month-july-21', 'test-aetna-aca-advance-july-21'],
   ['aetna-test-product-001', 'test-aetna-test-product-001'],
   ['2025-jan-1-aetna-test-001', 'test-2025-jan-1-aetna-test-001'],
   ['Aetna-Test-Product', 'test-Aetna-Test-Product'],
@@ -34,6 +34,7 @@ const MODULES = [
   'MmpTemplate',
   'PaymentModule',
   'StatementUpload',
+  'StatementProcessing',
   'PolicyCancellationAgencyAdvance',
   'PolicyCancellationCarrierAdvance',
   'PolicyCancellationCarrierAgencyCredit',

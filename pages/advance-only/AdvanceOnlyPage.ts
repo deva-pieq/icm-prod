@@ -211,15 +211,22 @@ export class AdvanceOnlyPage extends StatementUploadPage {
   async openAgentSettings(agentId: string): Promise<void> {
     const grid = this.page.getByRole('grid', { name: 'Data grid' });
     await expect(grid).toBeVisible({ timeout: T });
-    const agentRow = this.page.getByRole('row', { name: 'AgentX Level I Level 5 • 600011' });
-      if (await agentRow.isVisible()) {
-        await agentRow.click();
-        await waitForAppSettled(this.page, T);
-        await this.aoLoc.agentSettingsPage().click();
-        await waitForAppSettled(this.page, T);
-        return;
-      }    
-    throw new Error(`Agent row with ID "${agentId}" not found for opening settings`);
+    // Match by agentId text — accessible name differs across envs (Level I vs LVL5).
+    const agentRow = grid
+      .getByRole('row')
+      .filter({ hasNot: this.page.getByRole('columnheader') })
+      .filter({ hasText: agentId })
+      .first();
+    await expect(
+      agentRow,
+      `Agent row with ID "${agentId}" not found for opening settings`,
+    ).toBeVisible({ timeout: T });
+    await agentRow.click();
+    await waitForAppSettled(this.page, T);
+    const settingsTab = this.aoLoc.agentSettingsPage();
+    await expect(settingsTab).toBeVisible({ timeout: T });
+    await settingsTab.click();
+    await waitForAppSettled(this.page, T);
   }
 
   async expectCarrierAdvanceToggleEnabled(): Promise<void> {

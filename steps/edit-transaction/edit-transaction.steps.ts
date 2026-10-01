@@ -1,5 +1,8 @@
 import { expect } from '@playwright/test';
-import type { PaymentModuleCycle } from '../../test-data/payment-module/paymentModule';
+import {
+  PAYMENT_MODULE,
+  type PaymentModuleCycle,
+} from '../../test-data/payment-module/paymentModule';
 import {
   areEditTransactionStatementsReady,
   clearEditTransactionContext,
@@ -181,8 +184,8 @@ Given(
 );
 
 /**
- * Mixed ACH (Agent Level I / 600001) + Check (Agent Level II / 600002) batch.
- * Always processes fresh files from TestFiles/PaymentModule/ACH and .../CHK
+ * Mixed ACH (test-DevaTest / 0987654321) + Check (test-Agent Test Transfer / 120876543) batch.
+ * Always processes fresh files from TestFiles-prod-sanity/PaymentModule/ACH and .../CHK
  * (Background ACH-only Create Payment consumes those payables — do not reuse them).
  */
 Given(
@@ -234,7 +237,7 @@ Given(
     await payablesPage.ensureCreatePaymentEnabled();
     const amount = await payablesPage.captureNetSettlementAmount();
     setCapturedAmount(amount);
-    getEditTransactionContext().agentId = '600001';
+    getEditTransactionContext().agentId = PAYMENT_MODULE.agents.ACH.agentId;
     getEditTransactionContext().paymentMethod = 'ACH';
     getEditTransactionContext().customerUid = achUid;
     await payablesPage.clickCreatePayment();

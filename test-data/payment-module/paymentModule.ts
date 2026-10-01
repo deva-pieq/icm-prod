@@ -13,13 +13,15 @@ export const PAYMENT_MODULE = {
     email: 'deva.r+ag3@pieq.ai',
   },
   agents: {
+    // Prod-seeded leveled agents (600001/600002 still Onboarding — Extract Error).
+    // ACH → test-DevaTest Agent; CHK → test-Agent Test Transfer; product alias test-2025-jan-1-aetna-test-001.
     CHK: {
-      agentId: '600002',
+      agentId: '120876543',
       email: 'deva.r+ag+l2@pieq.ai',
       paymentMethod: 'Check' as const,
     },
     ACH: {
-      agentId: '600001',
+      agentId: '0987654321',
       email: 'deva.r+ag+l1@pieq.ai',
       paymentMethod: 'ACH' as const,
     },

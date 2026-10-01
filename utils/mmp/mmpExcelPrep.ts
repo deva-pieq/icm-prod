@@ -1,7 +1,7 @@
 import ExcelJS from 'exceljs';
 import fs from 'node:fs';
 import path from 'node:path';
-import { MMP, mmpTemplatePath } from '../../test-data/mmp/validateMmp';
+import { MMP, mmpTemplatePath, mmpBonusTemplatePath } from '../../test-data/mmp/validateMmp';
 import { registerGeneratedFile } from '../generatedFileCleanup';
 import type { MmpPreparedFile } from './mmpContext';
 
@@ -67,13 +67,12 @@ type AgentIds = {
   lastName: string;
 };
 
-async function loadTemplate(): Promise<{
+async function loadTemplateFrom(templatePath: string): Promise<{
   wb: ExcelJS.Workbook;
   sheet: ExcelJS.Worksheet;
   columns: Map<string, number>;
   templatePath: string;
 }> {
-  const templatePath = mmpTemplatePath();
   if (!fs.existsSync(templatePath)) {
     throw new Error(`MMP template not found: ${templatePath}`);
   }
@@ -85,6 +84,15 @@ async function loadTemplate(): Promise<{
   if (!sheet) throw new Error('MMP template workbook has no worksheets');
 
   return { wb, sheet, columns: headerColumnMap(sheet), templatePath };
+}
+
+async function loadTemplate(): Promise<{
+  wb: ExcelJS.Workbook;
+  sheet: ExcelJS.Worksheet;
+  columns: Map<string, number>;
+  templatePath: string;
+}> {
+  return loadTemplateFrom(mmpTemplatePath());
 }
 
 function applyAgentAndAmounts(
@@ -281,6 +289,52 @@ export async function prepareMmpRenewalFile(
     customerUid: existingCustomerUid,
     agentId: agent.agentId,
     productName,
+    recordCount: 1,
+  };
+}
+
+/**
+ * Bonus statement: same Customer UID + scale name as NB File1; Bonus $200 amounts.
+ * Does not bump or rewrite the NB template UID.
+ */
+export async function prepareMmpBonusFile(
+  agent: AgentIds,
+  existingCustomerUid: string,
+  productName: string,
+): Promise<MmpPreparedFile> {
+  const { wb, sheet, columns } = await loadTemplateFrom(mmpBonusTemplatePath());
+
+  for (let rowIndex = sheet.rowCount; rowIndex >= 3; rowIndex--) {
+    sheet.spliceRows(rowIndex, 1);
+  }
+
+  const row = sheet.getRow(2);
+  applyAgentAndAmounts(row, columns, agent, MMP.bonusFile, existingCustomerUid);
+
+  const productCol =
+    columns.get('scale name/adjustment description') ??
+    columns.get('product name alias') ??
+    columns.get('product name') ??
+    columns.get('scale name');
+  if (productCol && productName) {
+    row.getCell(productCol).value = productName;
+  }
+  row.commit();
+
+  const stamp = Date.now();
+  const fileName = `Mmp-Bonus-${stamp}.xlsx`;
+  const absolutePath = path.join(MMP.generatedDir, fileName);
+  await wb.xlsx.writeFile(absolutePath);
+  registerGeneratedFile(absolutePath);
+  // Do NOT write Bonus UID back to NB or Bonus template
+
+  return {
+    absolutePath,
+    fileName,
+    carrierName: MMP.carrierName,
+    customerUid: existingCustomerUid,
+    agentId: agent.agentId,
+    productName: productName || extractProductName(sheet, columns),
     recordCount: 1,
   };
 }

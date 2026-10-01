@@ -244,11 +244,8 @@ export async function activateAgentOnPage(
   await page.getByRole('button', { name: /sign in|log in/i }).first().click();
   await page.waitForLoadState('domcontentloaded');
 
-  console.log('⏭️ Clicking profile-skip...');
-  const skip = page.locator('[data-testid="profile-skip"]');
-  await skip.waitFor({ state: 'visible', timeout: 60000 });
-  await skip.click();
-  await page.waitForLoadState('domcontentloaded');
+  // Soft: the profile interstitial is not guaranteed to render on every activation.
+  await loginPage.skipProfileSetupIfPresent(60_000);
 
   await loginPage.waitForSidebarNavigation(60000);
   console.log('✅ Agent activated successfully!');

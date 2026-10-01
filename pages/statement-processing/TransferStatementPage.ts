@@ -93,19 +93,34 @@ export class TransferStatementPage extends StatementUploadPage {
   }
 
   async expectStoredUploadRowStatusAndStage(status: string, stage: string) {
-    const row = await this.findStoredUploadRow();
+    const fileName = this.getPreparedFile().fileName;
+    const statusPattern = new RegExp(escapeRegex(status), 'i');
+    const stagePattern = new RegExp(escapeRegex(stage), 'i');
+    let statusText = '';
+    let stageText = '';
+
+    // Stage renders in the grid; Status has no grid column on this page, so it is
+    // read from the carrierfiles payload. AG Grid remounts rows on each refresh —
+    // re-resolve the row inside every poll attempt.
     await expect
-      .poll(async () => this.readCellText(row, TRANSFER_SHEET.gridColumns.status), {
-        timeout: T * 2,
-        intervals: [1_500, 2_500],
-      })
-      .toMatch(new RegExp(escapeRegex(status), 'i'));
-    await expect
-      .poll(async () => this.readCellText(row, TRANSFER_SHEET.gridColumns.stage), {
-        timeout: T * 2,
-        intervals: [1_500, 2_500],
-      })
-      .toMatch(new RegExp(escapeRegex(stage), 'i'));
+      .poll(
+        async () => {
+          try {
+            statusText = await this.readCarrierFileStatusFromList(fileName);
+            const row = await this.findStoredUploadRow();
+            stageText = (await this.readCellText(row, TRANSFER_SHEET.gridColumns.stage)).trim();
+          } catch {
+            return `pending:${statusText || '(empty)'}:${stageText || '(empty)'}`;
+          }
+          const matched = statusPattern.test(statusText) && stagePattern.test(stageText);
+          return matched ? 'matched' : `pending:${statusText || '(empty)'}:${stageText || '(empty)'}`;
+        },
+        { timeout: T * 2, intervals: [1_500, 2_500] },
+      )
+      .toBe('matched');
+
+    expect(statusText, `carrierfiles status for ${fileName}`).toMatch(statusPattern);
+    expect(stageText, `upload grid Stage for ${fileName}`).toMatch(stagePattern);
   }
 
   async openStoredUploadFromNeedsAttention() {
@@ -199,17 +214,30 @@ export class TransferStatementPage extends StatementUploadPage {
   }
 
   async expectStoredUploadReadyForPaymentWithoutPolicyTransfer() {
-    const row = await this.findStoredUploadRow();
-    // Renewal success lands in Stage (e.g. Completed); Status cell often empty.
+    const fileName = this.getPreparedFile().fileName;
+    let stageText = '';
+    // AG Grid remounts on refresh — re-resolve row each poll (same as status assert).
     await expect
-      .poll(async () => this.readCellText(row, TRANSFER_SHEET.gridColumns.stage), {
-        timeout: T * 2,
-        intervals: [1_500, 2_500],
-      })
-      .toMatch(/ready for payment|completed|paid/i);
-    expect(
-      (await this.readCellText(row, TRANSFER_SHEET.gridColumns.stage)).toLowerCase(),
-    ).not.toMatch(/needs? attention/i);
+      .poll(
+        async () => {
+          try {
+            await this.refreshRecentlyUploadedGrid();
+            const row = await this.findStoredUploadRow();
+            stageText = (await this.readCellText(row, TRANSFER_SHEET.gridColumns.stage)).trim();
+          } catch {
+            return `pending:${stageText || '(empty)'}`;
+          }
+          if (/ready for payment|completed|paid/i.test(stageText)) return 'matched';
+          return `pending:${stageText || '(empty)'}`;
+        },
+        { timeout: T * 2, intervals: [1_500, 2_500] },
+      )
+      .toBe('matched');
+    expect(stageText, `upload grid Stage for ${fileName}`).toMatch(
+      /ready for payment|completed|paid/i,
+    );
+    expect(stageText.toLowerCase()).not.toMatch(/needs? attention/i);
+    const row = await this.findStoredUploadRow();
     const rowText = (await row.innerText()).toLowerCase();
     expect(rowText).not.toMatch(/policy transfer required/);
   }

@@ -1,5 +1,6 @@
 import { expect, type Page } from '@playwright/test';
 import { AppUrlPatterns } from '../appPaths';
+import { waitForAppSettled } from '../../utils/pageLoader';
 
 export class ProfilePage {
   private readonly loc = {
@@ -23,9 +24,29 @@ export class ProfilePage {
       .or(btn.locator('p').nth(1));
   }
 
-  async openProfileMenu() {
+  private async clickProfileButtonAndWaitForMenu(): Promise<boolean> {
+    const menu = this.loc.menu();
     await expect(this.loc.profileButton()).toBeVisible();
     await this.loc.profileButton().click();
+    const opened = () => menu.isVisible().catch(() => false);
+    if (await opened()) return true;
+    // The click can land before the shell finishes hydrating, or be swallowed
+    // by a re-render — poll briefly before declaring it a miss.
+    await expect.poll(opened, { timeout: 5_000, intervals: [250, 500, 1_000] }).toBe(true).catch(() => undefined);
+    return opened();
+  }
+
+  async openProfileMenu() {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (await this.clickProfileButtonAndWaitForMenu()) return;
+      if (attempt === 2) break;
+      // Elevated server latency can leave the shell interactive but its menu
+      // unbound. Reload, settle, and click again — the reload discards the menu
+      // state, so it must be re-opened rather than re-checked.
+      console.warn(`[ProfilePage] profile menu did not open (attempt ${attempt + 1}) — reloading.`);
+      await this.page.reload({ waitUntil: 'domcontentloaded' });
+      await waitForAppSettled(this.page);
+    }
     await expect(this.loc.menu()).toBeVisible();
   }
 

@@ -188,6 +188,14 @@ export async function waitForToastDismissed(
 const capturedToastByPage = new WeakMap<Page, string>();
 
 /**
+ * Soft-wait budget for a toast to slide in. Toasts auto-dismiss in ~4s, and some
+ * saves navigate away immediately, so a toast that has not appeared inside this
+ * window is not assertable — waiting longer only stalls the save/settle path.
+ * Override per call site when a component animates in slower.
+ */
+export const TOAST_SOFT_WAIT_MS = 6_000;
+
+/**
  * Soft-capture toast after the click that spawned it. Does not hard-fail if the
  * toast is slow or missing — save/settle still completes. Stashes text when seen
  * for a later Then soft-assert. Overwrites any unused capture on this page.
@@ -196,11 +204,12 @@ export async function captureToast(
   page: Page,
   toast: Locator,
   timeout = pageLoaderTimeoutMs,
+  opts: { softWaitMs?: number } = {},
 ): Promise<string> {
   capturedToastByPage.delete(page);
   const toastEl = toast.first();
   // Soft wait — allow slow toasts, then continue save path if still missing.
-  const softTimeout = Math.min(timeout, 20_000);
+  const softTimeout = Math.min(opts.softWaitMs ?? TOAST_SOFT_WAIT_MS, timeout);
   const appeared = await toastEl
     .waitFor({ state: 'visible', timeout: softTimeout })
     .then(() => true)

@@ -22,9 +22,14 @@ export const SALES_LEADER_DASHBOARD = {
   statementType: 'Aetna ACA',
   carrierName: 'Aetna',
   // No TestFiles-prod-sanity/StatementProcessing variant — keeps pre-prod template.
-  /** Reuse statement-processing template + generated dir. */
-  templateDir: path.join(projectRoot, 'TestFiles', 'StatementProcessing'),
-  generatedDir: path.join(projectRoot, 'TestFiles', 'StatementProcessing', '.generated'),
+  /** Reuse statement-processing prod-sanity template + generated dir. */
+  templateDir: path.join(projectRoot, 'TestFiles-prod-sanity', 'StatementProcessing'),
+  generatedDir: path.join(
+    projectRoot,
+    'TestFiles-prod-sanity',
+    'StatementProcessing',
+    '.generated',
+  ),
   uploadPoll: {
     maxAttempts: 30,
     intervalMs: 2_000,

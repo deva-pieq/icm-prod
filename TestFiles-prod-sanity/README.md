@@ -16,9 +16,9 @@ If select/upload fails → stop; fix statement setup in backend (do not invent s
 
 | Role | Product name | Carrier product name (alias) | Code |
 |---|---|---|---|
-| Advance (AO/AR/AA/CO) | `test-aetna-aca-advance-july-21` | `test-aetna-aca-test-advance-month-july-21` | `TEST-ADV-JUL21` |
+| Advance (AO/AR/AA/CO) | `test-aetna-aca-advance-july-21` | `test-aetna-aca-advance-july-21` | `TEST-ADV-JUL21` |
 | Chargeback / payment | `test-aetna-test-product-001` | `test-aetna-test-product-001` | `TEST-AETNA-001` |
-| Transfer / MMP / statement upload | `test-Aetna-Test-Product` | `test-2025-jan-1-aetna-test-001` | `TEST-AETNA-XFER` |
+| Transfer / MMP / statement upload / statement processing / smoke / edit-transaction | `test-Aetna-Test-Product` | `test-2025-jan-1-aetna-test-001` | `TEST-AETNA-XFER` |
 | Happy-flow (pre-seed) | `test-happy-flow-aca-u65` | `test-2026-sep-16-happy-flow-aca-u65` | `TEST-HF-ACA-U65` |
 
 Prod product type dropdown uses **`ACA`** (not `U65 - ACA`). Carrier **Aetna**, LOB **Health**.
@@ -31,8 +31,10 @@ Prod product type dropdown uses **`ACA`** (not `U65 - ACA`). Carrier **Aetna**, 
 | `120876543` | `test-Agent Test Transfer` | Created; Onboarding / No Level |
 | `0987654321` | `test-DevaTest Agent` | Created; Onboarding / No Level |
 | `90065` | `test-TestAgent 0065` | Created; Onboarding / No Level |
-| `600001` | `test-Pay ACH` | Created; Onboarding / No Level |
-| `600002` | `test-Pay CHK` | Created; Onboarding / No Level |
+| `600001` | `test-Pay ACH` | Created; Onboarding / No Level — **not used** for PaymentModule/edit-transaction (Extract Error) |
+| `600002` | `test-Pay CHK` | Created; Onboarding / No Level — **not used** for PaymentModule/edit-transaction (Extract Error) |
+| `0987654321` | `test-DevaTest Agent` | LVL1 — statement processing / smoke / PaymentModule ACH |
+| `120876543` | `test-Agent Test Transfer` | LVL1 — transfer sheet / PaymentModule CHK |
 | `600003` | `test-Chargeback Agent` | Created; Onboarding / No Level |
 
 New agents may need **level + Active** before payment/transfer/advance eligibility works.

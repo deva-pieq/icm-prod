@@ -42,6 +42,38 @@ const SIDEBAR = {
   ledger: 'sidebar-nav-item-ledger',
 } as const;
 
+/** Button-accessible names for expandable parents (testid + label fallback). */
+const SIDEBAR_PARENT_NAME: Record<string, RegExp> = {
+  [SIDEBAR.commissions]: /^Commissions$/i,
+  [SIDEBAR.advance]: /^Advance$/i,
+  [SIDEBAR.statements]: /^Statements$/i,
+  [SIDEBAR.paymentProcessing]: /^Payment Processing$/i,
+  [SIDEBAR.settings]: /^Settings$/i,
+  [SIDEBAR.agencyConfiguration]: /^Agency Configuration$/i,
+  [SIDEBAR.agentInsights]: /^Agent Insights$/i,
+};
+
+/** Button-accessible names for nested items (testid may be absent until parent expands). */
+const SIDEBAR_CHILD_NAME: Record<string, RegExp> = {
+  [SIDEBAR.commissionSetup]: /^Commission Setup$/i,
+  [SIDEBAR.statementSetup]: /^Statement Setup$/i,
+  [SIDEBAR.advanceOverview]: /^Overview$/i,
+  [SIDEBAR.advanceSetup]: /^Advance Setup$/i,
+  [SIDEBAR.uploadStatement]: /^Upload$/i,
+  [SIDEBAR.statementHistory]: /^History$/i,
+  [SIDEBAR.needsAttention]: /^Needs Attention$/i,
+  [SIDEBAR.payables]: /^Payables$/i,
+  [SIDEBAR.approval]: /^Approval$/i,
+  [SIDEBAR.disbursementHistory]: /^History$/i,
+  [SIDEBAR.prompts]: /^Prompts$/i,
+  [SIDEBAR.commissionTemplates]: /^Commission Templates$/i,
+  [SIDEBAR.transferSheet]: /^Transfer Sheet$/i,
+  [SIDEBAR.agencySettings]: /^Agency Settings$/i,
+  [SIDEBAR.dataImport]: /^Data Import$/i,
+  [SIDEBAR.bookOfBusiness]: /^Book of Business$/i,
+  [SIDEBAR.ledger]: /^Ledger$/i,
+};
+
 /** Sidebar navigation — data-testid preferred, unique button names as fallback. */
 export class IcmSidebarPage {
   private readonly loc = {
@@ -259,35 +291,56 @@ export class IcmSidebarPage {
     await this.page.waitForTimeout(300);
   }
 
+  private sidebarNavByTestId(testId: string, nameByTestId: Record<string, RegExp>): Locator {
+    const byTestId = this.loc.sidebar().getByTestId(testId);
+    const name = nameByTestId[testId];
+    if (!name) return byTestId;
+    return byTestId.or(this.loc.sidebar().getByRole('button', { name }));
+  }
+
   /**
-   * Expand a chevron parent until `childTestId` is visible, then return the child locator.
-   * If the first click collapses an already-open section, clicks once more to re-expand.
+   * Expand a chevron parent until the child nav item is visible, then return it.
+   * Only clicks when `aria-expanded !== 'true'` — blind toggles collapse an open section
+   * (e.g. Commissions → Statement Setup) and remove children from the DOM.
    */
   async ensureSectionExpanded(parentTestId: string, childTestId: string): Promise<Locator> {
     await this.waitForSidebar();
     await this.ensureSidebarExpanded();
-    const parent = this.page.getByTestId(parentTestId);
-    const child = this.page.getByTestId(childTestId);
+    const parent = this.sidebarNavByTestId(parentTestId, SIDEBAR_PARENT_NAME);
+    const child = this.sidebarNavByTestId(childTestId, SIDEBAR_CHILD_NAME);
 
-    if (await child.isVisible().catch(() => false)) return child;
+    if (await child.first().isVisible().catch(() => false)) return child.first();
 
-    await expect(parent).toBeVisible({ timeout: T });
-    await parent.click();
+    await expect(parent.first()).toBeVisible({ timeout: T });
+
+    // Expand only when collapsed — do not toggle an already-open section shut.
+    if ((await parent.first().getAttribute('aria-expanded')) !== 'true') {
+      await parent.first().click();
+      await this.settleSidebarNav();
+    }
+
+    // Wait for children to mount before any recovery click (avoids expand→collapse race).
+    if (await child.first().isVisible({ timeout: 5_000 }).catch(() => false)) {
+      return child.first();
+    }
+
+    // aria-expanded missing/stale, or first click collapsed — expand once more.
+    await parent.first().click();
     await this.settleSidebarNav();
+    if ((await parent.first().getAttribute('aria-expanded')) === 'false') {
+      await parent.first().click();
+      await this.settleSidebarNav();
+    }
 
-    if (await child.isVisible().catch(() => false)) return child;
-
-    // Toggle went the wrong way (section was already open) — expand again.
-    await parent.click();
-    await this.settleSidebarNav();
-    await expect(child).toBeVisible({ timeout: T });
-    return child;
+    await expect(child.first()).toBeVisible({ timeout: T });
+    return child.first();
   }
 
   /** Expand parent (if needed) and click the child by test id. */
   async openSubNav(parentTestId: string, childTestId: string, options?: { lightweight?: boolean }) {
     const child = await this.ensureSectionExpanded(parentTestId, childTestId);
     await expect(child).toBeVisible({ timeout: T });
+    await child.scrollIntoViewIfNeeded().catch(() => undefined);
     await child.click();
     await this.afterSubNavClick(options);
   }
