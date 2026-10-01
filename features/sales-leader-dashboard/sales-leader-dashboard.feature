@@ -560,6 +560,7 @@ Feature: Sales Leader Dashboard — filters, KPIs, My Team, and widgets
   @sales-leader-dashboard @regression-test @my-team @visibility @TEST-067-Sales-Leader-Dashboard-My-Team-PROD
   Scenario: T067-SLD-MTP — My Team Performance widget displays when downline agents exist
     When I open the agent dashboard on sales leader dashboard
+    # Tries Year to Date → This Month → Last Month until widget data populates; errors if none
     Then the My Team Performance widget is displayed on sales leader dashboard
 
   @sales-leader-dashboard @regression-test @my-team @columns @TEST-068-Sales-Leader-Dashboard-My-Team-PROD
@@ -601,6 +602,7 @@ Feature: Sales Leader Dashboard — filters, KPIs, My Team, and widgets
   @sales-leader-dashboard @regression-test @my-team @filter-refresh @TEST-074-Sales-Leader-Dashboard-My-Team-PROD
   Scenario: T074-SLD-MTP — Widget data updates when reporting period and filters change
     When I open the agent dashboard on sales leader dashboard
+    # Same period toggle as T067 (YTD → This Month → Last Month) until My Team data populates
     And I select the time period "Last Month" on sales leader dashboard
     And I click the Apply button on sales leader dashboard
     Then My Team Performance metrics refresh dynamically on sales leader dashboard

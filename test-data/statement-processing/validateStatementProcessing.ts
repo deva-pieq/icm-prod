@@ -19,11 +19,12 @@ export const STATEMENT_PROCESSING = {
    * SP-004 blank UID + SP-005 invalid format must NOT overwrite these.
    */
   seed: {
-    // 0987654321 (test-DevaTest) is LVL1 but stuck Onboarding — status dropdown locked
-    // until email activation. Use Active LVL5 advance agent so extract can start.
-    agentFirstName: 'test-AgentX',
-    agentLastName: 'Test',
-    agentNpn: '600011',
+    // Prefer Active agent WITHOUT carrier-advance eligibility.
+    // 600011 (test-AgentX) has advance enabled → Needs Attention on commission.
+    // ProdSL 843401317 (deva.r+prod+sl@pieq.ai) is Active LVL1, no advance.
+    agentFirstName: 'ProdSL',
+    agentLastName: 'ProdSL',
+    agentNpn: '843401317',
     productAlias: 'test-2025-jan-1-aetna-test-001',
     productDisplayName: 'test-Aetna-Test-Product',
   },

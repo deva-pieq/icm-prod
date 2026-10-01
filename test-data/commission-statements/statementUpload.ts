@@ -16,6 +16,7 @@ export const STATEMENT_UPLOAD = {
     fileId: 'File ID',
     sourceTrace: 'Source Trace',
   },
+  /** Sortable Upload columns (File ID enabled via Columns picker when prefs hide it). */
   sortableGridColumns: {
     fileId: 'File ID',
     fileName: 'File Name',

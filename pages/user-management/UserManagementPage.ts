@@ -72,15 +72,15 @@ export class UserManagementPage {
       this.page
         .getByTestId('active-users-card')
         .getByText(/^\d+$/),
-    columnPickerButton: () =>
-      this.page
-        .getByTestId('column-visibility-button')
-        .or(this.page.getByTestId('manage-columns-button'))
-        .or(this.page.getByTestId('data-grid-columns-button'))
-        .or(this.page.getByRole('button', { name: /columns?|manage columns|column visibility/i }))
-        .first(),
+    columnPickerButton: () => this.page.getByTestId('data-grid-columns-button'),
+    columnVisibilityModal: () =>
+      this.page.getByTestId('user-records-datagrid-toggle-columns-modal'),
     applyToggleButton: () =>
       this.page.getByTestId('user-records-datagrid-toggle-columns-modal-apply'),
+    resetColumnButton: () =>
+      this.page.getByTestId('user-records-datagrid-toggle-columns-modal-reset'),
+    /** Picker row is a `<label data-testid="column-checkbox-{slug}">` wrapping an `input.sr-only`. */
+    columnCheckbox: (slug: string) => this.page.getByTestId(`column-checkbox-${slug}`),
   };
 
   constructor(private readonly page: Page) {}
@@ -890,33 +890,61 @@ export class UserManagementPage {
   }
 
   async openColumnVisibilityPanel() {
+    const modal = this.loc.columnVisibilityModal();
+    if (await modal.isVisible({ timeout: 1_000 }).catch(() => false)) return;
     const picker = this.loc.columnPickerButton();
     await expect(picker).toBeVisible({ timeout: 10_000 });
     await picker.click();
-    await this.page.waitForTimeout(300);
+    await expect(modal).toBeVisible({ timeout: 10_000 });
   }
 
-  private columnToggleTestId(columnName: string): string {
-    return columnName.trim().toLowerCase().replace(/\s+/g, '-');
+  /**
+   * Live harvest: column-checkbox-email|name|status|role
+   * (UI "User Info" → slug `email`).
+   */
+  private columnCheckboxSlug(columnName: string): string {
+    const key = columnName.trim().toLowerCase();
+    const map: Record<string, string> = {
+      'user info': 'email',
+      email: 'email',
+      name: 'name',
+      status: 'status',
+      role: 'role',
+    };
+    const slug = map[key];
+    if (!slug) {
+      throw new Error(
+        `Unknown user-management column checkbox slug for "${columnName}". Known: ${Object.keys(map).join(', ')}`,
+      );
+    }
+    return slug;
   }
 
+  /**
+   * Column toggle checkbox input (not the label wrapper).
+   * DOM: `<label id="checkbox-column-checkbox-{slug}" data-testid="column-checkbox-{slug}">`
+   *        `<input type="checkbox" class="sr-only" />…</label>`
+   */
   columnVisibilityToggle(columnName: string): Locator {
-    const looseName = new RegExp(`^\\s*${escapeRegExp(columnName)}\\s*$`, 'i');
+    const slug = this.columnCheckboxSlug(columnName);
     return this.page
-      .getByTestId('user-records-datagrid-toggle-columns-modal')
-      .getByRole('button', { name: looseName })
-      .first();
+      .locator(
+        `label[id="checkbox-column-checkbox-${slug}"], [data-testid="column-checkbox-${slug}"]`,
+      )
+      .locator('input[type="checkbox"]');
   }
 
   async toggleColumnOff(columnName: string) {
     await this.openColumnVisibilityPanel();
-    const toggle = this.columnVisibilityToggle(columnName);
-    await expect(toggle).toBeVisible({ timeout: 10_000 });
-    // The toggle is a button wrapping a checkbox — click the checkbox input.
-    const checkbox = toggle.getByRole('checkbox');
-    const isChecked = await checkbox.isChecked().catch(() => false);
-    if (isChecked) {
-      await checkbox.click({ force: true });
+    const label = this.loc.columnCheckbox(this.columnCheckboxSlug(columnName));
+    await expect(label).toBeVisible({ timeout: 10_000 });
+    const checkbox = label.locator('input[type="checkbox"]');
+    if (await checkbox.isChecked().catch(() => true)) {
+      // Live-verified: the input is `sr-only`, so only the label click-through reaches React.
+      // `uncheck({ force: true })` flips the DOM property but leaves React state untouched —
+      // the checkbox is checked again when the picker is reopened.
+      await label.click();
+      await expect(checkbox).not.toBeChecked({ timeout: 5_000 });
       await this.loc.applyToggleButton().click();
     }
     await waitForAppSettled(this.page);
@@ -927,10 +955,8 @@ export class UserManagementPage {
   }
 
   async resetColumn() {
-    // The column visibility panel was closed by toggleColumnOff's apply click,
-    // so re-open it before finding the reset button.
     await this.openColumnVisibilityPanel();
-    const resetButton = this.page.getByTestId('user-records-datagrid-toggle-columns-modal-reset');
+    const resetButton = this.loc.resetColumnButton();
     await expect(resetButton).toBeVisible({ timeout: 10_000 });
     await resetButton.click();
     await this.loc.applyToggleButton().click();

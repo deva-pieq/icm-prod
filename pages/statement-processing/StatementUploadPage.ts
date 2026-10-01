@@ -69,6 +69,15 @@ export class StatementUploadPage extends GridPage {
       this.loc.recentStatementsGrid().getByRole('columnheader', { name: /uploaded/i }),
     recentStatementsRefreshBtn: () => this.page.getByRole('button', { name: /no refresh|refresh/i }),
     recentStatementsExportBtn: () => this.page.getByRole('button', { name: /export grid data to excel/i }),
+    columnsPickerButton: () => this.page.getByTestId('data-grid-columns-button'),
+    columnsModal: () =>
+      this.page
+        .getByTestId(/toggle-columns-modal$/)
+        .or(this.page.getByRole('dialog', { name: /columns|toggle columns/i })),
+    columnsModalApply: () =>
+      this.page
+        .getByTestId(/toggle-columns-modal-apply$/)
+        .or(this.loc.columnsModal().getByRole('button', { name: /^apply$/i })),
   };
 
   constructor(page: Page) {
@@ -707,16 +716,93 @@ export class StatementUploadPage extends GridPage {
     expect(prev, 'Expected Uploaded date/times to compare').not.toBeNull();
   }
 
+  /** Live AG Grid col-id for Recently Uploaded headers (MCP-verified). */
+  private recentColumnColId(columnName: string): string {
+    const map: Record<string, string> = {
+      'file id': 'fileId',
+      'processing date': 'processingDate',
+      'file name': 'fileName',
+      'statement type': 'statementType',
+      'line items': 'recordCount',
+      carrier: 'carrier',
+      uploaded: 'uploadedAt',
+      'updated at': 'updatedAt',
+      stage: 'stage',
+      status: 'status',
+      actions: 'actions',
+    };
+    const key = columnName.trim().toLowerCase();
+    return (
+      map[key] ??
+      columnName
+        .trim()
+        .replace(/(?:^\w|[A-Z]|\b\w)/g, (m, i) => (i === 0 ? m.toLowerCase() : m.toUpperCase()))
+        .replace(/\s+/g, '')
+    );
+  }
+
   private recentColumnHeader(columnName: string): Locator {
-    return this.loc
-      .recentStatementsGrid()
-      .getByRole('columnheader', { name: new RegExp(`^${escapeRegex(columnName)}`, 'i') })
-      .first();
+    const grid = this.loc.recentStatementsGrid();
+    const byName = grid.getByRole('columnheader', {
+      name: new RegExp(`^${escapeRegex(columnName)}`, 'i'),
+    });
+    const byColId = grid.locator(
+      `[role="columnheader"][col-id="${this.recentColumnColId(columnName)}"], .ag-header-cell[col-id="${this.recentColumnColId(columnName)}"]`,
+    );
+    return byName.or(byColId).first();
+  }
+
+  /**
+   * Column prefs can hide File ID / Processing Date. Scroll first (Status is often
+   * off-screen), then turn the column on via Columns picker when truly absent.
+   */
+  async ensureRecentColumnVisible(columnName: string): Promise<void> {
+    await this.loc.recentStatementsGrid().waitFor({ state: 'visible', timeout: T });
+    const header = this.recentColumnHeader(columnName);
+
+    const tryReveal = async (): Promise<boolean> => {
+      if ((await header.count()) === 0) return false;
+      await header.scrollIntoViewIfNeeded().catch(() => undefined);
+      return header.isVisible({ timeout: 2_000 }).catch(() => false);
+    };
+
+    await this.scrollGridToStart();
+    if (await tryReveal()) return;
+    await this.scrollUploadGridToStatusColumns();
+    if (await tryReveal()) return;
+
+    const picker = this.loc.columnsPickerButton();
+    if (!(await picker.isVisible({ timeout: 2_000 }).catch(() => false))) {
+      await this.scrollGridToStart();
+      await expect(header, `Column "${columnName}" not in Upload grid`).toBeVisible({ timeout: T });
+      return;
+    }
+
+    await picker.click();
+    const modal = this.loc.columnsModal();
+    await expect(modal).toBeVisible({ timeout: 10_000 });
+
+    const colId = this.recentColumnColId(columnName);
+    const toggle = this.page
+      .locator(
+        `label[id="checkbox-column-checkbox-${colId}"], [data-testid="column-checkbox-${colId}"]`,
+      )
+      .locator('input[type="checkbox"]')
+      .or(modal.getByRole('checkbox', { name: new RegExp(`^${escapeRegex(columnName)}$`, 'i') }));
+    await expect(toggle.first()).toBeAttached({ timeout: 10_000 });
+    if (!(await toggle.first().isChecked().catch(() => false))) {
+      await toggle.first().check({ force: true });
+    }
+    await this.loc.columnsModalApply().click();
+    await waitForAppSettled(this.page, T);
+    await this.scrollGridToStart();
+    await expect(header).toBeVisible({ timeout: T });
   }
 
   /** Clicks the column header until `aria-sort` reaches the target state (max 3 clicks). */
   private async clickRecentHeaderUntilAriaSort(columnName: string, target: string): Promise<void> {
     await this.loc.recentStatementsGrid().waitFor({ state: 'visible', timeout: T });
+    await this.ensureRecentColumnVisible(columnName);
     const header = this.recentColumnHeader(columnName);
     await expect(header).toBeVisible({ timeout: T });
     for (let attempts = 0; attempts < 3; attempts++) {
@@ -781,15 +867,44 @@ export class StatementUploadPage extends GridPage {
     return values;
   }
 
+  /**
+   * Compare two normalized grid values the way Recently Uploaded sort behaves.
+   * AG Grid can place "FOO (1)" before "FOO" (duplicate-name suffix) — treat those
+   * as a tied pair so localeCompare prefix ordering does not false-fail.
+   * File ID uses plain localeCompare (numeric:true breaks BT-36… vs BT-3C…).
+   */
+  private compareRecentSortValues(
+    columnName: string,
+    a: string | number,
+    b: string | number,
+  ): number {
+    if (typeof a === 'number' && typeof b === 'number') return a - b;
+    const sa = String(a);
+    const sb = String(b);
+    if (sa === sb) return 0;
+    if (sb.startsWith(`${sa} (`) || sa.startsWith(`${sb} (`)) return 0;
+    const numeric = !/file id/i.test(columnName);
+    return sa.localeCompare(sb, undefined, { sensitivity: 'base', numeric });
+  }
+
   /** Verifies the rendered row order for a column matches the clicked sort direction. */
   async expectRecentColumnSorted(columnName: string, direction: 'asc' | 'desc'): Promise<void> {
+    await this.ensureRecentColumnVisible(columnName);
     const values = await this.getRecentColumnValues(columnName);
     expect(values.length, `Not enough rows to verify "${columnName}" sort`).toBeGreaterThan(1);
-    const expected = [...values].sort((a, b) => {
-      if (typeof a === 'number' && typeof b === 'number') return a - b;
-      return String(a).localeCompare(String(b), undefined, { sensitivity: 'base' });
-    });
-    if (direction === 'desc') expected.reverse();
-    expect(values, `"${columnName}" rows should be sorted ${direction}`).toEqual(expected);
+    for (let i = 1; i < values.length; i++) {
+      const cmp = this.compareRecentSortValues(columnName, values[i - 1], values[i]);
+      if (direction === 'asc') {
+        expect(
+          cmp,
+          `"${columnName}" asc broken at index ${i}: ${String(values[i - 1])} then ${String(values[i])}`,
+        ).toBeLessThanOrEqual(0);
+      } else {
+        expect(
+          cmp,
+          `"${columnName}" desc broken at index ${i}: ${String(values[i - 1])} then ${String(values[i])}`,
+        ).toBeGreaterThanOrEqual(0);
+      }
+    }
   }
 }

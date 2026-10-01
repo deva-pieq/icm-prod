@@ -27,19 +27,16 @@ Resume here when continuing `@statement-processing` / SP-00{n} on **prod** (`htt
 
 Do **not** keep rewriting Excel agent/alias/Net for this symptom.
 
-## Seed now in repo (until DevaTest activated)
+## Seed now in repo
 
 ```text
-Agent:  first=test-AgentX  last=Test  NPN=600011  (Active)
-Email:  deva.r+prod+agent@pieq.ai
+Agent:  first=ProdSL  last=ProdSL  NPN=843401317  (Active LVL1, advance OFF)
+Email:  deva.r+prod+sl@pieq.ai
 Product alias: test-2025-jan-1-aetna-test-001
-Product display: test-Aetna-Test-Product
-Statement type: Aetna ACA
-Template: TestFiles-prod-sanity/StatementProcessing/[MLB NEW]HappyFlowChangeCheckRunDate.xlsx
+Do NOT use 600011 for commission — advance-enabled → Needs Attention on some paths
+UID counter jumped to IL700+ to avoid RN collisions on reused UIDs
 ```
 
-`test-data/statement-processing/validateStatementProcessing.ts` → `seed` uses 600011.
-Feature tag fixed: `@validate-statement-processing` added so Before/BeforeAll hooks fire.
 
 ## Code fixes already in tree (keep)
 

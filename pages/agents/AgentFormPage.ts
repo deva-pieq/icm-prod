@@ -318,8 +318,8 @@ export class AgentFormPage {
   }
 
   /**
-   * On edit of first grid agent: copy phone from second agent, then set it on first.
-   * Requires ≥2 agent rows.
+   * On edit of first grid agent: copy phone from another agent that has one, then set it on first.
+   * Scans data rows (skip index 0) until a non-empty phone is found.
    */
   async setPhoneToExistingAgentPhone(agentsPage: {
     openList: () => Promise<void>;
@@ -327,12 +327,17 @@ export class AgentFormPage {
     openEditByRowClick: () => Promise<void>;
   }) {
     await this.leaveFormToAgentsList(agentsPage);
-    const openedOther = await agentsPage.openGridRecordAt(1);
-    expect(openedOther, 'Need a second agent row to source an existing phone').toBe(true);
-    await waitForAppSettled(this.page);
-    await expect(this.loc.phoneInput()).toBeVisible({ timeout: T });
-    const otherPhone = (await this.loc.phoneInput().inputValue()).trim();
-    expect(otherPhone, 'Second agent must have a phone value').toBeTruthy();
+    let otherPhone = '';
+    for (let i = 1; i < 15; i++) {
+      const openedOther = await agentsPage.openGridRecordAt(i);
+      if (!openedOther) break;
+      await waitForAppSettled(this.page);
+      await expect(this.loc.phoneInput()).toBeVisible({ timeout: T });
+      otherPhone = (await this.loc.phoneInput().inputValue()).trim();
+      if (otherPhone) break;
+      await this.leaveFormToAgentsList(agentsPage);
+    }
+    expect(otherPhone, 'Need another agent row with a non-empty phone to test duplicate').toBeTruthy();
     await this.leaveFormToAgentsList(agentsPage);
     await agentsPage.openEditByRowClick();
     await waitForAppSettled(this.page);

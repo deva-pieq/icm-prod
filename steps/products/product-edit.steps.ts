@@ -69,6 +69,7 @@ When('I set product code to a new unique value on edit', async ({ productEditPag
   const productCode = `E2E-EDIT-CODE-${productRunStamp()}`;
   await productEditPage.setProductCode(productCode);
   setLastSavedProduct({ ...getLastSavedProduct(), productCode });
+  setSeedProduct({ ...getSeedProduct(), productCode });
 });
 
 When('I set carrier product name to a new unique value on edit', async ({ productEditPage }) => {

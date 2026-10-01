@@ -1,4 +1,4 @@
-import { When, Then, test } from '../fixtures';
+import { When, Then } from '../fixtures';
 import { expect } from '@playwright/test';
 
 /** ============================================================
@@ -241,7 +241,6 @@ Then('every visible upload row Uploaded date falls inside that Thursday–Wednes
 });
 
 Then('no visible upload row has stage {string} on statement upload', async ({ baseStatementUploadPage }, stage: string) => {
-  test.fail(true, 'T009: Completed rows still appear on Upload');
   expect(stage).toBe('Completed');
   await baseStatementUploadPage.expectNoCompletedInRecentStatements();
 });

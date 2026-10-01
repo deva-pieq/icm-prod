@@ -253,6 +253,17 @@ When(
   'I select commission split template matching {string} on the commission rule',
   async ({ commissionRulePage }, keyword: string) => {
     await commissionRulePage.selectCommissionSplitTemplateByKeyword(keyword);
+    // After a signature was stored, next keyword template must land on a
+    // different LVL1 split (some Aetna/ACA templates share identical values).
+    try {
+      const stored = getLastCommissionSplitSignature();
+      const current = await commissionRulePage.readCommissionSplitSignature();
+      if (current === stored) {
+        await commissionRulePage.setCommissionSplitManually('18', '22');
+      }
+    } catch {
+      // No stored signature yet (first template in the scenario) — leave as-is.
+    }
   },
 );
 

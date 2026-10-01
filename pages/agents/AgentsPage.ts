@@ -548,13 +548,22 @@ export class AgentsPage extends GridPage {
       .locator('input[type="checkbox"]');
   }
 
+  /** Label wrapper for column checkbox (sr-only input — click label, never force-uncheck). */
+  private columnVisibilityLabel(columnName: string): Locator {
+    const slug = this.columnCheckboxSlug(columnName);
+    return this.page.getByTestId(`column-checkbox-${slug}`);
+  }
+
   async toggleColumnOffWithoutApply(columnName: string) {
     await this.openColumnVisibilityPanel();
+    const label = this.columnVisibilityLabel(columnName);
     const toggle = this.columnVisibilityToggle(columnName);
-    await expect(toggle).toBeAttached({ timeout: 10_000 });
+    await expect(label).toBeVisible({ timeout: 10_000 });
     if (await toggle.isChecked().catch(() => true)) {
-      // Custom checkbox: visible check SVG intercepts pointer events on sr-only input.
-      await toggle.uncheck({ force: true });
+      // Live-verified (same as UserManagement): sr-only input — only label click updates React.
+      // `uncheck({ force: true })` flips DOM but leaves React state / Apply no-op.
+      await label.click();
+      await expect(toggle).not.toBeChecked({ timeout: 5_000 });
     }
   }
 
@@ -565,11 +574,12 @@ export class AgentsPage extends GridPage {
 
   async toggleColumnOff(columnName: string) {
     await this.openColumnVisibilityPanel();
+    const label = this.columnVisibilityLabel(columnName);
     const toggle = this.columnVisibilityToggle(columnName);
-    await expect(toggle).toBeAttached({ timeout: 10_000 });
+    await expect(label).toBeVisible({ timeout: 10_000 });
     if (await toggle.isChecked().catch(() => true)) {
-      // Custom checkbox: visible check SVG intercepts pointer events on sr-only input.
-      await toggle.uncheck({ force: true });
+      await label.click();
+      await expect(toggle).not.toBeChecked({ timeout: 5_000 });
       await this.loc.applyToggleButton().click();
     }
     await waitForAppSettled(this.page);
@@ -581,7 +591,10 @@ export class AgentsPage extends GridPage {
   }
 
   async expectColumnNotVisible(columnName: string) {
-    await expect(this.columnHeaderLabel(columnName)).toBeHidden({ timeout: 10_000 });
+    // Prefer col-id — loose /Agent/i text match can hit other headers while Agent stays forced on.
+    const slug = this.columnCheckboxSlug(columnName);
+    const byColId = this.grid().locator(`.ag-header-cell[col-id="${slug}"]`).first();
+    await expect(byColId).toBeHidden({ timeout: 10_000 });
   }
 
   async expectColumnToggleChecked(columnName: string) {
@@ -611,15 +624,14 @@ export class AgentsPage extends GridPage {
   async attemptToUncheckAllColumns() {
     await this.openColumnVisibilityPanel();
     const modal = this.loc.columnVisibilityModal();
-    const checkboxes = modal.getByRole('checkbox');
-    const count = await checkboxes.count();
+    const labels = modal.locator('[data-testid^="column-checkbox-"]');
+    const count = await labels.count();
     for (let i = 0; i < count; i++) {
-      const cb = checkboxes.nth(i);
-      if (await cb.isEnabled().catch(() => false)) {
-        if (await cb.isChecked().catch(() => false)) {
-          // Custom checkbox: visible check SVG intercepts pointer events on sr-only input.
-          await cb.uncheck({ force: true });
-        }
+      const label = labels.nth(i);
+      const cb = label.locator('input[type="checkbox"]');
+      if (await cb.isEnabled().catch(() => false) && (await cb.isChecked().catch(() => false))) {
+        // Label click respects last-column lock; force-uncheck bypasses it.
+        await label.click();
       }
     }
   }

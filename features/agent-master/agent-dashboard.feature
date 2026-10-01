@@ -84,10 +84,11 @@ Feature: Agent Master — Agents list (dashboard)
   Scenario: T009-AGT-COL — Column toggle applies only after Apply
     When I open the Agents list in agents
     And I open column visibility panel in agents
-    And I uncheck grid column "Agent" without applying in agents
-    Then grid column "Agent" is still visible in agents
+    # Agent identity column stays forced-visible after Apply on prod — use Contact.
+    And I uncheck grid column "Contact" without applying in agents
+    Then grid column "Contact" is still visible in agents
     When I apply column visibility changes in agents
-    Then grid column "Agent" is not visible in agents
+    Then grid column "Contact" is not visible in agents
 
   @agent-master @regression-test @columns @positive @TEST-AGT-010-PROD
   Scenario: T010-AGT-COL — Cannot uncheck the last visible column
@@ -99,14 +100,14 @@ Feature: Agent Master — Agents list (dashboard)
   @agent-master @regression-test @columns @positive @TEST-AGT-011-PROD
   Scenario: T011-AGT-COL — Reset column toggles restores default columns
     When I open the Agents list in agents
-    And I toggle off grid column "Agent" in agents
+    And I toggle off grid column "Contact" in agents
     And I reset column visibility in agents
-    Then grid column "Agent" is visible in agents
+    Then grid column "Contact" is visible in agents
 
   @agent-master @regression-test @columns @search @observation @TEST-AGT-012-PROD
-  Scenario: T012-AGT-COL — Search by name still works when Agent column is hidden
+  Scenario: T012-AGT-COL — Search by name still works when Contact column is hidden
     When I open the Agents list in agents
-    And I toggle off grid column "Agent" in agents
+    And I toggle off grid column "Contact" in agents
     And I search the agents grid for "Thomas kucan" in agents
     Then the agents grid shows rows matching "Thomas kucan" in agents
 

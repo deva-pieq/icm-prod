@@ -10,9 +10,9 @@ export const TRANSFER_SHEET = {
   statementType: 'Aetna ACA',
   productName: 'Aetna-Test-Product',
   transferAgent: {
-    firstName: 'Agent',
+    firstName: 'test-Agent',
     lastName: 'Test Transfer',
-    fullName: 'Test Transfer Agent',
+    fullName: 'test-Agent Test Transfer',
     npn: '120876543',
   },
   gridColumns: {

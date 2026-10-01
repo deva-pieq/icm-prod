@@ -13,10 +13,12 @@ Feature: Statement History and Upload queue — date range, stages, and lifecycl
   # Default history stages exclude Completed
   # Date filter uses Uploaded date, not Updated At
   # Upload "Recently Uploaded" window is the active Thursday–Wednesday processing cycle
+  # Upload columns (live): File ID, Processing Date, File Name, Statement Type, Line Items,
+  #   Carrier, Uploaded, Updated At, Stage, Status, Actions
+  # File ID may be off via column prefs — sort steps enable it via Columns picker if missing
 
   Known app bugs (assert expected behavior):
   # T004 — picker min year currently 1; expected minimum is 1990, maximum is current year
-  # T009 — Completed rows still appear on Upload; expected: Completed excluded from upload list
   # T018 — closed stage control may not show the single stage name; expected: name when 1 selected, count when >1
 
   Background:
@@ -95,11 +97,10 @@ Feature: Statement History and Upload queue — date range, stages, and lifecycl
     And the active uploaded-date window is Thursday through Wednesday inclusive on statement upload
     And every visible upload row Uploaded date falls inside that Thursday–Wednesday window on statement upload
 
-  @statement-history @regression-test @upload-queue @completed @bug @TEST-STH-009-PROD
+  @statement-history @regression-test @upload-queue @completed @TEST-STH-009-PROD
   Scenario: T009-STH-UQ — Completed statements are excluded from the Upload list
     When I open Statement Upload on statement upload
     Then the Recently Uploaded Statements grid is displayed on statement upload
-    # Known issue: Completed rows still appear on Upload after review; expected: none.
     And no visible upload row has stage "Completed" on statement upload
 
   @statement-history @regression-test @upload-queue @stages @TEST-STH-010-PROD

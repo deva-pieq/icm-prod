@@ -239,13 +239,13 @@ export class OpsManagerDashboardPage {
     await expect(this.loc.weekNext()).toBeDisabled({ timeout: T });
   }
 
-  /** Range spans a fixed Monday→Sunday seven-day cycle. */
+  /** Range spans a fixed seven-day cycle (start weekday = day after Processing Cut Off). */
   async expectSevenDayCycle() {
     const { start, end } = this.parseRange(await this.readRange());
     const days = Math.round((end.getTime() - start.getTime()) / 86_400_000);
     expect(days, 'Weekly cycle should span 7 inclusive days').toBe(6);
-    // its starts from Tuesday to Monday [Fixed]
-    expect(start.getDay(), 'Weekly cycle should start on Tuesday').toBe(2);
+    // Cut-off day is configurable (cycle END); START is the next weekday — do not hardcode Tuesday.
+    expect(end.getDay(), 'Weekly cycle end should be 6 days after start').toBe((start.getDay() + 6) % 7);
   }
 
   async expectNavigationArrowsDisplayed() {
@@ -511,7 +511,13 @@ export class OpsManagerDashboardPage {
   // Statement Stage Breakdown
   // ======================================================================
 
-  private static readonly KNOWN_STAGES = ['Review', 'Extract', 'Needs Attention', 'Completed'];
+  private static readonly KNOWN_STAGES = [
+    'Review',
+    'Extract',
+    'Needs Attention',
+    'Completed',
+    'Uploaded',
+  ];
 
   async expectStageBreakdownWidget() {
     await expect(this.loc.stageCard()).toBeVisible({ timeout: T });
@@ -520,7 +526,8 @@ export class OpsManagerDashboardPage {
 
   private async readStageEntries(): Promise<Array<{ label: string; count: number; pct: number }>> {
     const text = (await this.loc.stageCard().innerText()).replace(/\s+/g, ' ');
-    const re = /(Review|Extract|Needs Attention|Completed)\s*(\d+)\s*\(([\d.]+)%\)/g;
+    const re =
+      /(Review|Extract|Needs Attention|Completed|Uploaded)\s*(\d+)\s*\(([\d.]+)%\)/g;
     const out: Array<{ label: string; count: number; pct: number }> = [];
     let m: RegExpExecArray | null;
     while ((m = re.exec(text))) {

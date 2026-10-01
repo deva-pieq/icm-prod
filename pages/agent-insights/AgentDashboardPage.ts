@@ -644,9 +644,41 @@ export class AgentDashboardPage {
       .filter({ hasNot: this.page.locator('[role="columnheader"], .ag-header-cell') });
   }
 
-  async expectMyTeamPerformanceVisible() {
+  /**
+   * My Team Performance only renders when downline data exists for the viewing period.
+   * Try Year to Date → This Month → Last Month (select + Apply) until the widget appears;
+   * throw if none populate data.
+   */
+  async ensureMyTeamPerformanceVisibleByTogglingPeriods() {
+    const periods: AgentTimePeriodOption[] = ['Year to Date', 'This Month', 'Last Month'];
     const card = this.myTeamCard();
-    await expect(card).toBeVisible({ timeout: T });
+
+    if (await card.isVisible().catch(() => false)) return;
+
+    for (const period of periods) {
+      await this.selectTimePeriod(period);
+      await this.applyFilterChangesIfVisible();
+      await waitForLoaderHidden(this.page);
+      await waitForAppSettled(this.page);
+      const visible = await card.isVisible().catch(() => false);
+      if (visible) return;
+      // Brief poll — widgets can lag Apply by a beat.
+      try {
+        await expect(card).toBeVisible({ timeout: 8_000 });
+        return;
+      } catch {
+        // try next period
+      }
+    }
+
+    throw new Error(
+      'My Team Performance widget did not appear after trying Year to Date, This Month, and Last Month — no downline data for those periods',
+    );
+  }
+
+  async expectMyTeamPerformanceVisible() {
+    await this.ensureMyTeamPerformanceVisibleByTogglingPeriods();
+    await expect(this.myTeamCard()).toBeVisible({ timeout: T });
   }
 
   async expectMyTeamPerformanceColumns(columns: string[]) {

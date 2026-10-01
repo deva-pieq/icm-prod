@@ -1334,24 +1334,53 @@ export class CommissionRulePage {
   }
 
   async selectCommissionSplitTemplateByKeyword(keyword: string) {
-    const fallback = IPV_SLAB_SPLIT_MATRIX.templateFallbacks[keyword as keyof typeof IPV_SLAB_SPLIT_MATRIX.templateFallbacks];
-    if (fallback) {
-      await this.selectCommissionSplitTemplate(fallback);
-      return;
-    }
-
     const dropdown = this.loc.templateNameDropdown();
     await expect(dropdown).toBeVisible({ timeout: T });
+    const currentLabel = ((await dropdown.innerText()) || '').replace(/\s+/g, ' ').trim();
+
     await dropdown.click();
-    const pattern = new RegExp(escapeRegex(keyword), 'i');
     const listbox = this.page.getByRole('listbox');
+    await expect(listbox.getByRole('option').first()).toBeVisible({ timeout: T });
+
+    const pattern = new RegExp(escapeRegex(keyword), 'i');
     const matchingOptions = listbox.getByRole('option').filter({ hasText: pattern });
+    const matchCount = await matchingOptions.count();
 
     let option = matchingOptions.first();
     if (/^aca$/i.test(keyword)) {
       const renewalOption = matchingOptions.filter({ hasText: /renewal/i }).first();
       if (await renewalOption.isVisible().catch(() => false)) {
         option = renewalOption;
+      }
+    }
+
+    // Prefer an option different from the currently selected template label.
+    if (matchCount > 0 && currentLabel && !/^select$/i.test(currentLabel)) {
+      let picked: Locator | null = null;
+      for (let i = 0; i < matchCount; i++) {
+        const candidate = matchingOptions.nth(i);
+        const text = ((await candidate.innerText()) || '').replace(/\s+/g, ' ').trim();
+        if (!text || text.toLowerCase() === currentLabel.toLowerCase()) continue;
+        if (/^aca$/i.test(keyword) && /renewal/i.test(text)) {
+          picked = candidate;
+          break;
+        }
+        picked ??= candidate;
+      }
+      if (picked) option = picked;
+    }
+
+    if (!(await option.isVisible({ timeout: 3_000 }).catch(() => false))) {
+      const all = listbox.getByRole('option');
+      const allCount = await all.count();
+      option = all.first();
+      for (let i = 0; i < allCount; i++) {
+        const candidate = all.nth(i);
+        const text = ((await candidate.innerText()) || '').replace(/\s+/g, ' ').trim();
+        if (text && text.toLowerCase() !== currentLabel.toLowerCase()) {
+          option = candidate;
+          break;
+        }
       }
     }
 

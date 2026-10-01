@@ -111,7 +111,10 @@ Feature: User Management
     Then the grid shows zero total records
     And the grid displays no records found
 
-  @user-management @regression-test @grid @columns
+  # @bug: Live MCP 2026-10-01 — column picker checkbox unchecks (label click) and Apply
+  # closes the modal, but AG Grid headers stay visible for email/name/status/role.
+  # Same picker works on Agents; User Management Apply does not hide columns.
+  @bug @user-management @regression-test @grid @columns
   Scenario Outline: T012-USR-GCO — Toggle off grid column and validate it is hidden
     When I open the User Management dashboard
     And I toggle off grid column "<column>"
