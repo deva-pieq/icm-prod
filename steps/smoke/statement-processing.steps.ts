@@ -31,12 +31,22 @@ Given('I am logged into PieQ ICM for smoke statement processing', async ({ login
 
 /** Prod Carrier Product Name alias on product "test-Aetna-Test-Product". */
 const SMOKE_STATEMENT_PRODUCT_ALIAS = 'test-2025-jan-1-aetna-test-001';
+const SMOKE_STATEMENT_AGENT = {
+  firstName: 'test-DevaTest',
+  lastName: 'Agent',
+  npn: '0987654321',
+} as const;
 
-async function prepareSmokeStatementFile() {
+async function prepareSmokeStatementFile(options?: {
+  checkRunDateExtraDays?: number;
+}) {
   return prepareStatementUploadFile({
     productAlias: SMOKE_STATEMENT_PRODUCT_ALIAS,
     uniqueCustomerUids: true,
     fileNamePrefix: 'SmokeStatement',
+    persistCheckRunDate: true,
+    agent: SMOKE_STATEMENT_AGENT,
+    checkRunDateExtraDays: options?.checkRunDateExtraDays,
   });
 }
 
@@ -159,7 +169,8 @@ Then('the policy ledger is displayed with entries', async ({ policiesPage }) => 
 // ═══════════════════════════════════════════════════════════════════════
 
 When('a second smoke statement upload file is prepared with changed date', async () => {
-  const prepared = await prepareSmokeStatementFile();
+  // Extra +7 days on check-run (plus default +1) so run-2 is distinct from T092; persist advances template.
+  const prepared = await prepareSmokeStatementFile({ checkRunDateExtraDays: 7 });
   const customerUid = await parseFirstCustomerUid(prepared.absolutePath);
   setSecondSmokeRun({ preparedFile: prepared, customerUid, fileId: '' });
 });
@@ -180,19 +191,21 @@ Then(
   async ({ statementUploadPage }) => {
     const { email } = agency3OpsCredentials();
     await statementUploadPage.captureUploadByUploader(email);
+    const stored = statementUploadPage.getStoredRow();
+    if (stored?.fileId) updateSecondSmokeRun({ fileId: stored.fileId });
   },
 );
 
 Then(
   'the second smoke upload shows status {string} and stage {string}',
   async ({ statementUploadPage }, _status: string, _stage: string) => {
-    const file = statementUploadPage.getPreparedFile();
-    const fileId = statementUploadPage.getStoredRow()?.fileId;
+    const { preparedFile, fileId: storedId } = getSecondSmokeRun();
+    const fileId = storedId || statementUploadPage.getStoredRow()?.fileId;
     await statementUploadPage.assertions.expectStoredUploadStatusAndStage(
-      file.fileName,
+      preparedFile.fileName,
       'Waiting',
       'Review',
-      fileId,
+      fileId || undefined,
     );
   },
 );

@@ -34,7 +34,8 @@ Prod product type dropdown uses **`ACA`** (not `U65 - ACA`). Carrier **Aetna**, 
 | `600001` | `test-Pay ACH` | Created; Onboarding / No Level — **not used** for PaymentModule/edit-transaction (Extract Error) |
 | `600002` | `test-Pay CHK` | Created; Onboarding / No Level — **not used** for PaymentModule/edit-transaction (Extract Error) |
 | `0987654321` | `test-DevaTest Agent` | LVL1 — statement processing / smoke / PaymentModule ACH |
-| `120876543` | `test-Agent Test Transfer` | LVL1 — transfer sheet / PaymentModule CHK |
+| `120876543` | `test-Agent Test Transfer` | LVL1 — transfer sheet **only** (not payment/commission uploads) |
+| `600005` | `TestAgent V` | LVL5 — PaymentModule CHK (Check payout) |
 | `600003` | `test-Chargeback Agent` | Created; Onboarding / No Level |
 
 New agents may need **level + Active** before payment/transfer/advance eligibility works.

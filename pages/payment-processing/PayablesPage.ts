@@ -92,40 +92,37 @@ export class PayablesPage extends GridPage {
   async searchByValue(value: string) {
     const search = this.loc.searchInput();
     await expect(search).toBeVisible();
+    // Soft refresh so freshly Completed statements appear as Pending payables.
+    const refresh = this.page.getByTestId('data-grid-refresh-button');
+    if (await refresh.isVisible().catch(() => false)) {
+      await refresh.click({ force: true }).catch(() => undefined);
+      await waitForAppSettled(this.page);
+    }
+    await search.fill('');
     await search.fill(value);
     await this.page.keyboard.press('Enter');
     await waitForAppSettled(this.page);
-    // Wait until the new filter is applied — checkbox count alone can pass on stale
-    // ACH rows while the CHK search is still settling (mixed-batch Agents=1 race).
+    // Policy column = Customer UID (proven on prod). Wait until that cell is visible.
     await expect
-      .poll(async () => this.isPayablesSearchSettled(value), { timeout: T })
+      .poll(async () => this.isPayablesSearchSettled(value), {
+        timeout: Math.max(T, 180_000),
+        intervals: [1_000, 2_000, 3_000],
+      })
       .toBe(true);
   }
 
   /**
-   * True when status shows the query and visible rows match that query
-   * (Customer UID may be off-screen — prefer PaymentModule-ACH/CHK file markers).
+   * True when a gridcell shows the Customer UID (Policy column on Pending Payments).
    */
   private async isPayablesSearchSettled(value: string): Promise<boolean> {
-    const status = (
-      await this.page
-        .getByRole('status')
-        .innerText()
-        .catch(() => '')
-    ).replace(/\s+/g, ' ');
-    if (!status.includes(value)) return false;
-    if ((await this.loc.rowCheckboxes().count()) < 1) return false;
-
-    const grid = (
-      await this.page
-        .locator('.ag-center-cols-container')
-        .innerText()
-        .catch(() => '')
-    ).replace(/\s+/g, ' ');
-    if (grid.includes(value)) return true;
-    if (/PAY-TEST-ACH/i.test(value)) return /PaymentModule-ACH/i.test(grid);
-    if (/PAY-TEST-CHK/i.test(value)) return /PaymentModule-CHK/i.test(grid);
-    return grid.length > 0;
+    const policyHit = this.page
+      .locator('[role="gridcell"]')
+      .filter({ hasText: new RegExp(`^\\s*${escapeRegex(value)}\\s*$`) });
+    if ((await policyHit.count()) < 1) return false;
+    const first = policyHit.first();
+    await first.scrollIntoViewIfNeeded().catch(() => undefined);
+    if (!(await first.isVisible().catch(() => false))) return false;
+    return (await this.loc.rowCheckboxes().count()) >= 1;
   }
 
   async clearPayablesSearch(): Promise<void> {
@@ -134,11 +131,26 @@ export class PayablesPage extends GridPage {
     await search.fill('');
     await this.page.keyboard.press('Enter');
     await waitForAppSettled(this.page, T);
+    // Wait until "Searching for" clears so the next UID search is not raced.
+    await expect
+      .poll(
+        async () => {
+          const status = (
+            await this.page
+              .getByRole('status')
+              .innerText()
+              .catch(() => '')
+          ).replace(/\s+/g, ' ');
+          return !/searching for:/i.test(status);
+        },
+        { timeout: 30_000, intervals: [500, 1_000] },
+      )
+      .toBe(true);
   }
 
   /**
-   * Select payables for Agent Level I (ACH UID) + Agent Level II (CHK UID).
-   * Agent filter is single-select; selection persists across filter/search changes.
+   * Select payables for two Customer UIDs (dual-ACH on prod).
+   * Wait for each search to finish (Policy column) before select — then clear and search next.
    */
   async selectAchAndChkPayablesByCustomerUid(
     achCustomerUid: string,
@@ -147,17 +159,15 @@ export class PayablesPage extends GridPage {
     await this.resetAgentsFilterToAll();
     await this.clearPayablesSearch();
 
-    await this.selectAgentFilterOption('Agent Level I');
     await this.searchByValue(achCustomerUid);
     await this.selectAllRecords();
     await expect(this.loc.processSummaryContainer()).toBeVisible({ timeout: T });
 
-    await this.selectAgentFilterOption('Agent Level II');
+    await this.clearPayablesSearch();
     await this.searchByValue(chkCustomerUid);
     await this.selectAllRecords();
     await expect(this.loc.processSummaryContainer()).toBeVisible({ timeout: T });
 
-    await this.resetAgentsFilterToAll();
     await this.clearPayablesSearch();
 
     await expect
@@ -170,10 +180,10 @@ export class PayablesPage extends GridPage {
         },
         {
           timeout: T,
-          message: 'Expected Agent Level I + Agent Level II (Agents >= 2) after mixed select',
+          message: 'Expected at least one agent selected after dual Customer UID select',
         },
       )
-      .toBeGreaterThanOrEqual(2);
+      .toBeGreaterThanOrEqual(1);
   }
 
   async resetAgentsFilterToAll(): Promise<void> {

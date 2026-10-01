@@ -60,11 +60,11 @@ const SIDEBAR_CHILD_NAME: Record<string, RegExp> = {
   [SIDEBAR.advanceOverview]: /^Overview$/i,
   [SIDEBAR.advanceSetup]: /^Advance Setup$/i,
   [SIDEBAR.uploadStatement]: /^Upload$/i,
-  [SIDEBAR.statementHistory]: /^History$/i,
+  // No name fallback for History — Statements + Payment Processing both label a
+  // child "History". `.or(getByRole(...History))` clicks statement-history first.
   [SIDEBAR.needsAttention]: /^Needs Attention$/i,
   [SIDEBAR.payables]: /^Payables$/i,
   [SIDEBAR.approval]: /^Approval$/i,
-  [SIDEBAR.disbursementHistory]: /^History$/i,
   [SIDEBAR.prompts]: /^Prompts$/i,
   [SIDEBAR.commissionTemplates]: /^Commission Templates$/i,
   [SIDEBAR.transferSheet]: /^Transfer Sheet$/i,

@@ -7,7 +7,7 @@ Feature: Payment Module Regression — ACH (Aetna ACA)
   ACH tab authorization, and Disbursement History file download.
 
   Templates: TestFiles/PaymentModule/ACH/[MLB][NB|RN]PaymentModule-ACH.xlsx
-  Ops Manager: deva.r+ag3@pieq.ai | Agent: 600001 (ACH)
+  Ops Manager: E2E_EMAIL_AGENCY3 | Agent: 0987654321 test-DevaTest (ACH) — never Transfer agent
 
   Background:
     Given I am logged into PieQ ICM for payment module validation

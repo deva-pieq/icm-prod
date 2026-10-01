@@ -52,6 +52,27 @@ function applyCustomerUid(sheet: ExcelJS.Worksheet, uidCol: number, customerUid:
   }
 }
 
+/** Force cycle agent + product alias — never Transfer agent (120876543). */
+function applyProdSeed(
+  sheet: ExcelJS.Worksheet,
+  columns: Map<string, number>,
+  cycle: PaymentModuleCycle,
+): void {
+  const agent = PAYMENT_MODULE.agents[cycle];
+  const firstCol = columns.get('selling agent first name');
+  const lastCol = columns.get('selling agent last name');
+  const npnCol = columns.get('selling agent npn');
+  const scaleCol = columns.get('scale name/adjustment description');
+  for (let rowIndex = 2; rowIndex <= sheet.rowCount; rowIndex++) {
+    const row = sheet.getRow(rowIndex);
+    if (!row.hasValues) continue;
+    if (firstCol) row.getCell(firstCol).value = agent.firstName;
+    if (lastCol) row.getCell(lastCol).value = agent.lastName;
+    if (npnCol) row.getCell(npnCol).value = agent.agentId;
+    if (scaleCol) row.getCell(scaleCol).value = PAYMENT_MODULE.productAlias;
+  }
+}
+
 async function loadSheet(templatePath: string): Promise<{
   wb: ExcelJS.Workbook;
   sheet: ExcelJS.Worksheet;
@@ -98,6 +119,8 @@ export async function preparePaymentModuleCycle(
 
   applyCustomerUid(nb.sheet, nbUidCol, customerUid);
   applyCustomerUid(rn.sheet, rnUidCol, customerUid);
+  applyProdSeed(nb.sheet, nb.columns, cycle);
+  applyProdSeed(rn.sheet, rn.columns, cycle);
 
   fs.mkdirSync(PAYMENT_MODULE.generatedDir, { recursive: true });
   const stamp = Date.now();

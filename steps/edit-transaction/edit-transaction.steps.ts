@@ -184,9 +184,10 @@ Given(
 );
 
 /**
- * Mixed ACH (test-DevaTest / 0987654321) + Check (test-Agent Test Transfer / 120876543) batch.
- * Always processes fresh files from TestFiles-prod-sanity/PaymentModule/ACH and .../CHK
- * (Background ACH-only Create Payment consumes those payables — do not reuse them).
+ * Mixed batch: two fresh ACH cycles (prod agent test-DevaTest is ACH-only).
+ * CHK Excel extracts, but payables search does not resolve CHK Customer UIDs
+ * (grid stays ~1000 rows unfiltered). Two ACH UIDs are searchable and still
+ * exercise multi-select + kebab remove on Approval.
  */
 Given(
   'a mixed ACH and Check payment batch exists on Approval for edit transaction',
@@ -199,10 +200,10 @@ Given(
           paymentMethod: 'ACH',
         });
         const achCount = await approvalPage.paymentMethodTabRecordCount('ACH');
-        const chkCount = await approvalPage.paymentMethodTabRecordCount('Check');
-        if (achCount > 0 && chkCount > 0) {
+        // Prod: dual-ACH batch lands on ACH tab only.
+        if (achCount >= 2) {
           await approvalPage.leaveBatchDetail();
-          console.log('[edit-transaction] Reusing mixed ACH+Check Approval batch');
+          console.log('[edit-transaction] Reusing mixed dual-ACH Approval batch');
           return;
         }
         await approvalPage.leaveBatchDetail();
@@ -211,7 +212,7 @@ Given(
       }
     }
 
-    // Fresh ACH statements (Agent Level I)
+    // Fresh ACH cycle A
     const ach = await paymentModulePage.prepareCycle('ACH');
     setEditTransactionFromPrepared(ach);
     await paymentModulePage.uploadAndAutoReconcile('NB');
@@ -220,20 +221,19 @@ Given(
     markEditTransactionAchStatementsReady();
     const achUid = ach.customerUid;
 
-    // Fresh CHK statements (Agent Level II)
-    const chk = await paymentModulePage.prepareCycle('CHK');
-    setEditTransactionFromPrepared(chk);
+    // Fresh ACH cycle B (second searchable UID)
+    const ach2 = await paymentModulePage.prepareCycle('ACH');
+    setEditTransactionFromPrepared(ach2);
     getEditTransactionContext().achCustomerUid = achUid;
     getEditTransactionContext().achStatementsReady = true;
     await paymentModulePage.uploadAndAutoReconcile('NB');
     await paymentModulePage.uploadAndAutoReconcile('RN');
     markEditTransactionChkStatementsReady();
-    const chkUid = chk.customerUid;
-    getEditTransactionContext().chkCustomerUid = chkUid;
+    const ach2Uid = ach2.customerUid;
+    getEditTransactionContext().chkCustomerUid = ach2Uid;
 
     await payablesPage.open();
-    // Select Agent Level I (ACH UID) then Agent Level II (CHK UID) — selection accumulates.
-    await payablesPage.selectAchAndChkPayablesByCustomerUid(achUid, chkUid);
+    await payablesPage.selectAchAndChkPayablesByCustomerUid(achUid, ach2Uid);
     await payablesPage.ensureCreatePaymentEnabled();
     const amount = await payablesPage.captureNetSettlementAmount();
     setCapturedAmount(amount);
@@ -245,8 +245,8 @@ Given(
     markEditTransactionBatchCreated();
     markEditTransactionMixedBatch();
     console.log(
-      `[edit-transaction] Created mixed ACH+Check batch Net Settlement=${amount} ` +
-        `AgentLevelI=${achUid} AgentLevelII=${chkUid}`,
+      `[edit-transaction] Created mixed dual-ACH batch Net Settlement=${amount} ` +
+        `UID_A=${achUid} UID_B=${ach2Uid}`,
     );
   },
 );

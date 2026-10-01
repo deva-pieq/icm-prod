@@ -13,19 +13,25 @@ export const PAYMENT_MODULE = {
     email: 'deva.r+ag3@pieq.ai',
   },
   agents: {
-    // Prod-seeded leveled agents (600001/600002 still Onboarding — Extract Error).
-    // ACH → test-DevaTest Agent; CHK → test-Agent Test Transfer; product alias test-2025-jan-1-aetna-test-001.
+    // Prod: never use Transfer agent (120876543) — transfer-sheet module only → Needs Attention.
+    // ACH → test-DevaTest Agent (ACH payout). CHK → TestAgent V 600005 (Check payout).
+    // 600001/600002 still Onboarding — Extract Error.
     CHK: {
-      agentId: '120876543',
+      agentId: '600005',
+      firstName: 'TestAgent',
+      lastName: 'V',
       email: 'deva.r+ag+l2@pieq.ai',
       paymentMethod: 'Check' as const,
     },
     ACH: {
       agentId: '0987654321',
+      firstName: 'test-DevaTest',
+      lastName: 'Agent',
       email: 'deva.r+ag+l1@pieq.ai',
       paymentMethod: 'ACH' as const,
     },
   },
+  productAlias: 'test-2025-jan-1-aetna-test-001',
   customerUidPrefix: {
     CHK: 'AETNA-PAY-TEST-CHK-',
     ACH: 'AETNA-PAY-TEST-ACH-',

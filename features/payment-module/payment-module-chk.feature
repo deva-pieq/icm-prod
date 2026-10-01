@@ -6,8 +6,8 @@ Feature: Payment Module Regression — Check (Aetna ACA)
   Complete Review (auto-reconcile), then validates Create Payment, Approval,
   Check tab authorization, and Disbursement History (Check has no ACH payout file).
 
-  Templates: TestFiles/PaymentModule/CHK/[MLB][NB|RN]PaymentModule-CHK.xlsx
-  Ops Manager: deva.r+ag3@pieq.ai | Agent: 600002 (Check)
+  Templates: TestFiles-prod-sanity/PaymentModule/CHK/[MLB][NB|RN]PaymentModule-CHK.xlsx
+  Ops Manager: E2E_EMAIL_AGENCY3 | Agent: 600005 TestAgent V (Check) — never Transfer agent
 
   Background:
     Given I am logged into PieQ ICM for payment module validation

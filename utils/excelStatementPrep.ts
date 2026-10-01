@@ -36,9 +36,9 @@ function cellDateValue(value: ExcelJS.CellValue): Date | null {
   return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
-function addOneDay(date: Date): Date {
+function addDays(date: Date, days: number): Date {
   const next = new Date(date.getTime());
-  next.setUTCDate(next.getUTCDate() + 1);
+  next.setUTCDate(next.getUTCDate() + days);
   return next;
 }
 
@@ -59,6 +59,12 @@ export type PrepareStatementUploadOptions = {
   /** Replace each Customer UID with a unique per-run value so policies are created as New. */
   uniqueCustomerUids?: boolean;
   fileNamePrefix?: string;
+  /** Extra days to add on top of the default +1 check-run bump (T095 run-2). */
+  checkRunDateExtraDays?: number;
+  /** Persist bumped check-run date back to the template so the next prep advances. */
+  persistCheckRunDate?: boolean;
+  /** Optional Selling agent first/last/NPN rewrite (prod: test-DevaTest Agent / 0987654321). */
+  agent?: { firstName: string; lastName: string; npn: string };
 };
 
 export async function prepareStatementUploadFile(
@@ -82,8 +88,12 @@ export async function prepareStatementUploadFile(
   const carrierCol = columns.get('carrier name') ?? 19;
   const scaleCol = columns.get('scale name/adjustment description') ?? 16;
   const customerUidCol = columns.get('customer uid') ?? 7;
+  const agentFirstCol = columns.get('selling agent first name') ?? 2;
+  const agentLastCol = columns.get('selling agent last name') ?? 1;
+  const agentNpnCol = columns.get('selling agent npn') ?? 3;
 
   const stamp = Date.now();
+  const bumpDays = 1 + (options.checkRunDateExtraDays ?? 0);
   let carrierName = '';
   let primaryCheckRunDate: Date | null = null;
   let dataRowOrdinal = 0;
@@ -102,7 +112,7 @@ export async function prepareStatementUploadFile(
     if (!hasFormula) {
       const current = cellDateValue(checkCell.value);
       if (current) {
-        const nextDate: Date = primaryCheckRunDate ?? addOneDay(current);
+        const nextDate: Date = primaryCheckRunDate ?? addDays(current, bumpDays);
         if (!primaryCheckRunDate) primaryCheckRunDate = nextDate;
         checkCell.value = nextDate;
       }
@@ -116,6 +126,12 @@ export async function prepareStatementUploadFile(
 
     if (options.productAlias) {
       row.getCell(scaleCol).value = options.productAlias;
+    }
+
+    if (options.agent) {
+      row.getCell(agentFirstCol).value = options.agent.firstName;
+      row.getCell(agentLastCol).value = options.agent.lastName;
+      row.getCell(agentNpnCol).value = options.agent.npn;
     }
 
     if (options.uniqueCustomerUids) {
@@ -132,6 +148,28 @@ export async function prepareStatementUploadFile(
   const absolutePath = path.join(STATEMENT_UPLOAD.generatedDir, fileName);
   await wb.xlsx.writeFile(absolutePath);
   registerGeneratedFile(absolutePath);
+
+  if (options.persistCheckRunDate && primaryCheckRunDate) {
+    // Persist only check-run dates — do not write unique UIDs / [run:] address back to template.
+    const templateWb = new ExcelJS.Workbook();
+    await templateWb.xlsx.readFile(templatePath);
+    const templateSheet = templateWb.worksheets[0];
+    if (templateSheet) {
+      const templateCols = headerColumnMap(templateSheet);
+      const templateCheckCol = templateCols.get('check run date') ?? checkRunCol;
+      for (let rowIndex = 2; rowIndex <= templateSheet.rowCount; rowIndex++) {
+        const row = templateSheet.getRow(rowIndex);
+        if (!row.hasValues) continue;
+        const checkCell = row.getCell(templateCheckCol);
+        const hasFormula =
+          typeof checkCell.value === 'object' &&
+          checkCell.value !== null &&
+          'formula' in checkCell.value;
+        if (!hasFormula) checkCell.value = primaryCheckRunDate;
+      }
+      await templateWb.xlsx.writeFile(templatePath);
+    }
+  }
 
   return {
     absolutePath,

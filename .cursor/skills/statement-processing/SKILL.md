@@ -85,6 +85,7 @@ Gherkin step text is **module-unique via suffix**: `in advance recovery validati
 ### Classify the failure first
 - **App transient** — "Failed to load module" (sidebar fine, main shows error + Reload Page) or "This page could not be displayed": auto-recovered by `waitForAppSettled`; otherwise re-run. **Do NOT hunt phantom locators.**
 - **Scenario timeout** — "Test timeout of N ms exceeded" is the scenario cap (default `smokeScenarioTimeoutMs` = 420s), NOT the poll. Long multi-phase modules need `test.setTimeout(Math.max(smokeScenarioTimeoutMs, 1_800_000))` in their `common.steps.ts` `Before` (pattern: commission-report, policy-cancellation-agency-advance). The upload poll has its own timeout (`max(T*3, attempts*interval)`).
+- **Extract Error / 0 line items / wrong prod Excel** — use skill `excel-statement-extract-fix` (compare to working transfer/policy-cancellation file; prod alias + leveled agent).
 - **Data mismatch** — `Needs Attention` / "Unmatched Commission Mismatch" on recovery/chargeback: check prep (rules below).
 - **Stage/status assert** — poll helper expected state vs actual; confirm you're resolving the right row (BT-* ID vs UUID).
 
