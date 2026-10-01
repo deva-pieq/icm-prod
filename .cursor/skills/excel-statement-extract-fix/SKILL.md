@@ -24,6 +24,7 @@ Upload grid shows any of:
 | SP/smoke/ET pass on one module, fail on another | Compare working vs broken Excel cell-by-cell |
 
 **Not this skill:** locator/POM failures, login flakes, Status column empty while Stage is already `Review`/`Completed`.
+Payables search after Completed (Policy column / dual UID) → skill `payables-search-select`.
 
 ## Golden rule
 
