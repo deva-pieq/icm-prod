@@ -1,0 +1,25 @@
+{
+  "facts": [
+    {
+      "id": "ADHOC-CFG-001",
+      "status": "fact",
+      "claim": "The root .env BASE_URL targets preprod while the agency-owner credentials are PROD; because loadProjectEnv does not override an already-set env var, the adhoc prod sweep must be run with BASE_URL pinned to https://icm.pieq.ai/ (otherwise login hangs at LoginPage.waitForAppHost).",
+      "evidence": [
+        { "ref": ".qa/runs/adhoc-prod-20261014-160630/report.md" }
+      ],
+      "recorded_by": "grimmjow"
+    },
+    {
+      "id": "ADHOC-UI-001",
+      "status": "fact",
+      "claim": "As agency owner on PROD, dashboard, statement history, payables, advance overview, commissions, agency configuration, products and agents all render; 9/9 read-only sweep scenarios pass in ~55s with no mutations.",
+      "evidence": [
+        { "ref": "features/adhoc/adhoc-icm-prod-sweep.feature" },
+        { "ref": ".qa/runs/adhoc-prod-20261014-160630/report.md" }
+      ],
+      "recorded_by": "grimmjow"
+    }
+  ],
+  "hypotheses": [],
+  "refuted": []
+}

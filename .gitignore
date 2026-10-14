@@ -28,6 +28,7 @@ TestFiles/TransferSheets/
 
 # Test agents
 test-agents/
+utils/mmp/mmp-shared-agent.json
 
 # CI ephemeral outputs (Slack thread handle, OpenCode failure context)
 .ci/
@@ -65,3 +66,4 @@ graphify-out/converted/
 scripts/slack-reporter copy.ts
 !./docs/
 !./docs/*
+.qa/runs/

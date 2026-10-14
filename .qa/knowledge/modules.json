@@ -1,0 +1,10 @@
+{
+  "stack": {},
+  "entry_points": {},
+  "modules": [],
+  "state_management": null,
+  "data_layer": null,
+  "auth": null,
+  "test_surface": {},
+  "weak_spots": []
+}

@@ -1,0 +1,131 @@
+{
+  "app": "ICM (Insurance Commission Management)",
+  "surface_base_url": "https://icm.pieq.ai/",
+  "api_base_path": "/api/v1/",
+  "generated_by": "api-scout",
+  "run": "sweep-20261014-124157",
+  "method": "static source + captured-doc inventory; no live API calls",
+  "transports": [
+    { "name": "REST over HTTPS (JSON)", "description": "Primary transport. Base path /api/v1/. Cited: MmpFlowPage.ts:485, StatementUploadPage.ts:281, PolicyMasterPage.ts:1022." },
+    { "name": "Keycloak OIDC (browser redirect)", "description": "Login via /auth/realms/<realm>; issues Bearer JWT used for /api/v1/*. Detection at appPaths.ts:23-25,38." },
+    { "name": "Runtime app-config object", "description": "SPA reads apiBaseUrl + oidc from a runtime config object (keys: apiBaseUrl, oidc, analytics, umami, maintenance, enabled/message/title). graphify-out/GRAPH_REPORT.md:5493. Value not present in repo." }
+  ],
+  "not_found": [
+    "GraphQL", "websocket (ws/wss)", "tRPC", "gRPC", "SSE/EventSource", "socket.io"
+  ],
+  "endpoints": [
+    { "method": "GET", "path": "/api/v1/policy", "auth": "Bearer", "area": "Policies", "params": "limit, offset, status, lineOfBusiness, carrier, search", "response": "{data, totalPolicies, activePolicies}; commission[] always empty in list", "confidence": "confirmed", "source": "capture", "evidence": ".opencode/scenarios/policy-findings-scratchpad.md:49-52; .opencode/scenarios/commission-report-policy-seed-handoff.md:70" },
+    { "method": "GET", "path": "/api/v1/policy/{uuid}", "auth": "Bearer", "area": "Policies", "params": "uuid (path)", "response": "policy detail incl. commission:[{uuid, ruleName}]", "confidence": "confirmed", "source": "capture", "evidence": "policy-findings-scratchpad.md:157; commission-report-policy-seed-handoff.md:73" },
+    { "method": "POST", "path": "/api/v1/policy", "auth": "Bearer", "area": "Policies", "params": "policy body; header X-SERVICE-NAME: pieq-insurance-app", "response": "created policy", "confidence": "confirmed", "source": "capture", "evidence": "policy-findings-scratchpad.md:121" },
+    { "method": "PUT", "path": "/api/v1/policy/{uuid}", "auth": "Bearer", "area": "Policies", "params": "uuid (path); policy body", "response": "updated policy (client 30s timeout, 3 retries)", "confidence": "confirmed", "source": "capture", "evidence": "policy-findings-scratchpad.md:121" },
+    { "method": "DELETE", "path": "/api/v1/policy/{uuid}", "auth": "Bearer", "area": "Policies", "params": "uuid (path)", "response": "Active->Cancelled only", "confidence": "confirmed", "source": "capture", "evidence": "policy-findings-scratchpad.md:144" },
+    { "method": "GET", "path": "/api/v1/policy/type", "auth": "Bearer", "area": "Policies", "params": "-", "response": "type option list", "confidence": "confirmed", "source": "capture", "evidence": "policy-findings-scratchpad.md:67" },
+    { "method": "GET", "path": "/api/v1/policy/subtype", "auth": "Bearer", "area": "Policies", "params": "-", "response": "subtype option list", "confidence": "confirmed", "source": "capture", "evidence": "policy-findings-scratchpad.md:73" },
+    { "method": "GET", "path": "/api/v1/policy/exists/{policyNumber}", "auth": "Bearer", "area": "Policies", "params": "policyNumber (path); carrierUuid (query, required)", "response": "duplicate-number check", "confidence": "confirmed", "source": "capture", "evidence": "policy-findings-scratchpad.md:149" },
+    { "method": "GET", "path": "/api/v1/policy/payto", "auth": "Bearer", "area": "Policies", "params": "-", "response": "scoped pay-to list", "confidence": "confirmed", "source": "capture", "evidence": "policy-findings-scratchpad.md:150" },
+    { "method": "GET", "path": "/api/v1/policy/team", "auth": "Bearer", "area": "Policies", "params": "-", "response": "scoped team list", "confidence": "confirmed", "source": "capture", "evidence": "policy-findings-scratchpad.md:150" },
+    { "method": "POST", "path": "/api/v1/policy/data-import", "auth": "Bearer", "area": "Policies", "params": "bulk import payload", "response": "-", "confidence": "confirmed", "source": "capture", "evidence": "policy-findings-scratchpad.md:151" },
+    { "method": "POST", "path": "/api/v1/policy/data-import/validate", "auth": "Bearer", "area": "Policies", "params": "bulk import payload", "response": "-", "confidence": "confirmed", "source": "capture", "evidence": "policy-findings-scratchpad.md:151" },
+    { "method": "GET", "path": "/api/v1/policy/{uuid}/commissions", "auth": "Bearer", "area": "Commissions", "params": "uuid (path); effectiveDate, paidToDate (ISO YYYY-MM-DD only; MM/DD/YYYY -> 400 VALIDATION_ERROR)", "response": "commission rules (camelCase: userName, commissionValue)", "confidence": "confirmed", "source": "capture", "evidence": "commission-report-policy-seed-handoff.md:76-78; .opencode/skills/hail-intelligence/SKILL.md:122" },
+    { "method": "POST", "path": "/api/v1/policy/commission", "auth": "Bearer", "area": "Commissions", "params": "array of rule objects; commissionSplit[] uses snake_case keys (order, role, user_name, user_uuid, user_code, commission_value, entity, level)", "response": "201", "confidence": "confirmed", "source": "capture", "evidence": "commission-report-policy-seed-handoff.md:115; scripts/test_runner/app_behavior.json:148" },
+    { "method": "PUT", "path": "/api/v1/policy/commission/{uuid}", "auth": "Bearer", "area": "Commissions", "params": "uuid (path); single rule; optimistic lock on version", "response": "200 {data:{message,commissionUuid}}", "confidence": "confirmed", "source": "capture", "evidence": "commission-report-policy-seed-handoff.md:94-117; scripts/test_runner/app_behavior.json:148" },
+    { "method": "GET", "path": "/api/v1/products", "auth": "Bearer", "area": "Products", "params": "-", "response": "product list", "confidence": "confirmed", "source": "capture", "evidence": "policy-findings-scratchpad.md:81" },
+    { "method": "GET", "path": "/api/v1/products/by-carrier-type/{carrierId}/{typeId}", "auth": "Bearer", "area": "Products", "params": "carrierId, typeId (path); alias (query)", "response": "matching product", "confidence": "confirmed", "source": "capture", "evidence": "policy-findings-scratchpad.md:81" },
+    { "method": "GET", "path": "/api/v1/users/agents", "auth": "Bearer", "area": "Agents", "params": "-", "response": "agent list, display code - First Last", "confidence": "confirmed", "source": "capture", "evidence": "policy-findings-scratchpad.md:88; features/miscellaneous-charges/module.md:180" },
+    { "method": "GET", "path": "/api/v1/carrierfiles/", "auth": "Bearer", "area": "Statements", "params": "-", "response": "recently-uploaded list; items: uuid, name, status, stage, totalRows, recordCount, commissionStatementSetupName, createdAt, error", "confidence": "confirmed", "source": "code", "evidence": "pages/statement-processing/StatementUploadPage.ts:281-295; pages/statement-processing/TransferStatementPage.ts:109-123; scripts/_tmp-live-probe.cjs:42" },
+    { "method": "GET", "path": "/api/v1/ledger", "auth": "Bearer", "area": "Ledger", "params": "-", "response": "{data:{entries:[{transactionType, amount, credit}]}}", "confidence": "confirmed", "source": "code", "evidence": "pages/mmp/MmpFlowPage.ts:483-500" },
+    { "method": "GET", "path": "/api/v1/payments/miscellaneous-charges", "auth": "Bearer", "area": "Payments", "params": "-", "response": "MiscellaneousChargeListItemDto[] = {uuid, transactionDate, transactionId, agentName, amount, paymentBatchUuid, paymentDate, status, description}", "confidence": "confirmed", "source": "docs", "evidence": "features/miscellaneous-charges/module.md:124,134" },
+    { "method": "GET", "path": "/api/v1/payments/miscellaneous-charges/{uuid}", "auth": "Bearer", "area": "Payments", "params": "uuid (path)", "response": "charge detail", "confidence": "confirmed", "source": "docs", "evidence": "features/miscellaneous-charges/module.md:125" },
+    { "method": "POST", "path": "/api/v1/payments/miscellaneous-charges", "auth": "Bearer", "area": "Payments", "params": "CreateMiscellaneousChargeRequest {transactionDate, agentUuid, amount, description, commissionType:MISCELLANEOUS_CHARGE}", "response": "created charge", "confidence": "confirmed", "source": "docs", "evidence": "features/miscellaneous-charges/module.md:126,132" },
+    { "method": "PUT", "path": "/api/v1/payments/miscellaneous-charges/{uuid}", "auth": "Bearer", "area": "Payments", "params": "uuid (path); update (draft only)", "response": "updated charge", "confidence": "confirmed", "source": "docs", "evidence": "features/miscellaneous-charges/module.md:127" },
+    { "method": "POST", "path": "/api/v1/payments/miscellaneous-charges/process", "auth": "Bearer", "area": "Payments", "params": "ProcessMiscellaneousChargesRequest {miscellaneousChargeUuids:[string]}", "response": "processing result; status Draft->Initiate->Recovered (server-computed)", "confidence": "confirmed", "source": "docs", "evidence": "features/miscellaneous-charges/module.md:128,133,136-139" },
+    { "method": "DELETE", "path": "/api/v1/payments/miscellaneous-charges/{uuid}", "auth": "Bearer", "area": "Payments", "params": "uuid (path); draft only", "response": "-", "confidence": "confirmed", "source": "docs", "evidence": "features/miscellaneous-charges/module.md:129" },
+    { "method": "GET", "path": "/payments/payout-file", "auth": "Bearer", "area": "Payments", "params": "batch context", "response": "payout/ACH file; 404 plain-text body 'Payout file not available for this batch'", "confidence": "confirmed", "source": "code", "prefix_unverified": true, "evidence": "pages/payment-processing/DisbursementPage.ts:205-212" }
+  ],
+  "hypothesised_endpoints": [
+    { "method": "GET", "path": "/api/v1/dashboard/*", "area": "Dashboards", "reason": "Dashboard widgets likely load from an analytics endpoint; no path observed in repo. H-API-02" },
+    { "method": "GET", "path": "/api/v1/advance/*", "area": "Advances", "reason": "Advance flows are UI-only in repo; may reuse carrierfiles pipeline. H-API-06" },
+    { "method": "*", "path": "/api/v1/<chargeback|ARF|policy-ledger>", "area": "Chargebacks/Ledger", "reason": "Policy ledger route /policy/ledger/{uuid} exists but API path not observed. H-API-04" },
+    { "method": "GET", "path": "/api/v1/payments/payout-file", "area": "Payments", "reason": "Family-consistent version of /payments/payout-file; code matches without /api/v1 prefix. H-API-03" }
+  ],
+  "auth_model": {
+    "scheme": "Keycloak OIDC (authorization-code, browser redirect) -> Bearer JWT on /api/v1/*",
+    "coverage": "Every app route requires an authenticated session (unauthenticated -> Keycloak redirect). API requests carry: authorization: Bearer <token>, accept: application/json, content-type: application/json, x-service-name (pieq-react-app | pieq-insurance-app), x-client-id: pieq-app-dev. Unauthenticated API fetch -> 401 (captured). Per-route RBAC not observable from this black-box repo. Roles are env-keyed: E2E_EMAIL (ops manager), E2E_EMAIL_AGENT (agent), E2E_EMAIL_OWNER (agency owner), E2E_EMAIL_SALES_LEADER (sales leader), password E2E_PASSWORD.",
+    "public_surface": "Keycloak login flow only (appPaths.ts:28). No other public route confirmed.",
+    "open_questions": [
+      "Which /api/v1/* routes reject which roles (403)? No probe performed.",
+      "Are any /api/v1/* routes reachable without a Bearer (401 confirmed only for the captured case)?"
+    ]
+  },
+  "error_model": {
+    "shape": "JSON envelope {message: string} for Policy/Payments errors; at least one file endpoint (payout-file) returns plain text",
+    "codes": ["VALIDATION_ERROR", "POLICY_NUMBER_EXISTS", "MISSING_REQUIRED_FIELD"],
+    "status_codes": ["400", "401", "404", "500"],
+    "examples": [
+      "400 VALIDATION_ERROR: 'effectiveDate and paidToDate must be valid dates (YYYY-MM-DD)'",
+      "400 POLICY_NUMBER_EXISTS: 'This policy number already exists for this carrier'",
+      "400 MISSING_REQUIRED_FIELD: 'Please provide a policy number.'",
+      "400 'Limit must be 0 or greater' / 'Offset must be 0 or greater' / 'Must be a valid UUID'",
+      "500 {\"message\":\"The server encountered an internal error. Please retry.\"}",
+      "404 plain text 'Payout file not available for this batch'",
+      "UI toast 'Something went wrong.' (PolicyMasterPage.ts:1039)",
+      "401 browser fetch without captured Bearer"
+    ],
+    "evidence": "pages/policy-master/PolicyMasterPage.ts:1039-1055; commission-report-policy-seed-handoff.md:77; policy-findings-scratchpad.md:51,126-127; pages/payment-processing/DisbursementPage.ts:206-212"
+  },
+  "seams": [
+    { "name": "Grid hydration", "flow": "REST list -> AG Grid rows", "notes": "All list views; server params sent only when filter != 'all' (policy-findings-scratchpad.md:47)" },
+    { "name": "Payload-only columns", "flow": "API field exists but is not in the DOM", "notes": "carrierfiles.status (StatementUploadPage.ts:268-295); MMP ledger amounts (MmpFlowPage.ts:481-505)" },
+    { "name": "React-fiber introspection", "flow": "Test reads MUI DataGrid rows from React internals", "notes": "Ops Manager dashboard sums via apiRef.getRowModels()/memoizedState walk (OpsManagerDashboardPage.ts:1093-1198)" },
+    { "name": "Route interception (fault injection)", "flow": "Test stubs /api/v1/policy* to 500 to assert error UI", "notes": "PolicyMasterPage.ts:1018-1055" },
+    { "name": "Request/response waits", "flow": "Test blocks on a specific API frame before asserting", "notes": "/api/v1/ledger (MmpFlowPage.ts:483); /api/v1/carrierfiles/ (StatementUploadPage.ts:282); /payments/payout-file (DisbursementPage.ts:205)" },
+    { "name": "Statement upload -> payables", "flow": "carrierfile upload -> extract -> review -> Completed -> Pending Payments row", "notes": "UI-only chain; no direct API call in repo (skills statement-processing, payables-search-select)" },
+    { "name": "Runtime config", "flow": "SPA reads apiBaseUrl + oidc from runtime config object", "notes": "graphify-out/GRAPH_REPORT.md:5493" },
+    { "name": "Polling / status", "flow": "Client polls carrierfiles list for Stage/Status transitions", "notes": "StatementUploadAssertions.pollUntilUploadReviewReady / pollPastExtractProcessing" }
+  ],
+  "gaps": [
+    { "mismatch": "Two different x-service-name values for the same POST /api/v1/policy", "endpoints": ["POST /api/v1/policy"], "impact": "pieq-insurance-app vs pieq-react-app - gateway may key on it; wrong value can 403", "evidence": "policy-findings-scratchpad.md:121 vs commission-report-policy-seed-handoff.md:62" },
+    { "mismatch": "payout-file path has no observed /api/v1 prefix", "endpoints": ["GET /payments/payout-file"], "impact": "test matcher could drift if the API is versioned under /api/v1/", "evidence": "DisbursementPage.ts:206" },
+    { "mismatch": "Statement status not in DOM", "endpoints": ["GET /api/v1/carrierfiles/"], "impact": "assertions depend on transient payload; DOM-only checks false-fail", "evidence": "StatementUploadPage.ts:268-295" },
+    { "mismatch": "Dashboard / advance / chargeback-ARF APIs unknown", "endpoints": [], "impact": "cannot test those layers at API level; UI-only, brittle", "evidence": "no endpoint in dashboard/advance page objects" },
+    { "mismatch": "Policy-list commission[] always empty", "endpoints": ["GET /api/v1/policy"], "impact": "must use detail endpoint; clients reading list commission get nothing", "evidence": "commission-report-policy-seed-handoff.md:70" },
+    { "mismatch": "No per-route RBAC evidence", "endpoints": ["/api/v1/*"], "impact": "cannot confirm role filtering at the API tier", "evidence": "black-box repo" },
+    { "mismatch": "No ICM API client in repo", "endpoints": [], "impact": "no request/response schema validation or contract tests; only Slack fetch() exists", "evidence": "repo-wide grep: scripts/slack-reporter.ts" },
+    { "mismatch": "Prod API origin unrecorded", "endpoints": [], "impact": "base for prod API unknown", "evidence": "only preprod.api.pieq.ai captured (commission-report-policy-seed-handoff.md:4)" }
+  ],
+  "test_seams_priority": [
+    "1. Policy CRUD + commission write (contract already captured; cheapest via context.request with captured Bearer)",
+    "2. Carrierfiles status contract (payload shape guards statement flows)",
+    "3. Payments error contract (payout-file 404 + misc-charges CRUD/process)",
+    "4. Auth smoke (call /api/v1/policy with no/expired Bearer -> 401)",
+    "5. Ledger payload shape ({data.entries[]})",
+    "6. Dashboards/advances/chargeback-ARF - capture network during a UI run before writing"
+  ],
+  "hypotheses": [
+    { "id": "H-API-01", "claim": "Prod API origin is https://api.pieq.ai (mirroring preprod.api.pieq.ai)", "status": "hypothesis" },
+    { "id": "H-API-02", "claim": "Dashboard metrics load from an analytics/dashboard endpoint (e.g. /api/v1/dashboard/...)", "status": "hypothesis" },
+    { "id": "H-API-03", "claim": "Payout-file is served under /api/v1/payments/payout-file", "status": "hypothesis" },
+    { "id": "H-API-04", "claim": "GET /api/v1/ledger is shared by agent Ledger and policy ledger, filtered by policy UUID", "status": "hypothesis" },
+    { "id": "H-API-05", "claim": "Statement review/reconciliation endpoints live under /api/v1/carrierfiles/{uuid}/... or a sibling service", "status": "hypothesis" },
+    { "id": "H-API-06", "claim": "Advances are processed by the same carrierfiles pipeline, not a distinct /advance/* API", "status": "hypothesis" },
+    { "id": "H-API-07", "claim": "Routes are role-scoped by the API gateway, not just SPA nav hiding (no 403 probe)", "status": "hypothesis" },
+    { "id": "H-API-08", "claim": "x-service-name is a gateway-required header whose value differs per service (insurance-app vs react-app)", "status": "hypothesis" }
+  ],
+  "source_map": [
+    { "file": "pages/appPaths.ts", "kind": "code", "gives": "SPA routes + Keycloak detection" },
+    { "file": "pages/policy-master/PolicyMasterPage.ts:1018-1055", "kind": "code", "gives": "/api/v1/policy* route interception + error UI" },
+    { "file": "pages/statement-processing/StatementUploadPage.ts:268-295", "kind": "code", "gives": "/api/v1/carrierfiles/ wait + payload schema" },
+    { "file": "pages/statement-processing/TransferStatementPage.ts:95-124", "kind": "code", "gives": "carrierfiles status polling" },
+    { "file": "pages/mmp/MmpFlowPage.ts:480-510", "kind": "code", "gives": "/api/v1/ledger wait + payload schema" },
+    { "file": "pages/payment-processing/DisbursementPage.ts:194-240", "kind": "code", "gives": "/payments/payout-file 404 contract" },
+    { "file": "features/miscellaneous-charges/module.md:120-139", "kind": "docs", "gives": "full misc-charges endpoint table + DTOs" },
+    { "file": ".opencode/scenarios/policy-findings-scratchpad.md", "kind": "capture", "gives": "full policy endpoint table, enums, validations" },
+    { "file": ".opencode/scenarios/commission-report-policy-seed-handoff.md", "kind": "capture", "gives": "API host, headers, commission wire format, error codes" },
+    { "file": ".opencode/skills/hail-intelligence/SKILL.md:116-129", "kind": "docs", "gives": "policy endpoints + auth headers" },
+    { "file": "scripts/test_runner/app_behavior.json:140-152", "kind": "docs", "gives": "commission wire casing + GET/POST semantics" },
+    { "file": ".opencode/scenarios/miscellaneous-charges-findings-scratchpad.md", "kind": "capture", "gives": "payments lifecycle / TX- id format" },
+    { "file": "graphify-out/GRAPH_REPORT.md:5493", "kind": "docs", "gives": "SPA runtime config keys (apiBaseUrl, oidc)" },
+    { "file": ".qa/runs/sweep-20261014-124157/scout/summary.md", "kind": "docs", "gives": "base URLs, roles, route table" },
+    { "file": ".qa/runs/sweep-20261014-124157/scout/navigation.md", "kind": "docs", "gives": "base URLs, roles, route table" }
+  ]
+}

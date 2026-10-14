@@ -1,0 +1,6 @@
+{
+  "areas": [],
+  "kinds": ["FUNC", "UI", "PERF", "SEC", "DATA", "A11Y", "COMPAT"],
+  "next_ids": {},
+  "runs": []
+}

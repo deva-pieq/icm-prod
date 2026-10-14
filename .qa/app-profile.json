@@ -1,0 +1,33 @@
+{
+    "name":  "ICM (pieq.ai)",
+    "repo":  "C:\\Users\\LENOVO\\Desktop\\icm-prod",
+    "stack":  {
+                  "framework":  "Playwright BDD (Cucumber)",
+                  "language":  "TypeScript",
+                  "package_manager":  "yarn"
+              },
+    "commands":  {
+                     "dev":  "",
+                     "build":  "",
+                     "test":  "yarn test",
+                     "test_p0":  "yarn test -g @sanity"
+                 },
+    "test_root":  "features",
+    "envs":  {
+                 "local":  {
+                               "base_url":  "https://icm.pieq.ai/",
+                               "requires_auth":  true
+                           },
+                 "prod":  {
+                              "base_url":  "https://icm.pieq.ai/"
+                          }
+             },
+    "credentials":  {
+                        "email_var":  "E2E_EMAIL_OWNER",
+                        "password_var":  "E2E_PASSWORD"
+                    },
+    "known_constraints":  [
+                              "use Playwright MCP for live discovery (not cli)",
+                              "use only credential names, never values"
+                          ]
+}

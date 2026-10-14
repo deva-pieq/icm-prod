@@ -1,0 +1,428 @@
+{
+    "source":  "ui-explorer adhoc sweep-20261014-124157 (investigation-report: adhoc-investigate)",
+    "env":  "prod https://icm.pieq.ai/",
+    "role":  "agency owner",
+    "lastUpdated":  "2026-10-14",
+    "routes":  [
+                   {
+                       "route":  "/dashboard/agency-owner",
+                       "purpose":  "Agency owner dashboard",
+                       "auth":  true,
+                       "renders":  true
+                   },
+                   {
+                       "route":  "/user-management",
+                       "purpose":  "System users/roles",
+                       "auth":  true,
+                       "renders":  true
+                   },
+                   {
+                       "route":  "/carriers",
+                       "purpose":  "Carrier master",
+                       "auth":  true,
+                       "renders":  true
+                   },
+                   {
+                       "route":  "/agents",
+                       "purpose":  "Agent master",
+                       "auth":  true,
+                       "renders":  true
+                   },
+                   {
+                       "route":  "/product",
+                       "purpose":  "Product master",
+                       "auth":  true,
+                       "renders":  true
+                   },
+                   {
+                       "route":  "/policy",
+                       "purpose":  "Policy master",
+                       "auth":  true,
+                       "renders":  true
+                   },
+                   {
+                       "route":  "/commissions",
+                       "purpose":  "Commission structure/rules",
+                       "auth":  true,
+                       "renders":  true
+                   },
+                   {
+                       "route":  "/advance/overview",
+                       "purpose":  "Advance overview",
+                       "auth":  true,
+                       "renders":  true
+                   },
+                   {
+                       "route":  "/advance/advance-setup",
+                       "purpose":  "Advance setup",
+                       "auth":  true,
+                       "renders":  "flaky-first-load"
+                   },
+                   {
+                       "route":  "/commission-processing/upload-statement",
+                       "purpose":  "Statement upload",
+                       "auth":  true,
+                       "renders":  true
+                   },
+                   {
+                       "route":  "/commission-processing/statement-history",
+                       "purpose":  "Statement history (canonical)",
+                       "auth":  true,
+                       "renders":  true
+                   },
+                   {
+                       "route":  "/commission-processing/statements/history",
+                       "purpose":  "Statement history (legacy)",
+                       "auth":  true,
+                       "renders":  false
+                   },
+                   {
+                       "route":  "/commission-processing/needs-attention",
+                       "purpose":  "Exceptions queue",
+                       "auth":  true,
+                       "renders":  true
+                   },
+                   {
+                       "route":  "/payment-processing/payable-line-items",
+                       "purpose":  "Payables / Pending Payments",
+                       "auth":  true,
+                       "renders":  true
+                   },
+                   {
+                       "route":  "/payment-processing/pending-authorization",
+                       "purpose":  "Payment batch list",
+                       "auth":  true,
+                       "renders":  true
+                   },
+                   {
+                       "route":  "/payment-processing/disbursement-history",
+                       "purpose":  "Disbursement history",
+                       "auth":  true,
+                       "renders":  true
+                   },
+                   {
+                       "route":  "/payment-processing/miscellaneous-charges",
+                       "purpose":  "Miscellaneous charges",
+                       "auth":  true,
+                       "renders":  true
+                   },
+                   {
+                       "route":  "/commission-statement-processing/transfer-sheet",
+                       "purpose":  "Transfer sheet",
+                       "auth":  true,
+                       "renders":  true
+                   },
+                   {
+                       "route":  "/commission-statement-processing/commission-templates",
+                       "purpose":  "Commission templates",
+                       "auth":  true,
+                       "renders":  true
+                   },
+                   {
+                       "route":  "/commission-statement-processing/prompts-library",
+                       "purpose":  "AI prompts library",
+                       "auth":  true,
+                       "renders":  true
+                   },
+                   {
+                       "route":  "/agency-configuration",
+                       "purpose":  "Agency settings (ACH)",
+                       "auth":  true,
+                       "renders":  true
+                   },
+                   {
+                       "route":  "/agency-configuration/data-import",
+                       "purpose":  "Data import",
+                       "auth":  true,
+                       "renders":  true
+                   }
+               ],
+    "selectors":  [
+                      {
+                          "element":  "Sidebar nav root",
+                          "selector":  "nav[aria-label=\"Sidebar navigation\"]",
+                          "quality":  "role",
+                          "stable":  true
+                      },
+                      {
+                          "element":  "Sidebar item",
+                          "selector":  "[data-testid=\"sidebar-nav-item-*\"]",
+                          "quality":  "testid",
+                          "stable":  true
+                      },
+                      {
+                          "element":  "Profile menu button",
+                          "selector":  "[data-testid=\"profile-dropdown-button\"]",
+                          "quality":  "testid",
+                          "stable":  true
+                      },
+                      {
+                          "element":  "Logout",
+                          "selector":  "[data-testid=\"profile-dropdown-logout\"]",
+                          "quality":  "testid",
+                          "stable":  true
+                      },
+                      {
+                          "element":  "Grid search input (Payables)",
+                          "selector":  "getByPlaceholder(\u0027Search Statements...\u0027)",
+                          "quality":  "placeholder",
+                          "stable":  true
+                      },
+                      {
+                          "element":  "Grid record count",
+                          "selector":  "[data-testid=\"data-grid-record-count-footer\"]",
+                          "quality":  "testid",
+                          "stable":  true
+                      },
+                      {
+                          "element":  "Select-all (Payables)",
+                          "selector":  "[data-testid=\"header-select-all-checkbox\"] input[type=checkbox]",
+                          "quality":  "testid",
+                          "stable":  true
+                      },
+                      {
+                          "element":  "Row checkbox",
+                          "selector":  "#checkbox-row-checkbox-\u003cuuid\u003e",
+                          "quality":  "id-with-uuid",
+                          "stable":  false
+                      },
+                      {
+                          "element":  "Create Payment (Payment Ready)",
+                          "selector":  "[data-testid=\"create-payment-button\"]",
+                          "quality":  "testid",
+                          "stable":  true
+                      },
+                      {
+                          "element":  "Login email",
+                          "selector":  "getByRole(\u0027textbox\u0027, { name: /email/i })",
+                          "quality":  "role",
+                          "stable":  true
+                      },
+                      {
+                          "element":  "Login continue",
+                          "selector":  "getByRole(\u0027button\u0027, { name: /continue/i })",
+                          "quality":  "role",
+                          "stable":  true
+                      },
+                      {
+                          "element":  "Login password",
+                          "selector":  "input[type=password]",
+                          "quality":  "css",
+                          "stable":  true
+                      },
+                      {
+                          "element":  "Login submit",
+                          "selector":  "getByRole(\u0027button\u0027, { name: /sign in|log in/i })",
+                          "quality":  "role",
+                          "stable":  true
+                      },
+                      {
+                          "element":  "Advance Setup heading (loaded)",
+                          "selector":  "getByRole(\u0027heading\u0027, { name: \u0027Advance Setup\u0027 }) [level 4]",
+                          "quality":  "role",
+                          "stable":  true
+                      },
+                      {
+                          "element":  "Error fallback heading",
+                          "selector":  "getByRole(\u0027heading\u0027, { name: \u0027Failed to load module\u0027 })",
+                          "quality":  "role",
+                          "stable":  true
+                      },
+                      {
+                          "element":  "Error fallback retry",
+                          "selector":  "getByRole(\u0027button\u0027, { name: \u0027Reload Page\u0027 })",
+                          "quality":  "role",
+                          "stable":  true
+                      },
+                      {
+                          "element":  "Statement History heading (canonical)",
+                          "selector":  "getByRole(\u0027heading\u0027, { name: \u0027Commission Statement History\u0027 })",
+                          "quality":  "role",
+                          "stable":  true
+                      },
+                      {
+                          "element":  "404 heading",
+                          "selector":  "getByRole(\u0027heading\u0027, { name: \u0027Page Not Found\u0027 })",
+                          "quality":  "role",
+                          "stable":  true
+                      },
+                      {
+                          "element":  "Advance Setup grid",
+                          "selector":  "[data-testid=\"advance-setup-datagrid\"]",
+                          "quality":  "testid",
+                          "stable":  true
+                      },
+                      {
+                          "element":  "Advance Setup page root",
+                          "selector":  "[data-testid=\"advance-setup-page\"]",
+                          "quality":  "testid",
+                          "stable":  true
+                      }
+                  ],
+    "transitions":  [
+                        {
+                            "from":  "unauthenticated /",
+                            "action":  "goto",
+                            "to":  "Keycloak SSO login"
+                        },
+                        {
+                            "from":  "SSO login",
+                            "action":  "email+continue+password+signin",
+                            "to":  "/dashboard/agency-owner"
+                        },
+                        {
+                            "from":  "advance/advance-setup",
+                            "action":  "first direct load",
+                            "to":  "Failed to load module + 2 console errors"
+                        },
+                        {
+                            "from":  "advance/advance-setup",
+                            "action":  "reload",
+                            "to":  "page loads (metrics + grid)"
+                        },
+                        {
+                            "from":  "commission-processing/statements/history",
+                            "action":  "direct load",
+                            "to":  "blank main"
+                        },
+                        {
+                            "from":  "payables search",
+                            "action":  "type 430042979",
+                            "to":  "Showing 2 of 1377 total records"
+                        },
+                        {
+                            "from":  "payables selection",
+                            "action":  "select row",
+                            "to":  "create-payment-button appears (disabled in sample)"
+                        },
+                        {
+                            "from":  "advance/advance-setup",
+                            "action":  "cold page.goto (hard load)",
+                            "to":  "Failed to load module + RemoteRouteErrorBoundary React #185 (repro x2)"
+                        },
+                        {
+                            "from":  "advance/advance-setup (error fallback)",
+                            "action":  "click \"Reload Page\" (soft re-mount)",
+                            "to":  "page loads: heading Advance Setup + grid 50 rows (repro x2)"
+                        },
+                        {
+                            "from":  "commission-processing/statements/history",
+                            "action":  "direct load (current tab AND fresh tab, 6-8s wait)",
+                            "to":  "blank main (HTML len 26, no 404, no redirect, 0 console errors)"
+                        },
+                        {
+                            "from":  "any unknown path",
+                            "action":  "direct load",
+                            "to":  "Page Not Found 404 page (control)"
+                        }
+                    ],
+    "anomalies":  [
+                      {
+                          "kind":  "console-error",
+                          "source":  "index-Qhk0OhMg.js React #185 + RemoteRouteErrorBoundary",
+                          "count":  2,
+                          "note":  "only on failing Advance Setup load",
+                          "finding":  "ADHOC-FUNC-001"
+                      },
+                      {
+                          "kind":  "console-warning",
+                          "source":  "AG Grid warning #36 columnTypes \u0027date\u0027",
+                          "count":  "recurring",
+                          "note":  "every grid page",
+                          "finding":  "ADHOC-CONSOLE-001"
+                      },
+                      {
+                          "kind":  "network-failed",
+                          "source":  "cdn.pieq.ai/img/tenants/mlb.png net::ERR_BLOCKED_BY_ORB",
+                          "count":  17,
+                          "note":  "tenant logo",
+                          "finding":  "ADHOC-NET-001"
+                      }
+                  ],
+    "findings":  [
+                     {
+                         "id":  "ADHOC-FUNC-001",
+                         "severity":  "medium",
+                         "status":  "CONFIRMED-LIVE",
+                         "summary":  "Advance Setup first load intermittently shows \u0027Failed to load module\u0027 (React #185, RemoteRouteErrorBoundary); reload works"
+                     },
+                     {
+                         "id":  "ADHOC-FUNC-002",
+                         "severity":  "medium",
+                         "status":  "CONFIRMED-LIVE",
+                         "summary":  "Legacy deep-link /commission-processing/statements/history renders blank main; canonical /commission-processing/statement-history works"
+                     },
+                     {
+                         "id":  "ADHOC-NET-001",
+                         "severity":  "low",
+                         "status":  "CONFIRMED-LIVE",
+                         "summary":  "Tenant logo mlb.png blocked by ORB on every page"
+                     },
+                     {
+                         "id":  "ADHOC-CONSOLE-001",
+                         "severity":  "low",
+                         "status":  "CONFIRMED-LIVE",
+                         "summary":  "AG Grid warning #36 columnTypes date not registered"
+                     },
+                     {
+                         "id":  "ADHOC-TESTID-001",
+                         "severity":  "low",
+                         "status":  "CONFIRMED-LIVE",
+                         "summary":  "advance-actions-row-undefined literal undefined in row action testid"
+                     },
+                     {
+                         "id":  "ADHOC-TESTID-002",
+                         "severity":  "low",
+                         "status":  "CONFIRMED-LIVE",
+                         "summary":  "User Management page root testid is dashboard-page"
+                     },
+                     {
+                         "id":  "ADHOC-TESTID-003",
+                         "severity":  "low",
+                         "status":  "CONFIRMED-LIVE",
+                         "summary":  "Row checkboxes lack data-testid (uuid id only)"
+                     }
+                 ],
+    "hypotheses":  [
+                       {
+                           "id":  "H1",
+                           "text":  "Create Payment button disabled even with rows selected on Payables - may be eligibility rule or a bug"
+                       },
+                       {
+                           "id":  "H2",
+                           "text":  "Advance Setup failure is a module-federation remote load race",
+                           "status":  "refuted",
+                           "refutedBy":  "sweep-20261014-124157/adhoc-investigate: advance MFE remoteEntry + all chunks + products/list + advance-setups returned HTTP 200 on 2/2 cold-load failures; failure is React #185 (max update depth) thrown in-render, not a module fetch race"
+                       },
+                       {
+                           "id":  "H3",
+                           "text":  "Statement History plural route matches URL regex but no page mounts",
+                           "status":  "supported"
+                       },
+                       {
+                           "id":  "H2b",
+                           "text":  "Advance Setup cold load fails with React #185 (Maximum update depth exceeded) in a first-mount render loop; a subsequent in-app soft re-mount (Reload Page) succeeds",
+                           "status":  "hypothesis",
+                           "evidence":  "sweep-20261014-124157/adhoc-investigate: cold goto FAIL x2, Reload Page SUCCESS x2"
+                       }
+                   ],
+    "not_reached":  [
+                        "Chargeback recovery flow (requires chargeback file upload)",
+                        "Statement/advance upload processing (destructive)",
+                        "Payment creation / approval / disbursement execution (destructive)",
+                        "Agent ledger / book of business / agent-insights",
+                        "Ops manager and agent dashboards"
+                    ],
+    "envNotes":  [
+                     {
+                         "claim":  "preprod is a separate host + Keycloak realm (preprod.auth.pieq.ai) but the SAME ICM application; repo default BASE_URL is https://preprod.app.pieq.ai/",
+                         "status":  "fact",
+                         "evidence":  "playwright.config.ts:69; pages/appPaths.ts:10; live redirect to preprod.auth.pieq.ai/realms/pieq-sso"
+                     },
+                     {
+                         "claim":  "The two defects above also reproduce on preprod",
+                         "status":  "hypothesis",
+                         "evidence":  "unverified - no preprod credentials (separate realm)"
+                     }
+                 ]
+}
