@@ -67,7 +67,7 @@ export const AppUrlPatterns = {
   statementSetupEdit: /commissions\/statement-setup\/edit\//i,
 
   commissionUpload: /commission-processing\/upload-statement|commission-processing\/statements\/upload/i,
-  commissionHistory: /commission-processing\/statement-history|commission-processing\/statements\/history/i,
+  commissionHistory: /commission-processing\/statement-history/i,
   commissionDetails: /commission-processing\/(commission-details|review|reconciliation)\//i,
   commissionReview: /commission-processing\/review\//i,
   commissionNeedsAttention: /commission-processing\/needs-attention|commission-processing\/statements\/needs-attention/i,
